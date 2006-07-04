@@ -17,6 +17,7 @@
 
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		28BFA0B40A5AB5860075D416 /* Design Notes.otl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Design Notes.otl"; sourceTree = "<group>"; };
 		28E65A2E0A5A926B00DE0C5A /* INTAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTAppDelegate.h; sourceTree = "<group>"; };
 		28E65A2F0A5A926B00DE0C5A /* INTAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTAppDelegate.m; sourceTree = "<group>"; };
 		28E65A350A5A926B00DE0C5A /* Introspectare Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Introspectare Prefix.pch"; sourceTree = "<group>"; };
@@ -147,6 +148,7 @@
 		29B97314FDCFA39411CA2CEA /* Introspectare */ = {
 			isa = PBXGroup;
 			children = (
+				28BFA0B40A5AB5860075D416 /* Design Notes.otl */,
 				28E65A4E0A5A930500DE0C5A /* Common Build Configurations */,
 				28E65A320A5A926B00DE0C5A /* Models */,
 				28E65A2C0A5A926B00DE0C5A /* Classes */,
