@@ -3,8 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
+	<string>en</string>
 	<key>CFBundleName</key>
+	<string>${PRODUCT_NAME}</string>
+	<key>CFBundleDisplayName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
@@ -22,6 +24,14 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+#ifdef _RELEASE_
+	<key>CFBundleGetInfoString</key>
+	<string>${PRODUCT_NAME} 1.0 (${CURRENT_PROJECT_VERSION})</string>
+#else
+	<key>CFBundleGetInfoString</key>
+	<string>${PRODUCT_NAME} 1.0 (${CURRENT_PROJECT_VERSION})
+${CONFIGURATION} build on __DATE__ __TIME__ by $(VERSION_INFO_BUILDER)</string>
+#endif
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
