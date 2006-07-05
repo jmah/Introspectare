@@ -2,10 +2,15 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {saveAction = id; }; 
-            CLASS = Introspectare_AppDelegate; 
+            ACTIONS = {
+                performSave = id; 
+                showConstitutions = id; 
+                showDays = id; 
+                showInspector = id; 
+                showPrinciples = id; 
+            }; 
+            CLASS = INTController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {window = NSWindow; }; 
             SUPERCLASS = NSObject; 
         }
     ); 
