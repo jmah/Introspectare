@@ -103,7 +103,7 @@
 {
 	NSError *error = nil;
 	if (![[self managedObjectContext] save:&error])
-		[[NSApplication sharedApplication] presentError:error];
+		[NSApp presentError:error];
 }
 
 
@@ -159,7 +159,7 @@
 				reply = NSTerminateNow;
 			else
 			{
-				BOOL didRecover = [[NSApplication sharedApplication] presentError:saveError];
+				BOOL didRecover = [NSApp presentError:saveError];
 				if (didRecover)
 					reply = NSTerminateNow;
 				else
