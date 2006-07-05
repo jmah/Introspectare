@@ -4,7 +4,11 @@
         {
             CLASS = INTPrincipleLibraryController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {principleInspectorView = NSView; }; 
+            OUTLETS = {
+                dateColumn = NSTableColumn; 
+                inspectorDateField = NSTextField; 
+                principleInspectorView = NSView; 
+            }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 

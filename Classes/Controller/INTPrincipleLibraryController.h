@@ -13,6 +13,8 @@
 {
 	@public
 	IBOutlet NSView *principleInspectorView;
+	IBOutlet NSTableColumn *dateColumn;
+	IBOutlet NSTextField *inspectorDateField;
 }
 
 

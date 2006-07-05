@@ -4,7 +4,13 @@
         {
             CLASS = INTConstitutionsController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {constitutionInspectorView = NSView; principleInspectorView = NSView; }; 
+            OUTLETS = {
+                constitutionDateColumn = NSTableColumn; 
+                constitutionInspectorDateField = NSTextField; 
+                constitutionInspectorView = NSView; 
+                principleInspectorDateField = NSTextField; 
+                principleInspectorView = NSView; 
+            }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 

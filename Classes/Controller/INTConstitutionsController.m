@@ -11,6 +11,25 @@
 
 @implementation INTConstitutionsController
 
+#pragma mark Initializing and deallocating
+
+- (void)awakeFromNib
+{
+	[self setWindowFrameAutosaveName:@"INTConstitutionsWindowFrame"];
+	
+	// Attach a date formatter
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
+	[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+	[[constitutionDateColumn dataCell] setFormatter:dateFormatter];
+	[constitutionInspectorDateField setFormatter:dateFormatter];
+	[principleInspectorDateField setFormatter:dateFormatter];
+	[dateFormatter release];
+}
+
+
+
 #pragma mark Persistence
 
 - (NSManagedObjectContext *)managedObjectContext
