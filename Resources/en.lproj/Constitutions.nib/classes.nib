@@ -1,0 +1,16 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            CLASS = INTConstitutionsController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                constitutionInspectorView = NSView; 
+                orderedPrincipleInspectorView = NSView; 
+                principleInspectorView = NSView; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }
+    ); 
+    IBVersion = 1; 
+}
