@@ -8,6 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class INTConstitutionsController;
+@class INTPrincipleLibraryController;
+
 
 @interface INTController : NSObject 
 {
@@ -15,6 +18,9 @@
 	NSManagedObjectContext *INT_managedObjectContext;
 	NSManagedObjectModel *INT_managedObjectModel;
 	NSPersistentStoreCoordinator *INT_persistentStoreCoordinator;
+	
+	INTConstitutionsController *INT_constitutionsController;
+	INTPrincipleLibraryController *INT_principleLibraryController;
 }
 
 

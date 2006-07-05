@@ -7,6 +7,8 @@
 //
 
 #import "INTController.h"
+#import "INTConstitutionsController.h"
+#import "INTPrincipleLibraryController.h"
 
 
 @implementation INTController
@@ -115,13 +117,17 @@
 
 - (IBAction)showConstitutions:(id)sender
 {
-#warning Implement
+	if (!INT_constitutionsController)
+		INT_constitutionsController = [[INTConstitutionsController alloc] initWithWindowNibName:@"Constitutions"];
+	[INT_constitutionsController showWindow:self];
 }
 
 
 - (IBAction)showPrinciples:(id)sender
 {
-#warning Implement
+	if (!INT_principleLibraryController)
+		INT_principleLibraryController = [[INTPrincipleLibraryController alloc] initWithWindowNibName:@"PrincipleLibrary"];
+	[INT_principleLibraryController showWindow:self];
 }
 
 
