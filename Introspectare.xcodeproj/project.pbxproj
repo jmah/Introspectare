@@ -11,6 +11,7 @@
 		282E91810A5C169F008EDF1F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 282E917F0A5C169F008EDF1F /* Localizable.strings */; };
 		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
 		282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */; };
+		282E92200A5C1DF2008EDF1F /* INTPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E921F0A5C1DF2008EDF1F /* INTPrinciple.m */; };
 		28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28BFA0CE0A5AD4510075D416 /* Constitutions.nib */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
 		28E65A400A5A926B00DE0C5A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A380A5A926B00DE0C5A /* InfoPlist.strings */; };
@@ -28,6 +29,8 @@
 		282E91E30A5C1A93008EDF1F /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/PrincipleLibrary.nib; sourceTree = "<group>"; };
 		282E91E50A5C1ABD008EDF1F /* INTPrincipleLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrincipleLibraryController.h; sourceTree = "<group>"; };
 		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
+		282E921E0A5C1DF2008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
+		282E921F0A5C1DF2008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
 		28BFA0B40A5AB5860075D416 /* Design Notes.otl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Design Notes.otl"; sourceTree = "<group>"; };
 		28BFA0CF0A5AD4510075D416 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Constitutions.nib; sourceTree = "<group>"; };
 		28E65A2E0A5A926B00DE0C5A /* INTController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTController.h; sourceTree = "<group>"; };
@@ -103,6 +106,8 @@
 		28E65A300A5A926B00DE0C5A /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				282E921E0A5C1DF2008EDF1F /* INTPrinciple.h */,
+				282E921F0A5C1DF2008EDF1F /* INTPrinciple.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -258,6 +263,7 @@
 				28E65AA90A5A975500DE0C5A /* INTController.m in Sources */,
 				282E913B0A5C1002008EDF1F /* INTConstitutionsController.m in Sources */,
 				282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */,
+				282E92200A5C1DF2008EDF1F /* INTPrinciple.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
