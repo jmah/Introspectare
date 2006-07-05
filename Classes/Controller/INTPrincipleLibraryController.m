@@ -1,15 +1,15 @@
 //
-//  INTConstitutionsController.m
+//  INTPrincipleLibraryController.m
 //  Introspectare
 //
 //  Created by Jonathon Mah on 2006-07-06.
 //  Copyright 2006 Playhaus. All rights reserved.
 //
 
-#import "INTConstitutionsController.h"
+#import "INTPrincipleLibraryController.h"
 
 
-@implementation INTConstitutionsController
+@implementation INTPrincipleLibraryController
 
 #pragma mark Persistence
 

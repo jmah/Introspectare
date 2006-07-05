@@ -1,5 +1,5 @@
 //
-//  INTConstitutionsController.h
+//  INTPrincipleLibraryController.h
 //  Introspectare
 //
 //  Created by Jonathon Mah on 2006-07-06.
@@ -9,10 +9,9 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface INTConstitutionsController : NSWindowController
+@interface INTPrincipleLibraryController : NSWindowController
 {
 	@public
-	IBOutlet NSView *constitutionInspectorView;
 	IBOutlet NSView *principleInspectorView;
 }
 

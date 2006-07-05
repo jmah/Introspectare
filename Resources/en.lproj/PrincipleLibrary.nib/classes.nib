@@ -2,9 +2,9 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            CLASS = INTConstitutionsController; 
+            CLASS = INTPrincipleLibraryController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {constitutionInspectorView = NSView; principleInspectorView = NSView; }; 
+            OUTLETS = {principleInspectorView = NSView; }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 
