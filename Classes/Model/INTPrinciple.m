@@ -7,6 +7,7 @@
 //
 
 #import "INTPrinciple.h"
+#import "INTConstitution.h"
 
 
 @implementation INTPrinciple
@@ -93,33 +94,65 @@
 
 #pragma mark Relationships
 
-- (void)addOrderedPrinciplesObject:(NSManagedObject *)orderedPrinciple
+- (void)addConstitutionsObject:(INTConstitution *)constitution
 {
-	NSSet *changedObjects = [NSSet setWithObject:orderedPrinciple];
+	NSSet *changedObjects = [NSSet setWithObject:constitution];
 	
-	[self willChangeValueForKey:@"orderedPrinciples"
+	[self willChangeValueForKey:@"constitutions"
 	            withSetMutation:NSKeyValueUnionSetMutation
 	               usingObjects:changedObjects];
 	
-	[[self primitiveValueForKey:@"orderedPrinciples"] addObject:orderedPrinciple];
+	[[self primitiveValueForKey:@"constitutions"] addObject:constitution];
 	
-	[self didChangeValueForKey:@"orderedPrinciples"
+	[self didChangeValueForKey:@"constitutions"
 	           withSetMutation:NSKeyValueUnionSetMutation
 	              usingObjects:changedObjects];
 }
 
 
-- (void)removeOrderedPrinciplesObject:(NSManagedObject *)orderedPrinciple
+- (void)removeConstitutionsObject:(INTConstitution *)constitution
 {
-	NSSet *changedObjects = [NSSet setWithObject:orderedPrinciple];
+	NSSet *changedObjects = [NSSet setWithObject:constitution];
 	
-	[self willChangeValueForKey:@"orderedPrinciples"
+	[self willChangeValueForKey:@"constitutions"
 	            withSetMutation:NSKeyValueMinusSetMutation
 	               usingObjects:changedObjects];
 	
-	[[self primitiveValueForKey:@"orderedPrinciples"] removeObject:orderedPrinciple];
+	[[self primitiveValueForKey:@"constitutions"] removeObject:constitution];
 	
-	[self didChangeValueForKey:@"orderedPrinciples"
+	[self didChangeValueForKey:@"constitutions"
+	           withSetMutation:NSKeyValueMinusSetMutation
+	              usingObjects:changedObjects];
+}
+
+
+- (void)addDailyPrinciplesObject:(NSManagedObject *)dailyPrinciple
+{
+	NSSet *changedObjects = [NSSet setWithObject:dailyPrinciple];
+	
+	[self willChangeValueForKey:@"dailyPrinciples"
+	            withSetMutation:NSKeyValueUnionSetMutation
+	               usingObjects:changedObjects];
+	
+	[[self primitiveValueForKey:@"dailyPrinciples"] addObject:dailyPrinciple];
+	
+	[self didChangeValueForKey:@"dailyPrinciples"
+	           withSetMutation:NSKeyValueUnionSetMutation
+	              usingObjects:changedObjects];
+}
+
+
+- (void)removeDailyPrinciplesObject:(NSManagedObject *)dailyPrinciple
+{
+	NSSet *changedObjects = [NSSet setWithObject:dailyPrinciple];
+	
+	[self willChangeValueForKey:@"dailyPrinciples"
+	            withSetMutation:NSKeyValueMinusSetMutation
+	               usingObjects:changedObjects];
+	
+	[[self primitiveValueForKey:@"dailyPrinciples"] removeObject:dailyPrinciple];
+	
+	[self didChangeValueForKey:@"dailyPrinciples"
 	           withSetMutation:NSKeyValueMinusSetMutation
 	              usingObjects:changedObjects];
 }

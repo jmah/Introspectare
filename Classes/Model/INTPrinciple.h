@@ -8,6 +8,8 @@
 
 #import <CoreData/CoreData.h>
 
+@class INTConstitution;
+
 
 @interface INTPrinciple : NSManagedObject
 {
@@ -26,7 +28,9 @@
 
 
 #pragma mark Relationships
-- (void)addOrderedPrinciplesObject:(NSManagedObject *)orderedPrinciple;
-- (void)removeOrderedPrinciplesObject:(NSManagedObject *)orderedPrinciple;
+- (void)addConstitutionsObject:(INTConstitution *)constitution;
+- (void)removeConstitutionsObject:(INTConstitution *)constitution;
+- (void)addDailyPrinciplesObject:(NSManagedObject *)dailyPrinciple;
+- (void)removeDailyPrinciplesObject:(NSManagedObject *)dailyPrinciple;
 
 @end
