@@ -38,4 +38,13 @@
 }
 
 
+
+#pragma mark NSWindow delegate methods
+
+- (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window // NSObject (NSWindowDelegate)
+{
+	return [[self managedObjectContext] undoManager];
+}
+
+
 @end
