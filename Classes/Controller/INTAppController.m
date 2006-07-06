@@ -1,17 +1,17 @@
 //
-//  INTController.m
+//  INTAppController.m
 //  Introspectare
 //
 //  Created by Jonathon Mah on 2006-07-04.
 //  Copyright Playhaus 2006. All rights reserved.
 //
 
-#import "INTController.h"
+#import "INTAppController.h"
 #import "INTConstitutionsController.h"
 #import "INTPrincipleLibraryController.h"
 
 
-@implementation INTController
+@implementation INTAppController
 
 #pragma mark Initializing and deallocating
 

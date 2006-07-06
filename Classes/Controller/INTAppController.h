@@ -1,5 +1,5 @@
 //
-//  INTController.h
+//  INTAppController.h
 //  Introspectare
 //
 //  Created by Jonathon Mah on 2006-07-04.
@@ -12,7 +12,7 @@
 @class INTPrincipleLibraryController;
 
 
-@interface INTController : NSObject 
+@interface INTAppController : NSObject 
 {
 	@private
 	NSManagedObjectContext *INT_managedObjectContext;

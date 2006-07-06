@@ -9,7 +9,7 @@
                 showInspector = id; 
                 showPrinciples = id; 
             }; 
-            CLASS = INTController; 
+            CLASS = INTAppController; 
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
         }
