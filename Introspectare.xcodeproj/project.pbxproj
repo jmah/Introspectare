@@ -11,12 +11,9 @@
 		282E91810A5C169F008EDF1F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 282E917F0A5C169F008EDF1F /* Localizable.strings */; };
 		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
 		282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */; };
-		282E92200A5C1DF2008EDF1F /* INTPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E921F0A5C1DF2008EDF1F /* INTPrinciple.m */; };
-		282E92450A5C242F008EDF1F /* INTConstitution.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E92440A5C242F008EDF1F /* INTConstitution.m */; };
 		28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28BFA0CE0A5AD4510075D416 /* Constitutions.nib */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
 		28E65A400A5A926B00DE0C5A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A380A5A926B00DE0C5A /* InfoPlist.strings */; };
-		28E65A480A5A92C100DE0C5A /* Introspectare.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A470A5A92C100DE0C5A /* Introspectare.xcdatamodel */; };
 		28E65A5E0A5A931E00DE0C5A /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A3A0A5A926B00DE0C5A /* MainMenu.nib */; };
 		28E65AA90A5A975500DE0C5A /* INTAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A2F0A5A926B00DE0C5A /* INTAppController.m */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -30,10 +27,6 @@
 		282E91E30A5C1A93008EDF1F /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/PrincipleLibrary.nib; sourceTree = "<group>"; };
 		282E91E50A5C1ABD008EDF1F /* INTPrincipleLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrincipleLibraryController.h; sourceTree = "<group>"; };
 		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
-		282E921E0A5C1DF2008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
-		282E921F0A5C1DF2008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
-		282E92430A5C242F008EDF1F /* INTConstitution.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTConstitution.h; sourceTree = "<group>"; };
-		282E92440A5C242F008EDF1F /* INTConstitution.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTConstitution.m; sourceTree = "<group>"; };
 		28BFA0B40A5AB5860075D416 /* Design Notes.otl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Design Notes.otl"; sourceTree = "<group>"; };
 		28BFA0CF0A5AD4510075D416 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Constitutions.nib; sourceTree = "<group>"; };
 		28E65A2E0A5A926B00DE0C5A /* INTAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTAppController.h; sourceTree = "<group>"; };
@@ -43,7 +36,6 @@
 		28E65A390A5A926B00DE0C5A /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		28E65A3B0A5A926B00DE0C5A /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		28E65A3C0A5A926B00DE0C5A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
-		28E65A470A5A92C100DE0C5A /* Introspectare.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.xcdatamodel; path = Introspectare.xcdatamodel; sourceTree = "<group>"; };
 		28E65A4F0A5A930500DE0C5A /* 10_4 Shared.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "10_4 Shared.xcconfig"; sourceTree = "<group>"; };
 		28E65A500A5A930500DE0C5A /* Cocoa Application Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Cocoa Application Debug.xcconfig"; sourceTree = "<group>"; };
 		28E65A510A5A930500DE0C5A /* Cocoa Application Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Cocoa Application Release.xcconfig"; sourceTree = "<group>"; };
@@ -109,10 +101,6 @@
 		28E65A300A5A926B00DE0C5A /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				282E921E0A5C1DF2008EDF1F /* INTPrinciple.h */,
-				282E921F0A5C1DF2008EDF1F /* INTPrinciple.m */,
-				282E92430A5C242F008EDF1F /* INTConstitution.h */,
-				282E92440A5C242F008EDF1F /* INTConstitution.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -122,14 +110,6 @@
 			children = (
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		28E65A320A5A926B00DE0C5A /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				28E65A470A5A92C100DE0C5A /* Introspectare.xcdatamodel */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		28E65A340A5A926B00DE0C5A /* Other Sources */ = {
@@ -179,7 +159,6 @@
 			children = (
 				28BFA0B40A5AB5860075D416 /* Design Notes.otl */,
 				28E65A4E0A5A930500DE0C5A /* Common Build Configurations */,
-				28E65A320A5A926B00DE0C5A /* Models */,
 				28E65A2C0A5A926B00DE0C5A /* Classes */,
 				28E65A340A5A926B00DE0C5A /* Other Sources */,
 				28E65A370A5A926B00DE0C5A /* Resources */,
@@ -264,12 +243,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				28E65A3F0A5A926B00DE0C5A /* main.m in Sources */,
-				28E65A480A5A92C100DE0C5A /* Introspectare.xcdatamodel in Sources */,
 				28E65AA90A5A975500DE0C5A /* INTAppController.m in Sources */,
 				282E913B0A5C1002008EDF1F /* INTConstitutionsController.m in Sources */,
 				282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */,
-				282E92200A5C1DF2008EDF1F /* INTPrinciple.m in Sources */,
-				282E92450A5C242F008EDF1F /* INTConstitution.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
