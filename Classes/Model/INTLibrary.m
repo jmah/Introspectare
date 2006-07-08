@@ -184,15 +184,12 @@
 													 hours:0
 												   minutes:0
 												   seconds:0];
-		if ([date compare:[NSDate date]] != NSOrderedDescending)
+		
+		INTConstitution *constitution = [self constitutionForDate:date];
+		if (constitution)
 		{
-			// The given day is not later than today
-			INTConstitution *constitution = [self constitutionForDate:date];
-			if (constitution)
-			{
-				entry = [[INTEntry alloc] initWithDayOfCommonEra:day constitution:constitution];
-				[self addEntriesObject:entry];
-			}
+			entry = [[INTEntry alloc] initWithDayOfCommonEra:day constitution:constitution];
+			[self addEntriesObject:entry];
 		}
 	}
 	return entry;
