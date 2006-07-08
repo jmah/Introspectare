@@ -165,7 +165,7 @@
 }
 
 
-- (INTEntry *)entryForDayOfCommonEra:(int)day
+- (INTEntry *)addEntryForDayOfCommonEra:(int)day
 {
 	INTEntry *entry = [INT_entries objectForKey:[NSNumber numberWithInt:day]];
 	if (!entry)
