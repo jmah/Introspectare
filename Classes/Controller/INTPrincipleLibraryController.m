@@ -24,7 +24,7 @@
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 	[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
 	[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-	[dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterNoStyle];
 	[[dateColumn dataCell] setFormatter:dateFormatter];
 	[inspectorDateField setFormatter:dateFormatter];
 	[dateFormatter release];
