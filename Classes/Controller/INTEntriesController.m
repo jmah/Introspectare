@@ -14,6 +14,7 @@
 #import "INTEntry.h"
 #import "INTAnnotatedPrinciple.h"
 #import "INTPrinciple.h"
+#import "NSCalendarDate+INTAdditions.h"
 
 
 @interface INTEntriesController (INTPrivateMethods)

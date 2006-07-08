@@ -10,6 +10,7 @@
 #import "INTConstitution.h"
 #import "INTPrinciple.h"
 #import "INTAnnotatedPrinciple.h"
+#import "NSCalendarDate+INTAdditions.h"
 
 
 @implementation INTEntry
@@ -123,19 +124,8 @@
 
 - (NSDate *)date
 {
-	NSCalendarDate *startOfCommonEra = [NSCalendarDate dateWithYear:1
-	                                                          month:1
-																day:1
-															   hour:0
-															 minute:0
-															 second:0
-														   timeZone:[NSTimeZone localTimeZone]];
-	return [startOfCommonEra dateByAddingYears:0
-										months:0
-										  days:([self dayOfCommonEra] - 1)
-										 hours:0
-									   minutes:0
-									   seconds:0];
+	return 
+	[NSCalendarDate calendarDateWithDayOfCommonEra:[self dayOfCommonEra]];
 }
 
 

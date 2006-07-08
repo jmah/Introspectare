@@ -10,6 +10,7 @@
 #import "INTConstitution.h"
 #import "INTPrinciple.h"
 #import "INTEntry.h"
+#import "NSCalendarDate+INTAdditions.h"
 
 
 @implementation INTLibrary
@@ -174,20 +175,7 @@
 	if (!entry)
 	{
 		// Get the contsitution for the given day
-		NSCalendarDate *startOfCommonEra = [NSCalendarDate dateWithYear:1
-																  month:1
-																	day:1
-																   hour:0
-																 minute:0
-																 second:0
-															   timeZone:[NSTimeZone localTimeZone]];
-		NSDate *date = [startOfCommonEra dateByAddingYears:0
-													months:0
-													  days:(day - 1)
-													 hours:0
-												   minutes:0
-												   seconds:0];
-		
+		NSDate *date = [NSCalendarDate calendarDateWithDayOfCommonEra:day];
 		INTConstitution *constitution = [self constitutionForDate:date];
 		if (constitution)
 		{
