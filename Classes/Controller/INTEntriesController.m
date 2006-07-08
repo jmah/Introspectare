@@ -21,6 +21,8 @@
 
 #pragma mark Managing entries
 - (void)createEntriesUpToToday;
+- (void)scheduleUpdateTimer;
+- (void)updateTimerDidFire:(NSTimer *)timer;
 
 @end
 
@@ -42,11 +44,22 @@
 	[dateFormatter release];
 	
 	[self createEntriesUpToToday];
+	[entriesArrayController rearrangeObjects];
+	[entriesArrayController setSelectionIndex:0];
+	[self scheduleUpdateTimer];
 	
 	NSSortDescriptor *dateDescending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
 	[entriesArrayController setSortDescriptors:[NSArray arrayWithObject:dateDescending]];
 	[dateDescending release];
+}
+
+
+- (void)dealloc
+{
+	if (INT_updateTimer)
+		[INT_updateTimer invalidate], INT_updateTimer = nil;
 	
+	[super dealloc];
 }
 
 
@@ -94,10 +107,29 @@
 			 currDay++)
 			[[self library] addEntryForDayOfCommonEra:currDay];
 		[dateAscending release];
-		
-		[entriesArrayController rearrangeObjects];
-		[entriesArrayController setSelectionIndex:0];
 	}
+}
+
+
+- (void)scheduleUpdateTimer // INTEntriesController (INTPrivateMethods)
+{
+	if (INT_updateTimer)
+		[INT_updateTimer invalidate];
+	INT_updateTimer = [[NSTimer alloc] initWithFireDate:[NSCalendarDate tomorrow]
+											   interval:(24 * 60 * 60)
+												 target:self
+											   selector:@selector(updateTimerDidFire:)
+											   userInfo:nil
+												repeats:YES];
+	[[NSRunLoop currentRunLoop] addTimer:INT_updateTimer forMode:NSDefaultRunLoopMode];
+	[INT_updateTimer release];
+}
+
+
+- (void)updateTimerDidFire:(NSTimer *)timer // INTEntriesController (INTPrivateMethods)
+{
+	[self createEntriesUpToToday];
+	[entriesArrayController rearrangeObjects];
 }
 
 
