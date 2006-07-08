@@ -5,10 +5,10 @@
             CLASS = INTConstitutionsController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
-                constitutionDateColumn = NSTableColumn; 
                 constitutionInspectorDateField = NSTextField; 
                 constitutionInspectorView = NSView; 
                 constitutionsArrayController = NSArrayController; 
+                constitutionsDateColumn = NSTableColumn; 
                 constitutionsTableView = NSTableView; 
                 principleInspectorDateField = NSTextField; 
                 principleInspectorView = NSView; 

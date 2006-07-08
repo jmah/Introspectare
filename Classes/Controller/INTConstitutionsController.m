@@ -18,7 +18,7 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 
 @implementation INTConstitutionsController
 
-#pragma mark Initializing and deallocating
+#pragma mark Initializing
 
 - (void)awakeFromNib
 {
@@ -29,7 +29,7 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 	[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
 	[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
 	[dateFormatter setTimeStyle:NSDateFormatterMediumStyle];
-	[[constitutionDateColumn dataCell] setFormatter:dateFormatter];
+	[[constitutionsDateColumn dataCell] setFormatter:dateFormatter];
 	[constitutionInspectorDateField setFormatter:dateFormatter];
 	[principleInspectorDateField setFormatter:dateFormatter];
 	[dateFormatter release];

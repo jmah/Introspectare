@@ -16,7 +16,7 @@
 	@public
 	IBOutlet NSView *constitutionInspectorView;
 	IBOutlet NSView *principleInspectorView;
-	IBOutlet NSTableColumn *constitutionDateColumn;
+	IBOutlet NSTableColumn *constitutionsDateColumn;
 	IBOutlet NSTextField *constitutionInspectorDateField;
 	IBOutlet NSTextField *principleInspectorDateField;
 	IBOutlet NSTableView *principlesTableView;
