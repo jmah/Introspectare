@@ -41,6 +41,11 @@
 	[dateFormatter release];
 	
 	[self createEntriesUpToToday];
+	
+	NSSortDescriptor *dateDescending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+	[entriesArrayController setSortDescriptors:[NSArray arrayWithObject:dateDescending]];
+	[dateDescending release];
+	
 }
 
 
@@ -87,9 +92,10 @@
 			 currDay <= todayDayOfCommonEra;
 			 currDay++)
 			[[self library] addEntryForDayOfCommonEra:currDay];
-		[entriesArrayController rearrangeObjects];
-		
 		[dateAscending release];
+		
+		[entriesArrayController rearrangeObjects];
+		[entriesArrayController setSelectionIndex:0];
 	}
 }
 
