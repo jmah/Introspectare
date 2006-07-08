@@ -359,7 +359,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28E65A500A5A930500DE0C5A /* Cocoa Application Debug.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GCC_PREFIX_HEADER = "Other Sources/Introspectare Prefix.pch";
 				INFOPLIST_FILE = Resources/Info.plist;
 				PRODUCT_NAME = Introspectare;
@@ -371,7 +371,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28E65A510A5A930500DE0C5A /* Cocoa Application Release.xcconfig */;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GCC_PREFIX_HEADER = "Other Sources/Introspectare Prefix.pch";
 				INFOPLIST_FILE = Resources/Info.plist;
 				PRODUCT_NAME = Introspectare;
