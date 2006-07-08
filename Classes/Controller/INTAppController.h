@@ -10,6 +10,7 @@
 #import "INTShared.h"
 
 @class INTLibrary;
+@class INTEntriesController;
 @class INTConstitutionsController;
 @class INTPrincipleLibraryController;
 
@@ -20,6 +21,7 @@
 	INTLibrary *INT_library;
 	NSUndoManager *INT_undoManager;
 	
+	INTEntriesController *INT_entriesControler;
 	INTConstitutionsController *INT_constitutionsController;
 	INTPrincipleLibraryController *INT_principleLibraryController;
 }

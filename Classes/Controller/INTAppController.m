@@ -7,6 +7,8 @@
 //
 
 #import "INTAppController.h"
+#import "INTShared.h"
+#import "INTEntriesController.h"
 #import "INTConstitutionsController.h"
 #import "INTPrincipleLibraryController.h"
 
@@ -69,6 +71,7 @@ static INTAppController *sharedAppController = nil;
 {
 	[INT_library release], INT_library = nil;
 	[INT_undoManager release], INT_undoManager = nil;
+	[INT_entriesControler release], INT_entriesControler = nil;
 	[INT_constitutionsController release], INT_constitutionsController = nil;
 	[INT_principleLibraryController release], INT_principleLibraryController = nil;
 	
@@ -285,7 +288,9 @@ static INTAppController *sharedAppController = nil;
 
 - (IBAction)showDays:(id)sender
 {
-#warning Implement
+	if (!INT_entriesControler)
+		INT_entriesControler = [[INTEntriesController alloc] initWithWindowNibName:@"Entries"];
+	[INT_entriesControler showWindow:self];
 }
 
 
@@ -316,7 +321,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-#warning Implement
+	[self showDays:self];
 }
 
 
@@ -360,8 +365,9 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationWillTerminate:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	[INT_constitutionsController close];
 	[INT_principleLibraryController close];
+	[INT_constitutionsController close];
+	[INT_entriesControler close];
 }
 
 
