@@ -49,6 +49,8 @@
 	{
 		if ((self = [super init]))
 		{
+			INT_entries = [[NSMutableDictionary alloc] init];
+			
 			[self setConstitutions:[decoder decodeObjectForKey:@"constitutions"]];
 			[self setPrinciples:[decoder decodeObjectForKey:@"principles"]];
 			[self setEntries:[decoder decodeObjectForKey:@"entries"]];
