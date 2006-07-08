@@ -7,11 +7,14 @@
 //
 
 #import "INTPrincipleLibraryController.h"
+#import "INTShared.h"
+#import "INTAppController.h"
+#import "INTLibrary.h"
 
 
 @implementation INTPrincipleLibraryController
 
-#pragma mark Initializing and deallocating
+#pragma mark Initializing
 
 - (void)awakeFromNib
 {
@@ -29,11 +32,11 @@
 
 
 
-#pragma mark Persistence
+#pragma mark Accessing Introspectare data
 
-- (NSManagedObjectContext *)managedObjectContext
+- (INTLibrary *)library
 {
-	return [[NSApp delegate] managedObjectContext];
+	return [[INTAppController sharedAppController] library];
 }
 
 
@@ -42,7 +45,25 @@
 
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window // NSObject (NSWindowDelegate)
 {
-	return [[self managedObjectContext] undoManager];
+	return [[INTAppController sharedAppController] undoManager];
+}
+
+
+
+#pragma mark NSTableViewDataSource methods
+
+- (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
+{
+	BOOL success = NO;
+	if (tableView == principleLibraryTableView)
+	{
+		NSArray *principleArray = [[principlesArrayController arrangedObjects] objectsAtIndexes:rowIndexes];
+		NSData *principleArrayData = [NSKeyedArchiver archivedDataWithRootObject:principleArray];
+		[pboard declareTypes:[NSArray arrayWithObject:INTPrincipleArrayDataType] owner:self];
+		[pboard setData:principleArrayData forType:INTPrincipleArrayDataType];
+		success = YES;
+	}
+	return success;
 }
 
 

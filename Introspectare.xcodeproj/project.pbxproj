@@ -7,10 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		280081F90A5E948800A5D67E /* INTConstitution.m in Sources */ = {isa = PBXBuildFile; fileRef = 280081F80A5E948800A5D67E /* INTConstitution.m */; };
+		280082170A5E9ADF00A5D67E /* INTLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 280082160A5E9ADF00A5D67E /* INTLibrary.m */; };
+		280082410A5EA11F00A5D67E /* INTEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 280082400A5EA11F00A5D67E /* INTEntry.m */; };
+		280082BD0A5EB4DB00A5D67E /* INTShared.m in Sources */ = {isa = PBXBuildFile; fileRef = 280082BC0A5EB4DB00A5D67E /* INTShared.m */; };
+		280083A60A5ECA1300A5D67E /* INTAnnotatedPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 280083A50A5ECA1300A5D67E /* INTAnnotatedPrinciple.m */; };
 		282E913B0A5C1002008EDF1F /* INTConstitutionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */; };
 		282E91810A5C169F008EDF1F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 282E917F0A5C169F008EDF1F /* Localizable.strings */; };
 		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
 		282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */; };
+		282E92FC0A5E5806008EDF1F /* INTPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E92FB0A5E5806008EDF1F /* INTPrinciple.m */; };
 		28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28BFA0CE0A5AD4510075D416 /* Constitutions.nib */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
 		28E65A400A5A926B00DE0C5A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A380A5A926B00DE0C5A /* InfoPlist.strings */; };
@@ -21,12 +27,24 @@
 
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		280081F70A5E948800A5D67E /* INTConstitution.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTConstitution.h; sourceTree = "<group>"; };
+		280081F80A5E948800A5D67E /* INTConstitution.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTConstitution.m; sourceTree = "<group>"; };
+		280082150A5E9ADF00A5D67E /* INTLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTLibrary.h; sourceTree = "<group>"; };
+		280082160A5E9ADF00A5D67E /* INTLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTLibrary.m; sourceTree = "<group>"; };
+		2800823F0A5EA11F00A5D67E /* INTEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntry.h; sourceTree = "<group>"; };
+		280082400A5EA11F00A5D67E /* INTEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntry.m; sourceTree = "<group>"; };
+		280082BB0A5EB4DB00A5D67E /* INTShared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTShared.h; sourceTree = "<group>"; };
+		280082BC0A5EB4DB00A5D67E /* INTShared.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTShared.m; sourceTree = "<group>"; };
+		280083A40A5ECA1300A5D67E /* INTAnnotatedPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTAnnotatedPrinciple.h; sourceTree = "<group>"; };
+		280083A50A5ECA1300A5D67E /* INTAnnotatedPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTAnnotatedPrinciple.m; sourceTree = "<group>"; };
 		282E91390A5C1002008EDF1F /* INTConstitutionsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTConstitutionsController.h; sourceTree = "<group>"; };
 		282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTConstitutionsController.m; sourceTree = "<group>"; };
 		282E91800A5C169F008EDF1F /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		282E91E30A5C1A93008EDF1F /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/PrincipleLibrary.nib; sourceTree = "<group>"; };
 		282E91E50A5C1ABD008EDF1F /* INTPrincipleLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrincipleLibraryController.h; sourceTree = "<group>"; };
 		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
+		282E92FA0A5E5806008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
+		282E92FB0A5E5806008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
 		28BFA0B40A5AB5860075D416 /* Design Notes.otl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Design Notes.otl"; sourceTree = "<group>"; };
 		28BFA0CF0A5AD4510075D416 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Constitutions.nib; sourceTree = "<group>"; };
 		28E65A2E0A5A926B00DE0C5A /* INTAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTAppController.h; sourceTree = "<group>"; };
@@ -101,6 +119,16 @@
 		28E65A300A5A926B00DE0C5A /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				280082150A5E9ADF00A5D67E /* INTLibrary.h */,
+				280082160A5E9ADF00A5D67E /* INTLibrary.m */,
+				2800823F0A5EA11F00A5D67E /* INTEntry.h */,
+				280082400A5EA11F00A5D67E /* INTEntry.m */,
+				282E92FA0A5E5806008EDF1F /* INTPrinciple.h */,
+				282E92FB0A5E5806008EDF1F /* INTPrinciple.m */,
+				280083A40A5ECA1300A5D67E /* INTAnnotatedPrinciple.h */,
+				280083A50A5ECA1300A5D67E /* INTAnnotatedPrinciple.m */,
+				280081F70A5E948800A5D67E /* INTConstitution.h */,
+				280081F80A5E948800A5D67E /* INTConstitution.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -117,6 +145,8 @@
 			children = (
 				28E65A350A5A926B00DE0C5A /* Introspectare Prefix.pch */,
 				28E65A360A5A926B00DE0C5A /* main.m */,
+				280082BB0A5EB4DB00A5D67E /* INTShared.h */,
+				280082BC0A5EB4DB00A5D67E /* INTShared.m */,
 			);
 			path = "Other Sources";
 			sourceTree = "<group>";
@@ -246,6 +276,12 @@
 				28E65AA90A5A975500DE0C5A /* INTAppController.m in Sources */,
 				282E913B0A5C1002008EDF1F /* INTConstitutionsController.m in Sources */,
 				282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */,
+				282E92FC0A5E5806008EDF1F /* INTPrinciple.m in Sources */,
+				280081F90A5E948800A5D67E /* INTConstitution.m in Sources */,
+				280082170A5E9ADF00A5D67E /* INTLibrary.m in Sources */,
+				280082410A5EA11F00A5D67E /* INTEntry.m in Sources */,
+				280082BD0A5EB4DB00A5D67E /* INTShared.m in Sources */,
+				280083A60A5ECA1300A5D67E /* INTAnnotatedPrinciple.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

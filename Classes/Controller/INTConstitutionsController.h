@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class INTLibrary;
+
 
 @interface INTConstitutionsController : NSWindowController
 {
@@ -17,10 +19,14 @@
 	IBOutlet NSTableColumn *constitutionDateColumn;
 	IBOutlet NSTextField *constitutionInspectorDateField;
 	IBOutlet NSTextField *principleInspectorDateField;
+	IBOutlet NSTableView *principlesTableView;
+	IBOutlet NSTableView *constitutionsTableView;
+	IBOutlet NSArrayController *principlesArrayController;
+	IBOutlet NSArrayController *constitutionsArrayController;
 }
 
 
-#pragma mark Core Data
-- (NSManagedObjectContext *)managedObjectContext;
+#pragma mark Accessing Introspectare data
+- (INTLibrary *)library;
 
 @end

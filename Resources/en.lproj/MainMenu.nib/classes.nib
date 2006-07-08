@@ -3,7 +3,8 @@
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
             ACTIONS = {
-                performSave = id; 
+                revert = id; 
+                save = id; 
                 showConstitutions = id; 
                 showDays = id; 
                 showInspector = id; 

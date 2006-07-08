@@ -8,8 +8,12 @@
                 constitutionDateColumn = NSTableColumn; 
                 constitutionInspectorDateField = NSTextField; 
                 constitutionInspectorView = NSView; 
+                constitutionsArrayController = NSArrayController; 
+                constitutionsTableView = NSTableView; 
                 principleInspectorDateField = NSTextField; 
                 principleInspectorView = NSView; 
+                principlesArrayController = NSArrayController; 
+                principlesTableView = NSTableView; 
             }; 
             SUPERCLASS = NSWindowController; 
         }

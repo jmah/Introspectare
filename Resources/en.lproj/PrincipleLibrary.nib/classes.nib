@@ -1,6 +1,7 @@
 {
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = INTPrinciple; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
             CLASS = INTPrincipleLibraryController; 
             LANGUAGE = ObjC; 
@@ -8,6 +9,8 @@
                 dateColumn = NSTableColumn; 
                 inspectorDateField = NSTextField; 
                 principleInspectorView = NSView; 
+                principleLibraryTableView = NSTableView; 
+                principlesArrayController = NSArrayController; 
             }; 
             SUPERCLASS = NSWindowController; 
         }
