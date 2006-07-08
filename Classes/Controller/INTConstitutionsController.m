@@ -37,6 +37,13 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 	// Set up principle dragging
 	[constitutionsTableView registerForDraggedTypes:[NSArray arrayWithObject:INTPrincipleArrayDataType]];
 	[principlesTableView registerForDraggedTypes:[NSArray arrayWithObjects:INTPrincipleArrayDataType, INTPrincipleIndexSetDataType, nil]];
+	
+	// Sort constitutions by date
+	NSSortDescriptor *dateDescending = [[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:NO];
+	[constitutionsArrayController setSortDescriptors:[NSArray arrayWithObject:dateDescending]];
+	[dateDescending release];
+	
+	[constitutionsArrayController setSelectionIndex:0];
 }
 
 
