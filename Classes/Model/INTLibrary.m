@@ -173,13 +173,13 @@
 	INTEntry *entry = [INT_entries objectForKey:[NSNumber numberWithInt:day]];
 	if (!entry)
 	{
-		// Check that the day is valid
+		// Get the contsitution for the given day
 		NSCalendarDate *startOfCommonEra = [NSCalendarDate dateWithYear:1
 																  month:1
 																	day:1
-																   hour:0
-																 minute:0
-																 second:0
+																   hour:23
+																 minute:59
+																 second:59
 															   timeZone:[NSTimeZone localTimeZone]];
 		NSDate *date = [startOfCommonEra dateByAddingYears:0
 													months:0
