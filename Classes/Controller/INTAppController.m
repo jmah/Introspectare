@@ -106,6 +106,28 @@ static INTAppController *sharedAppController = nil;
 
 
 
+#pragma mark Managing editing
+
+- (BOOL)commitEditing
+{
+	return ((INT_entriesControler ?  [INT_entriesControler commitEditing] : YES) &&
+			(INT_constitutionsController ? [INT_constitutionsController commitEditing] : YES) &&
+			(INT_principleLibraryController ? [INT_principleLibraryController commitEditing] : YES));
+}
+
+
+- (void)discardEditing
+{
+	if (INT_entriesControler)
+		[INT_entriesControler discardEditing];
+	if (INT_constitutionsController)
+		[INT_constitutionsController discardEditing];
+	if (INT_principleLibraryController)
+		[INT_principleLibraryController discardEditing];
+}
+
+
+
 #pragma mark Persistence
 
 - (NSString *)dataFolderPath
@@ -272,14 +294,18 @@ static INTAppController *sharedAppController = nil;
 
 - (IBAction)save:(id)sender
 {
-	NSError *error = nil;
-	if (![self saveData:&error])
-		[NSApp presentError:error];
+	if ([self commitEditing])
+	{
+		NSError *error = nil;
+		if (![self saveData:&error])
+			[NSApp presentError:error];
+	}
 }
 
 
 - (IBAction)revert:(id)sender
 {
+	[self discardEditing];
 	NSError *error = nil;
 	if (![self loadData:&error])
 		[NSApp presentError:error];
@@ -330,11 +356,11 @@ static INTAppController *sharedAppController = nil;
 	NSApplicationTerminateReply reply = NSTerminateCancel;
 	
 	// Save the data on quit
-	//if ([self commitEditing])
+	if ([self commitEditing])
 	{
 		// Perform a save
 		NSError *saveError = nil;
-		BOOL didSave = YES; //[self saveData:&saveError];
+		BOOL didSave = [self saveData:&saveError];
 		
 		if (didSave)
 			reply = NSTerminateNow;

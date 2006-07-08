@@ -54,6 +54,22 @@
 
 
 
+#pragma mark Managing editing
+
+- (BOOL)commitEditing
+{
+	return ([annotatedPrinciplesArrayController commitEditing] && [entriesArrayController commitEditing]);
+}
+
+
+- (void)discardEditing
+{
+	[annotatedPrinciplesArrayController discardEditing];
+	[entriesArrayController discardEditing];
+}
+
+
+
 #pragma mark Managing entries
 
 - (void)createEntriesUpToToday // INTEntriesController (INTPrivateMethods)

@@ -5,6 +5,7 @@
             CLASS = INTEntriesController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                annotatedPrinciplesArrayController = NSArrayController; 
                 entriesArrayController = NSArrayController; 
                 entriesDateColumn = NSTableColumn; 
             }; 

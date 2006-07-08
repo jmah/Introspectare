@@ -41,6 +41,21 @@
 
 
 
+#pragma mark Managing editing
+
+- (BOOL)commitEditing
+{
+	return [principlesArrayController commitEditing];
+}
+
+
+- (void)discardEditing
+{
+	[principlesArrayController discardEditing];
+}
+
+
+
 #pragma mark NSWindow delegate methods
 
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window // NSObject (NSWindowDelegate)

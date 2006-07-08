@@ -50,6 +50,22 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 
 
 
+#pragma mark Managing editing
+
+- (BOOL)commitEditing
+{
+	return ([principlesArrayController commitEditing] && [constitutionsArrayController commitEditing]);
+}
+
+
+- (void)discardEditing
+{
+	[principlesArrayController discardEditing];
+	[constitutionsArrayController discardEditing];
+}
+
+
+
 #pragma mark NSWindow delegate methods
 
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window // NSObject (NSWindowDelegate)

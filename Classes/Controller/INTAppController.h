@@ -36,6 +36,10 @@
 #pragma mark Managing undo and redo
 - (NSUndoManager *)undoManager;
 
+#pragma mark Managing editing
+- (BOOL)commitEditing;
+- (void)discardEditing;
+
 #pragma mark Persistence
 - (NSString *)dataFolderPath;
 - (NSString *)dataFileName;

@@ -25,4 +25,8 @@
 #pragma mark Accessing Introspectare data
 - (INTLibrary *)library;
 
+#pragma mark Managing editing
+- (BOOL)commitEditing;
+- (void)discardEditing;
+
 @end
