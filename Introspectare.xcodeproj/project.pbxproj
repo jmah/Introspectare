@@ -19,6 +19,7 @@
 		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
 		282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */; };
 		282E92FC0A5E5806008EDF1F /* INTPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E92FB0A5E5806008EDF1F /* INTPrinciple.m */; };
+		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28BFA0CE0A5AD4510075D416 /* Constitutions.nib */; };
 		28CEA7D50A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
@@ -51,6 +52,8 @@
 		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
 		282E92FA0A5E5806008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
 		282E92FB0A5E5806008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
+		287031410A61607000A7F5A7 /* Introspectare.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Introspectare.icns; sourceTree = "<group>"; };
+		287031490A616EC500A7F5A7 /* Icons */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Icons; sourceTree = "<group>"; };
 		28BFA0B40A5AB5860075D416 /* Design Notes.otl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Design Notes.otl"; sourceTree = "<group>"; };
 		28BFA0CF0A5AD4510075D416 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Constitutions.nib; sourceTree = "<group>"; };
 		28CEA7D30A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCalendarDate+INTAdditions.h"; sourceTree = "<group>"; };
@@ -173,6 +176,7 @@
 				280182480A5FB656007288D3 /* Entries.nib */,
 				28BFA0CE0A5AD4510075D416 /* Constitutions.nib */,
 				282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */,
+				287031410A61607000A7F5A7 /* Introspectare.icns */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -205,6 +209,7 @@
 				28E65A2C0A5A926B00DE0C5A /* Classes */,
 				28E65A340A5A926B00DE0C5A /* Other Sources */,
 				28E65A370A5A926B00DE0C5A /* Resources */,
+				287031490A616EC500A7F5A7 /* Icons */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -276,6 +281,7 @@
 				282E91810A5C169F008EDF1F /* Localizable.strings in Resources */,
 				282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */,
 				2801824A0A5FB656007288D3 /* Entries.nib in Resources */,
+				287031420A61607000A7F5A7 /* Introspectare.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,0 +1,30 @@
+Introspectare Icon Notes
+----------------------------------------
+Producing scaled down icons
+	48x48
+		From 256x256:
+		Increased the stroke width on Paper:Border:Box to 3px
+		Set Paper:Border:Text:Temperence to bold, strong anti-aliasing
+		Set Paper:Border:Text:Principles to bold, strong anti-aliasing
+		Set Paper:Border:Text:Weekdays to strong anti-aliasing
+		Scale down to 48x48, Bicubic Smoother
+	32x32
+		From 256x256:
+		Scale down to 32x32
+		Increased the stroke width on Paper:Border:Box to 4px
+		Set Paper:Border:Text:Temperence to bold, strong anti-aliasing
+		Set Paper:Border:Text:Principles to bold, strong anti-aliasing
+		Set Paper:Border:Text:Weekdays to strong anti-aliasing
+	16x16
+		From 32x32:
+		Scale down to 16x16, Bicubic Sharper
+Producing hit masks
+	48x48
+		Open 256x256 hit mask in GraphicConverter
+		Set to 32-bit color depth
+		Scale down to 48x48, Quartz scaling
+		Set to 1-bit color depth
+	32x32
+		Same as for 48x48
+	16x16
+		Same as for 48x48
