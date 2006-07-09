@@ -7,14 +7,16 @@ Producing scaled down icons
 		Set Paper:Border:Text:Temperence to bold, strong anti-aliasing
 		Set Paper:Border:Text:Principles to bold, strong anti-aliasing
 		Set Paper:Border:Text:Weekdays to strong anti-aliasing
+		Flatten
 		Scale down to 48x48, Bicubic Smoother
 	32x32
 		From 256x256:
-		Scale down to 32x32
 		Increased the stroke width on Paper:Border:Box to 4px
 		Set Paper:Border:Text:Temperence to bold, strong anti-aliasing
 		Set Paper:Border:Text:Principles to bold, strong anti-aliasing
 		Set Paper:Border:Text:Weekdays to strong anti-aliasing
+		Flatten
+		Scale down to 32x32, Bicubic
 	16x16
 		From 32x32:
 		Scale down to 16x16, Bicubic Sharper
