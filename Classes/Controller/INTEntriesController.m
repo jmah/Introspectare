@@ -43,14 +43,14 @@
 	[[entriesDateColumn dataCell] setFormatter:dateFormatter];
 	[dateFormatter release];
 	
+	NSSortDescriptor *dateDescending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
+	[entriesArrayController setSortDescriptors:[NSArray arrayWithObject:dateDescending]];
+	[dateDescending release];
+	
 	[self createEntriesUpToToday];
 	[entriesArrayController rearrangeObjects];
 	[entriesArrayController setSelectionIndex:0];
 	[self scheduleUpdateTimer];
-	
-	NSSortDescriptor *dateDescending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-	[entriesArrayController setSortDescriptors:[NSArray arrayWithObject:dateDescending]];
-	[dateDescending release];
 }
 
 
