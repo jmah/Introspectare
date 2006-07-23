@@ -132,8 +132,8 @@
 	if (object == INT_observedWindowController)
 		if ([keyPath isEqualToString:@"inspectorView"])
 		{
-			NSView *newInspectorView = [change objectForKey:NSKeyValueChangeNewKey];
-			if (!newInspectorView)
+			id newInspectorView = [change objectForKey:NSKeyValueChangeNewKey];
+			if (!newInspectorView || (newInspectorView == [NSNull null]))
 				newInspectorView = INT_defaultView;
 			[self setInspectorView:newInspectorView];
 			handled = YES;
