@@ -115,14 +115,11 @@
 {
 	if (INT_updateTimer)
 		[INT_updateTimer invalidate];
-	INT_updateTimer = [[NSTimer alloc] initWithFireDate:[NSCalendarDate tomorrow]
-											   interval:(24 * 60 * 60)
-												 target:self
-											   selector:@selector(updateTimerDidFire:)
-											   userInfo:nil
-												repeats:YES];
-	[[NSRunLoop currentRunLoop] addTimer:INT_updateTimer forMode:NSDefaultRunLoopMode];
-	[INT_updateTimer release];
+	INT_updateTimer = [NSTimer scheduledTimerWithTimeInterval:60
+	                                                   target:self
+	                                                 selector:@selector(updateTimerDidFire:)
+	                                                 userInfo:nil
+	                                                  repeats:YES];
 }
 
 
