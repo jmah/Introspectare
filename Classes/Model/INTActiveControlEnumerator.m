@@ -42,7 +42,7 @@
 		if ([INT_currResponder isKindOfClass:[NSTextView class]] &&
 		    (INT_currResponder == [INT_window fieldEditor:NO forObject:nil]))
 			// The current responder is the field editor; the next responder will be the control being edited
-			INT_currResponder = [INT_currResponder delegate];
+			INT_currResponder = [(NSTextView *)INT_currResponder delegate];
 		else
 			INT_currResponder = [INT_currResponder nextResponder];
 	}
