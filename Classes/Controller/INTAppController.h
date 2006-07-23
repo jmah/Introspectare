@@ -26,6 +26,8 @@
 	INTConstitutionsController *INT_constitutionsController;
 	INTPrincipleLibraryController *INT_principleLibraryController;
 	INTInspectorController *INT_inspectorController;
+	
+	NSString *INT_showHideInspectorMenuItemTitle;
 }
 
 
@@ -48,12 +50,15 @@
 - (BOOL)loadData:(NSError **)outError;
 - (BOOL)saveData:(NSError **)outError;
 
+#pragma mark Menu items
+- (NSString *)showHideInspectorMenuItemTitle;
+
 #pragma mark UI Actions
 - (IBAction)save:(id)sender;
 - (IBAction)revert:(id)sender;
 - (IBAction)showDays:(id)sender;
 - (IBAction)showConstitutions:(id)sender;
 - (IBAction)showPrinciples:(id)sender;
-- (IBAction)showInspector:(id)sender;
+- (IBAction)showHideInspector:(id)sender;
 
 @end

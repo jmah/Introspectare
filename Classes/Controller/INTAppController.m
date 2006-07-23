@@ -25,6 +25,10 @@ static INTAppController *sharedAppController = nil;
 #pragma mark Persistence
 - (BOOL)ensureDataFileReadable:(NSError **)outError;
 
+#pragma mark Managing the inspector
+- (void)setShowHideInspectorMenuItemTitle:(NSString *)title;
+- (void)inspectorDidBecomeKey:(NSNotification *)notification;
+
 @end
 
 
@@ -53,6 +57,7 @@ static INTAppController *sharedAppController = nil;
 	{
 		INT_library = [[INTLibrary alloc] init];
 		INT_undoManager = [[NSUndoManager alloc] init];
+		[self setShowHideInspectorMenuItemTitle:NSLocalizedString(@"INTShowInspectorMenuTitle", @"Show Inspector menu item")];
 		
 		sharedAppController = self;
 	}
@@ -70,11 +75,15 @@ static INTAppController *sharedAppController = nil;
 
 - (void)dealloc
 {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	
 	[INT_library release], INT_library = nil;
 	[INT_undoManager release], INT_undoManager = nil;
+	[INT_showHideInspectorMenuItemTitle release], INT_showHideInspectorMenuItemTitle = nil;
 	[INT_entriesControler release], INT_entriesControler = nil;
 	[INT_constitutionsController release], INT_constitutionsController = nil;
 	[INT_principleLibraryController release], INT_principleLibraryController = nil;
+	[INT_inspectorController release], INT_inspectorController = nil;
 	
 	[super dealloc];
 }
@@ -291,6 +300,38 @@ static INTAppController *sharedAppController = nil;
 
 
 
+#pragma mark Menu items
+
+- (NSString *)showHideInspectorMenuItemTitle
+{
+	return INT_showHideInspectorMenuItemTitle;
+}
+
+
+
+#pragma mark Managing the inspector
+
+- (void)setShowHideInspectorMenuItemTitle:(NSString *)title // INTAppController (INTPrivateMethods)
+{
+	id oldValue = INT_showHideInspectorMenuItemTitle;
+	INT_showHideInspectorMenuItemTitle = [title copy];
+	[oldValue release];
+}
+
+
+- (void)inspectorDidBecomeKey:(NSNotification *)notification // INTAppController (INTPrivateMethods)
+{
+	[self setShowHideInspectorMenuItemTitle:NSLocalizedString(@"INTHideInspectorMenuTitle", @"Hide Inspector menu item")];
+}
+
+
+- (void)inspectorWillClose:(NSNotification *)notification // INTAppController (INTPrivateMethods)
+{
+	[self setShowHideInspectorMenuItemTitle:NSLocalizedString(@"INTShowInspectorMenuTitle", @"Show Inspector menu item")];
+}
+
+
+
 #pragma mark UI Actions
 
 - (IBAction)save:(id)sender
@@ -337,11 +378,27 @@ static INTAppController *sharedAppController = nil;
 }
 
 
-- (IBAction)showInspector:(id)sender
+- (IBAction)showHideInspector:(id)sender
 {
 	if (!INT_inspectorController)
+	{
 		INT_inspectorController = [[INTInspectorController alloc] initWithWindowNibName:@"Inspector"];
-	[INT_inspectorController showWindow:self];
+		
+		// Watch for the inspector closing and opening so we can update the menu item title
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(inspectorWillClose:)
+													 name:NSWindowWillCloseNotification
+												   object:[INT_inspectorController window]];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(inspectorDidBecomeKey:)
+													 name:NSWindowDidBecomeKeyNotification
+												   object:[INT_inspectorController window]];
+	}
+	
+	if ([[INT_inspectorController window] isVisible])
+		[INT_inspectorController close];
+	else
+		[INT_inspectorController showWindow:self];
 }
 
 

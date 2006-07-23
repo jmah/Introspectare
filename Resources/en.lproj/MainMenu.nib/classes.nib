@@ -7,7 +7,7 @@
                 save = id; 
                 showConstitutions = id; 
                 showDays = id; 
-                showInspector = id; 
+                showHideInspector = id; 
                 showPrinciples = id; 
             }; 
             CLASS = INTAppController; 
