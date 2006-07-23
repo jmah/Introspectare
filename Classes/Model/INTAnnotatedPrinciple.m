@@ -83,7 +83,6 @@
 
 - (unsigned)hash
 {
-#warning This should be something more reasonable
 	unsigned xorMask = 0;
 	if ([self isUpheld])
 		xorMask = 7;
