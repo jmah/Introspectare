@@ -13,6 +13,7 @@
 @class INTEntriesController;
 @class INTConstitutionsController;
 @class INTPrincipleLibraryController;
+@class INTInspectorController;
 
 
 @interface INTAppController : NSObject 
@@ -24,6 +25,7 @@
 	INTEntriesController *INT_entriesControler;
 	INTConstitutionsController *INT_constitutionsController;
 	INTPrincipleLibraryController *INT_principleLibraryController;
+	INTInspectorController *INT_inspectorController;
 }
 
 

@@ -10,10 +10,23 @@
 #import "INTShared.h"
 #import "INTAppController.h"
 #import "INTLibrary.h"
+#import "INTActiveControlEnumerator.h"
 
 
 #pragma mark Pasteboard data types
 static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
+
+
+#pragma mark -
+
+
+@interface INTConstitutionsController (INTPrivateMethods)
+
+#pragma mark Managing the inspector panel
+- (void)setInspectorView:(NSView *)inspectorView;
+- (void)windowDidUpdate:(NSNotification *)notification;
+
+@end
 
 
 @implementation INTConstitutionsController
@@ -23,6 +36,12 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 - (void)awakeFromNib
 {
 	[self setWindowFrameAutosaveName:@"INTConstitutionsWindowFrame"];
+	
+	// Watch window to update inspector
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowDidUpdate:)
+												 name:NSWindowDidUpdateNotification
+											   object:[self window]];
 	
 	// Attach a date formatter
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -44,6 +63,15 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 	[dateDescending release];
 	
 	[constitutionsArrayController setSelectionIndex:0];
+}
+
+
+- (void)dealloc
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:NSWindowDidUpdateNotification
+												  object:[self window]];
+	[super dealloc];
 }
 
 
@@ -69,6 +97,46 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 {
 	[principlesArrayController discardEditing];
 	[constitutionsArrayController discardEditing];
+}
+
+
+
+#pragma mark Managing the inspector panel
+
+- (NSView *)inspectorView
+{
+	return INT_currInspectorView;
+}
+
+
+- (void)setInspectorView:(NSView *)inspectorView // INTConstitutionsController (INTPrivateMethods)
+{
+	INT_currInspectorView = inspectorView;
+}
+
+
+- (void)windowDidUpdate:(NSNotification *)notification // INTConstitutionsController (INTPrivateMethods)
+{
+	NSResponder *currFirstResponder = [[self window] firstResponder];
+	if (INT_previousFirstResponder != currFirstResponder)
+	{
+		INT_previousFirstResponder = currFirstResponder;
+		
+		// Update inspector view
+		NSView *newInspectorView = nil;
+		
+		NSEnumerator *activeControlEnum = [[self window] activeControlEnumerator];
+		NSResponder *currResponder;
+		while (!newInspectorView && (currResponder = [activeControlEnum nextObject]))
+		{
+			if (currResponder == principlesTableView)
+				newInspectorView = principleInspectorView;
+			else if (currResponder == constitutionsTableView)
+				newInspectorView = constitutionInspectorView;
+		}
+		
+		[self setInspectorView:newInspectorView];
+	}
 }
 
 

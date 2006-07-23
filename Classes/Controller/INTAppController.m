@@ -11,6 +11,7 @@
 #import "INTEntriesController.h"
 #import "INTConstitutionsController.h"
 #import "INTPrincipleLibraryController.h"
+#import "INTInspectorController.h"
 
 
 static INTAppController *sharedAppController = nil;
@@ -338,7 +339,9 @@ static INTAppController *sharedAppController = nil;
 
 - (IBAction)showInspector:(id)sender
 {
-#warning Implement
+	if (!INT_inspectorController)
+		INT_inspectorController = [[INTInspectorController alloc] initWithWindowNibName:@"Inspector"];
+	[INT_inspectorController showWindow:self];
 }
 
 

@@ -14,6 +14,9 @@
 		280083A60A5ECA1300A5D67E /* INTAnnotatedPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 280083A50A5ECA1300A5D67E /* INTAnnotatedPrinciple.m */; };
 		2801824A0A5FB656007288D3 /* Entries.nib in Resources */ = {isa = PBXBuildFile; fileRef = 280182480A5FB656007288D3 /* Entries.nib */; };
 		2801827C0A5FBAC9007288D3 /* INTEntriesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2801827B0A5FBAC9007288D3 /* INTEntriesController.m */; };
+		282DD9B90A7397D3009E2AFB /* INTInspectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282DD9B80A7397D3009E2AFB /* INTInspectorController.m */; };
+		282DD9D40A7398CA009E2AFB /* Inspector.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282DD9D20A7398CA009E2AFB /* Inspector.nib */; };
+		282DDA2D0A73A79D009E2AFB /* INTActiveControlEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 282DDA2C0A73A79D009E2AFB /* INTActiveControlEnumerator.m */; };
 		282E913B0A5C1002008EDF1F /* INTConstitutionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */; };
 		282E91810A5C169F008EDF1F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 282E917F0A5C169F008EDF1F /* Localizable.strings */; };
 		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
@@ -44,6 +47,11 @@
 		280182490A5FB656007288D3 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Entries.nib; sourceTree = "<group>"; };
 		2801827A0A5FBAC9007288D3 /* INTEntriesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesController.h; sourceTree = "<group>"; };
 		2801827B0A5FBAC9007288D3 /* INTEntriesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesController.m; sourceTree = "<group>"; };
+		282DD9B70A7397D3009E2AFB /* INTInspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTInspectorController.h; sourceTree = "<group>"; };
+		282DD9B80A7397D3009E2AFB /* INTInspectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTInspectorController.m; sourceTree = "<group>"; };
+		282DD9D30A7398CA009E2AFB /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Inspector.nib; sourceTree = "<group>"; };
+		282DDA2B0A73A79D009E2AFB /* INTActiveControlEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTActiveControlEnumerator.h; sourceTree = "<group>"; };
+		282DDA2C0A73A79D009E2AFB /* INTActiveControlEnumerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTActiveControlEnumerator.m; sourceTree = "<group>"; };
 		282E91390A5C1002008EDF1F /* INTConstitutionsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTConstitutionsController.h; sourceTree = "<group>"; };
 		282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTConstitutionsController.m; sourceTree = "<group>"; };
 		282E91800A5C169F008EDF1F /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -125,6 +133,8 @@
 				282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */,
 				282E91E50A5C1ABD008EDF1F /* INTPrincipleLibraryController.h */,
 				282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */,
+				282DD9B70A7397D3009E2AFB /* INTInspectorController.h */,
+				282DD9B80A7397D3009E2AFB /* INTInspectorController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -142,6 +152,8 @@
 				280083A50A5ECA1300A5D67E /* INTAnnotatedPrinciple.m */,
 				280081F70A5E948800A5D67E /* INTConstitution.h */,
 				280081F80A5E948800A5D67E /* INTConstitution.m */,
+				282DDA2B0A73A79D009E2AFB /* INTActiveControlEnumerator.h */,
+				282DDA2C0A73A79D009E2AFB /* INTActiveControlEnumerator.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -176,6 +188,7 @@
 				280182480A5FB656007288D3 /* Entries.nib */,
 				28BFA0CE0A5AD4510075D416 /* Constitutions.nib */,
 				282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */,
+				282DD9D20A7398CA009E2AFB /* Inspector.nib */,
 				287031410A61607000A7F5A7 /* Introspectare.icns */,
 			);
 			path = Resources;
@@ -282,6 +295,7 @@
 				282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */,
 				2801824A0A5FB656007288D3 /* Entries.nib in Resources */,
 				287031420A61607000A7F5A7 /* Introspectare.icns in Resources */,
+				282DD9D40A7398CA009E2AFB /* Inspector.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,6 +318,8 @@
 				280083A60A5ECA1300A5D67E /* INTAnnotatedPrinciple.m in Sources */,
 				2801827C0A5FBAC9007288D3 /* INTEntriesController.m in Sources */,
 				28CEA7D50A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m in Sources */,
+				282DD9B90A7397D3009E2AFB /* INTInspectorController.m in Sources */,
+				282DDA2D0A73A79D009E2AFB /* INTActiveControlEnumerator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,6 +332,14 @@
 				280182490A5FB656007288D3 /* en */,
 			);
 			name = Entries.nib;
+			sourceTree = "<group>";
+		};
+		282DD9D20A7398CA009E2AFB /* Inspector.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				282DD9D30A7398CA009E2AFB /* en */,
+			);
+			name = Inspector.nib;
 			sourceTree = "<group>";
 		};
 		282E917F0A5C169F008EDF1F /* Localizable.strings */ = {
@@ -386,7 +410,7 @@
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.0;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -396,7 +420,7 @@
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.0;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;
