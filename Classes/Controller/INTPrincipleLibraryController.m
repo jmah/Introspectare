@@ -56,6 +56,15 @@
 
 
 
+#pragma mark Managing the inspector panel
+
+- (NSView *)inspectorView
+{
+	return principleInspectorView;
+}
+
+
+
 #pragma mark NSWindow delegate methods
 
 - (NSUndoManager *)windowWillReturnUndoManager:(NSWindow *)window // NSObject (NSWindowDelegate)

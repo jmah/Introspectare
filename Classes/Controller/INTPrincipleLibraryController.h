@@ -29,4 +29,7 @@
 - (BOOL)commitEditing;
 - (void)discardEditing;
 
+#pragma mark Managing the inspector panel
+- (NSView *)inspectorView;
+
 @end
