@@ -19,7 +19,7 @@
 	if ((self = [super init]))
 	{
 		INT_principle = [principle retain];
-		[self setUpheld:NO];
+		[self setUpheld:YES];
 	}
 	return self;
 }
