@@ -502,10 +502,7 @@
 			if (currAnnotatedPrincipleMinY > NSMaxY(rect))
 				break;
 			
-			NSRect gridFrame = NSMakeRect(currEntryMinX,
-										  currAnnotatedPrincipleMinY,
-										  currEntryMaxX - currEntryMinX,
-										  currAnnotatedPrincipleMaxY - currAnnotatedPrincipleMinY);
+			NSRect gridFrame = NSMakeRect(currEntryMinX, currAnnotatedPrincipleMinY, [self columnWidth], [self rowHeight]);
 			
 			NSActionCell *cell = [self dataCell];
 			int state = [currAnnotatedPrinciple isUpheld] ? NSOffState : NSOnState;
