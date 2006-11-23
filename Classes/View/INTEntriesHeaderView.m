@@ -297,6 +297,14 @@
 	NSRect monthCellFrame = NSMakeRect(currMonthMinX, hh, monthWidth + 1.0, hh);
 	if (!NSIsEmptyRect(monthCellFrame))
 		[self drawMonth:currMonth withHintedFrame:monthCellFrame];
+	
+	// Fill any empty space on the right
+	NSRect monthFillerFrame = NSMakeRect(currEntryMaxX, hh, NSWidth([self visibleRect]) - currEntryMaxX + 1.0, hh);
+	if (!NSIsEmptyRect(monthFillerFrame))
+		[self drawHeaderString:@"" inFrame:monthFillerFrame];
+	NSRect entryFillerFrame = NSOffsetRect(monthFillerFrame, 0.0, hh);
+	if (!NSIsEmptyRect(entryFillerFrame))
+		[self drawHeaderString:@"" inFrame:entryFillerFrame];
 }
 
 
