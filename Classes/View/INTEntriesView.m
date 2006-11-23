@@ -496,12 +496,20 @@
 			if (currAnnotatedPrincipleMinY > NSMaxY(rect))
 				break;
 			
+			NSRect gridFrame = NSMakeRect(currEntryMinX,
+										  currAnnotatedPrincipleMinY,
+										  currEntryMaxX - currEntryMinX,
+										  currAnnotatedPrincipleMaxY - currAnnotatedPrincipleMinY);
+			
 			NSActionCell *cell = [self dataCell];
 			int state = [currAnnotatedPrinciple isUpheld] ? NSOffState : NSOnState;
 			[cell setState:state];
-			NSRect cellFrame;
-			cellFrame.origin = NSMakePoint(currEntryMinX, currAnnotatedPrincipleMinY);
-			cellFrame.size = [cell cellSizeForBounds:NSMakeRect(0.0, 0.0, currEntryMaxX - currEntryMinX, currAnnotatedPrincipleMaxY - currAnnotatedPrincipleMinY)];
+			NSSize cellSize = [cell cellSizeForBounds:NSMakeRect(0.0, 0.0, NSWidth(gridFrame), NSHeight(gridFrame))];
+			
+			NSRect cellFrame = gridFrame;
+			cellFrame.origin.x = NSMidX(gridFrame) - cellSize.width / 2.0;
+			cellFrame.origin.y = NSMidY(gridFrame) - cellSize.height / 2.0;
+			cellFrame.size = cellSize;
 			
 			[cell drawWithFrame:cellFrame inView:self];
 		}
