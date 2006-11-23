@@ -509,7 +509,7 @@
 	
 	
 	// Draw grid
-	[[[NSColor lightGrayColor] colorWithAlphaComponent:0.5] set];
+	[[NSColor gridColor] set];
 	for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self intercellSpacing].width)
 		[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self intercellSpacing].width)];
 	for (float x = [self columnWidth]; x < NSWidth([self bounds]); x += [self columnWidth] + [self intercellSpacing].height)
