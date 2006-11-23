@@ -19,13 +19,17 @@
 	INTLibrary *INT_library;
 	NSCalendar *INT_calendar;
 	float INT_rowHeight;
+	float INT_interrowSpacing;
 	float INT_headerHeight;
 	float INT_columnWidth;
 	NSFont *INT_headerFont;
 	NSFont *INT_principleFont;
 	INTEntriesHeaderView *INT_headerView;
 	INTEntriesCornerView *INT_cornerView;
+	NSSize INT_minimumFrameSize;
 	NSArray *INT_cachedSortedEntries;
+	BOOL INT_clipViewDidPostFrameChangeNotifications;
+	float INT_prevClipViewFrameWidth;
 }
 
 
@@ -42,6 +46,8 @@
 #pragma mark Setting display attributes
 - (float)rowHeight;
 - (void)setRowHeight:(float)rowHeight;
+- (float)interrowSpacing;
+- (void)setInterrowSpacing:(float)interrowSpacing;
 - (float)headerHeight;
 - (float)columnWidth;
 - (void)setColumnWidth:(float)columnWidth;

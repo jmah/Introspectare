@@ -16,8 +16,6 @@
 	@private
 	INTEntriesView *INT_entriesView; // Weak reference
 	NSTableHeaderCell *INT_headerCell;
-	BOOL INT_clipViewDidPostFrameChangeNotifications;
-	float INT_prevClipViewFrameWidth;
 	NSDateFormatter *INT_dateFormatter;
 }
 
@@ -27,8 +25,5 @@
 
 #pragma mark Getting the entries view
 - (INTEntriesView *)entriesView;
-
-#pragma mark Managing clip view bounds changes
-- (void)clipViewFrameDidChangeChange:(NSNotification *)notification;
 
 @end

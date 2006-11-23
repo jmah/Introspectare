@@ -27,6 +27,9 @@
 #pragma mark Displaying
 - (void)updateFrameSize;
 
+#pragma mark Managing clip view bounds changes
+- (void)clipViewFrameDidChangeChange:(NSNotification *)notification;
+
 @end
 
 
@@ -57,6 +60,7 @@
 		INT_library = [library retain];
 		INT_calendar = [calendar retain];
 		INT_rowHeight = 20.0;
+		INT_interrowSpacing = 1.0;
 		INT_headerHeight = 16.0;
 		INT_columnWidth = 22.0;
 		INT_headerFont = [NSFont fontWithName:@"Lucida Grande" size:11.0];
@@ -69,6 +73,9 @@
 		NSRect cornerFrame = NSMakeRect(0.0, 0.0, 20.0, NSHeight(headerFrame));
 		INT_cornerView = [[INTEntriesCornerView alloc] initWithFrame:cornerFrame
 														 entriesView:self];
+		
+		INT_prevClipViewFrameWidth = NAN;
+		
 		[self cacheSortedEntries];
 		[self updateFrameSize];
 		
@@ -134,7 +141,22 @@
 - (void)setRowHeight:(float)rowHeight
 {
 	INT_rowHeight = rowHeight;
+	[self updateFrameSize];
 	[[self enclosingScrollView] setVerticalLineScroll:rowHeight];
+	[self setNeedsDisplay:YES];
+}
+
+
+- (float)interrowSpacing
+{
+	return INT_interrowSpacing;
+}
+
+
+- (void)setInterrowSpacing:(float)interrowSpacing
+{
+	INT_interrowSpacing = interrowSpacing;
+	[self updateFrameSize];
 	[self setNeedsDisplay:YES];
 }
 
@@ -154,6 +176,7 @@
 - (void)setColumnWidth:(float)columnWidth
 {
 	INT_columnWidth = columnWidth;
+	[self updateFrameSize];
 	[[self enclosingScrollView] setHorizontalLineScroll:columnWidth];
 	[self setNeedsDisplay:YES];
 }
@@ -231,7 +254,20 @@
 
 #pragma mark Managing the view hierarchy
 
-- (void)viewDidMoveToSuperview
+- (void)viewWillMoveToSuperview:(NSView *)newSuperview // NSView
+{
+	if ([[self superview] isKindOfClass:[NSClipView class]])
+	{
+		NSClipView *cv = (NSClipView *)[self superview];
+		[cv setPostsFrameChangedNotifications:INT_clipViewDidPostFrameChangeNotifications];
+		[[NSNotificationCenter defaultCenter] removeObserver:self
+														name:NSViewFrameDidChangeNotification
+													  object:cv];
+	}
+}
+
+
+- (void)viewDidMoveToSuperview // NSView
 {
 	NSScrollView *sv = [self enclosingScrollView];
 	if (sv)
@@ -239,6 +275,14 @@
 		[sv setHorizontalLineScroll:[self columnWidth]];
 		[sv setVerticalLineScroll:[self rowHeight]];
 		[[sv contentView] setCopiesOnScroll:NO];
+		INT_prevClipViewFrameWidth = NSWidth([[sv contentView] frame]);
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(clipViewFrameDidChangeChange:)
+													 name:NSViewFrameDidChangeNotification
+												   object:[sv contentView]];
+		INT_clipViewDidPostFrameChangeNotifications = [[sv contentView] postsFrameChangedNotifications];
+		[[sv contentView] setPostsFrameChangedNotifications:YES];
 	}
 	else
 		NSLog(@"The INTEntriesView expects to be enclosed in an NSScrollView");
@@ -248,32 +292,73 @@
 
 #pragma mark Displaying
 
+- (BOOL)isOpaque // NSView
+{
+	return YES;
+}
+
+
 - (void)updateFrameSize // INTEntriesView (INTPrivateMethods)
 {
-	// TODO Temp constant
-	[self setFrameSize:NSMakeSize([[self sortedEntries] count] * [self columnWidth], 100.0)];
+	unsigned maxPrincipleCount = 0;
+	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
+	INTEntry *currEntry;
+	while ((currEntry = [entries nextObject]))
+		maxPrincipleCount = MAX([[currEntry annotatedPrinciples] count], maxPrincipleCount);
+	float height = (maxPrincipleCount * [self rowHeight]) + ((maxPrincipleCount - 1) * [self interrowSpacing]);
+	INT_minimumFrameSize = NSMakeSize([[self sortedEntries] count] * [self columnWidth], height);
+}
+
+
+
+#pragma mark Managing clip view bounds changes
+
+- (void)clipViewFrameDidChangeChange:(NSNotification *)notification // INTEntriesView (INTProtectedMethods)
+{
+	NSSize newFrameSize = INT_minimumFrameSize;
+	NSSize newClipViewSize = [[notification object] bounds].size;
+	newFrameSize.width  = fmaxf(newClipViewSize.width , newFrameSize.width );
+	newFrameSize.height = fmaxf(newClipViewSize.height, newFrameSize.height);
+	
+	if (!NSEqualSizes([self frame].size, newFrameSize))
+		[self setFrameSize:newFrameSize];
+	
+	NSSize headerFrameSize = [[self headerView] frame].size;
+	headerFrameSize.width = newFrameSize.width;
+	if (!NSEqualSizes([[self headerView] frame].size, headerFrameSize))
+		[[self headerView] setFrameSize:headerFrameSize];
+	
+	[self setNeedsDisplay:YES];
+	[[self headerView] setNeedsDisplay:YES];
 }
 
 
 
 #pragma mark Drawing the entries view
 
-- (void)drawRect:(NSRect)rect
+- (void)drawRect:(NSRect)rect // NSView
 {
-	[[NSColor greenColor] set];
+	[[NSColor yellowColor] set];
 	NSRectFill(rect);
+	
+	[[NSColor greenColor] set];
+	NSRect minRect = [self bounds]; minRect.size = INT_minimumFrameSize;
+	NSRectFill(minRect);
 	[[NSColor redColor] set];
-	NSRectFill(NSInsetRect([self bounds], 10.0, 10.0));
+	NSRectFill(NSInsetRect(minRect, 10.0, 10.0));
 	
 	[[NSColor blueColor] set];
-	NSRectFill(NSMakeRect(NSMinX([self visibleRect]), 0.0, 100.0, NSHeight([self bounds])));
+	NSRectFill(NSMakeRect(NSMinX([self visibleRect]), 0.0, 100.0, INT_minimumFrameSize.height));
+	
+	[[NSColor orangeColor] set];
+	NSRectFill(NSMakeRect(NSMaxX([self visibleRect]) - 50.0, 20.0, 20.0, 20.0));
 }
 
 
 
 #pragma mark Examining coordinate system modifications
 
-- (BOOL)isFlipped
+- (BOOL)isFlipped // NSView
 {
 	return YES;
 }

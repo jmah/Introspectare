@@ -39,7 +39,6 @@
 	if ((self = [super initWithFrame:frame]))
 	{
 		INT_entriesView = entriesView;
-		INT_prevClipViewFrameWidth = NAN;
 		
 		[entriesView addObserver:self
 					  forKeyPath:@"columnWidth"
@@ -115,54 +114,12 @@
 
 #pragma mark Managing the view hierarchy
 
-- (void)viewWillMoveToSuperview:(NSView *)newSuperview
-{
-	if ([[self superview] isKindOfClass:[NSClipView class]])
-	{
-		NSClipView *cv = (NSClipView *)[self superview];
-		[cv setPostsFrameChangedNotifications:INT_clipViewDidPostFrameChangeNotifications];
-		[[NSNotificationCenter defaultCenter] removeObserver:self
-														name:NSViewFrameDidChangeNotification
-													  object:cv];
-	}
-}
-
-
-- (void)viewDidMoveToSuperview
+- (void)viewDidMoveToSuperview // NSView
 {
 	if ([[self superview] isKindOfClass:[NSClipView class]])
 	{
 		NSClipView *cv = (NSClipView *)[self superview];
 		[cv setCopiesOnScroll:NO];
-		INT_prevClipViewFrameWidth = NSWidth([cv frame]);
-		
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(clipViewFrameDidChangeChange:)
-													 name:NSViewFrameDidChangeNotification
-												   object:cv];
-		INT_clipViewDidPostFrameChangeNotifications = [cv postsFrameChangedNotifications];
-		[cv setPostsFrameChangedNotifications:YES];
-	}
-}
-
-
-
-#pragma mark Managing clip view bounds changes
-
-- (void)clipViewFrameDidChangeChange:(NSNotification *)notification
-{
-	NSSize newFrameSize = NSMakeSize(NSWidth([[self entriesView] bounds]), NSHeight([self frame]));
-	float newClipViewWidth = NSWidth([[notification object] bounds]);
-	if (newClipViewWidth > newFrameSize.width)
-		newFrameSize.width = newClipViewWidth;
-	if (!NSEqualSizes([self frame].size, newFrameSize))
-		[self setFrameSize:newFrameSize];
-	
-	// The clip view does not redraw its content view if made smaller, only if made larger
-	if (INT_prevClipViewFrameWidth != newClipViewWidth)
-	{
-		INT_prevClipViewFrameWidth = newClipViewWidth;
-		[self setNeedsDisplay:YES];
 	}
 }
 
@@ -170,7 +127,7 @@
 
 #pragma mark Examining coordinate system modifications
 
-- (BOOL)isFlipped
+- (BOOL)isFlipped // NSView
 {
 	return YES;
 }
@@ -179,7 +136,7 @@
 
 #pragma mark Managing live resize
 
-- (void)viewDidEndLiveResize
+- (void)viewDidEndLiveResize // NSView
 {
 	[self setNeedsDisplay:YES];
 }
@@ -188,7 +145,7 @@
 
 #pragma mark Drawing
 
-- (void)drawRect:(NSRect)rect
+- (void)drawRect:(NSRect)rect // NSView
 {
 	float hh = [[self entriesView] headerHeight];
 	
@@ -351,7 +308,7 @@
 }
 
 
-- (BOOL)wantsDefaultClipping
+- (BOOL)wantsDefaultClipping // NSView
 {
 	return NO;
 }
@@ -360,7 +317,7 @@
 
 #pragma mark Displaying
 
-- (BOOL)isOpaque
+- (BOOL)isOpaque // NSView
 {
 	return YES;
 }
