@@ -61,7 +61,7 @@
 		INT_calendar = [calendar retain];
 		INT_backgroundColor = [[NSColor whiteColor] retain];
 		INT_rowHeight = 20.0;
-		INT_interrowSpacing = 1.0;
+		INT_intercellSpacing = NSMakeSize(1.0, 1.0);
 		INT_headerHeight = 16.0;
 		INT_columnWidth = 22.0;
 		INT_headerFont = [NSFont fontWithName:@"Lucida Grande" size:11.0];
@@ -164,15 +164,15 @@
 }
 
 
-- (float)interrowSpacing
+- (NSSize)intercellSpacing
 {
-	return INT_interrowSpacing;
+	return INT_intercellSpacing;
 }
 
 
-- (void)setInterrowSpacing:(float)interrowSpacing
+- (void)setIntercellSpacing:(NSSize)intercellSpacing
 {
-	INT_interrowSpacing = interrowSpacing;
+	INT_intercellSpacing = intercellSpacing;
 	[self updateFrameSize];
 	[self setNeedsDisplay:YES];
 }
@@ -307,6 +307,65 @@
 
 
 
+#pragma mark Managing the key view loop
+
+- (BOOL)canBecomeKeyView // NSView
+{
+	return YES;
+}
+
+
+
+#pragma mark Changing the first responder
+
+- (BOOL)accepsFirstResponder // NSResponder
+{
+	return YES;
+}
+
+
+- (BOOL)becomeFirstResponder // NSResponder
+{
+	if ([super becomeFirstResponder])
+	{
+		//[self setNeedsDisplay:YES];
+		[self setKeyboardFocusRingNeedsDisplayInRect:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+		return YES;
+	}
+	else
+		return NO;
+}
+
+
+- (BOOL)resignFirstResponder // NSResponder
+{
+	if ([super resignFirstResponder])
+	{
+		[self setKeyboardFocusRingNeedsDisplayInRect:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+		[self setNeedsDisplay:YES];
+		return YES;
+	}
+	else
+		return NO;
+}
+
+
+
+#pragma mark Event methods
+
+- (void)mouseDown:(NSEvent *)event // NSResponder
+{
+	[[self window] makeFirstResponder:self];
+}
+
+
+- (void)keyDown:(NSEvent *)event // NSResponder
+{
+	NSLog(@"%@", event);
+}
+
+
+
 #pragma mark Displaying
 
 - (BOOL)isOpaque // NSView
@@ -322,8 +381,9 @@
 	INTEntry *currEntry;
 	while ((currEntry = [entries nextObject]))
 		maxPrincipleCount = MAX([[currEntry annotatedPrinciples] count], maxPrincipleCount);
-	float height = (maxPrincipleCount * [self rowHeight]) + ((maxPrincipleCount - 1) * [self interrowSpacing]);
-	INT_minimumFrameSize = NSMakeSize([[self sortedEntries] count] * [self columnWidth], height);
+	float height = (maxPrincipleCount * [self rowHeight]) + ((maxPrincipleCount - 1) * [self intercellSpacing].height);
+	float width = ([[self sortedEntries] count] * [self columnWidth]) + (([[self sortedEntries] count] - 1) * [self intercellSpacing].width);
+	INT_minimumFrameSize = NSMakeSize(width, height);
 }
 
 
@@ -376,10 +436,10 @@
 	
 	// Draw grid
 	[[[NSColor lightGrayColor] colorWithAlphaComponent:0.5] set];
-	for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self interrowSpacing])
-		[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self interrowSpacing])];
-	for (float x = [self columnWidth] - 1.0; x < NSWidth([self bounds]); x += [self columnWidth])
-		[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), 1.0, NSHeight([self bounds]))];
+	for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self intercellSpacing].width)
+		[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self intercellSpacing].width)];
+	for (float x = [self columnWidth]; x < NSWidth([self bounds]); x += [self columnWidth] + [self intercellSpacing].height)
+		[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
 }
 
 

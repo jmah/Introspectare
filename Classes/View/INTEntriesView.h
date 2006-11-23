@@ -20,7 +20,7 @@
 	NSCalendar *INT_calendar;
 	NSColor *INT_backgroundColor;
 	float INT_rowHeight;
-	float INT_interrowSpacing;
+	NSSize INT_intercellSpacing;
 	float INT_headerHeight;
 	float INT_columnWidth;
 	NSFont *INT_headerFont;
@@ -49,8 +49,8 @@
 - (void)setBackgroundColor:(NSColor *)color;
 - (float)rowHeight;
 - (void)setRowHeight:(float)rowHeight;
-- (float)interrowSpacing;
-- (void)setInterrowSpacing:(float)interrowSpacing;
+- (NSSize)intercellSpacing;
+- (void)setIntercellSpacing:(NSSize)spacing;
 - (float)headerHeight;
 - (float)columnWidth;
 - (void)setColumnWidth:(float)columnWidth;

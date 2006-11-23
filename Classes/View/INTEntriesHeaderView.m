@@ -169,7 +169,7 @@
 	while ((currEntry = [entries nextObject]))
 	{
 		currEntryMinX = currEntryMaxX;
-		currEntryMaxX += [[self entriesView] columnWidth];
+		currEntryMaxX += [[self entriesView] columnWidth] + [[self entriesView] intercellSpacing].width;
 		
 		const unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
 		NSDateComponents *components = [[[self entriesView] calendar] components:unitFlags fromDate:[currEntry date]];
