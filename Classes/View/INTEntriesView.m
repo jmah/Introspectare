@@ -483,6 +483,12 @@
 		if (currEntryMinX > NSMaxX(rect))
 			break;
 		
+		if (NO)// If entry is selected
+		{
+			[[NSColor selectedControlColor] set];
+			[NSBezierPath fillRect:NSMakeRect(currEntryMinX, NSMinY([self bounds]), [self columnWidth], NSHeight([self bounds]))];
+		}
+		
 		// TODO Draw all annotatedPrinciples from the same constitution in the same order
 		float currAnnotatedPrincipleMaxY = -[self intercellSpacing].height;
 		NSEnumerator *annotatedPrinciples = [[currEntry annotatedPrinciples] objectEnumerator];
