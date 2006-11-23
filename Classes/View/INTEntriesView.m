@@ -59,6 +59,7 @@
 		
 		INT_library = [library retain];
 		INT_calendar = [calendar retain];
+		INT_backgroundColor = [[NSColor whiteColor] retain];
 		INT_rowHeight = 20.0;
 		INT_interrowSpacing = 1.0;
 		INT_headerHeight = 16.0;
@@ -101,6 +102,7 @@
 	
 	[INT_library release], INT_library = nil;
 	[INT_calendar release], INT_calendar = nil;
+	[INT_backgroundColor release], INT_backgroundColor = nil;
 	[INT_headerFont release], INT_headerFont = nil;
 	[INT_principleFont release], INT_principleFont = nil;
 	[INT_headerView release], INT_headerView = nil;
@@ -131,6 +133,21 @@
 
 
 #pragma mark Setting display attributes
+
+- (NSColor *)backgroundColor
+{
+	return INT_backgroundColor;
+}
+
+
+- (void)setBackgroundColor:(NSColor *)color
+{
+	id oldValue = INT_backgroundColor;
+	INT_backgroundColor = [color retain];
+	[self setNeedsDisplay:YES];
+	[oldValue release];
+}
+
 
 - (float)rowHeight
 {
@@ -338,9 +355,12 @@
 
 - (void)drawRect:(NSRect)rect // NSView
 {
-	[[NSColor yellowColor] set];
+	// Draw background
+	[[self backgroundColor] set];
 	NSRectFill(rect);
 	
+	
+	// Draw placeholder graphics
 	[[NSColor greenColor] set];
 	NSRect minRect = [self bounds]; minRect.size = INT_minimumFrameSize;
 	NSRectFill(minRect);
@@ -352,6 +372,14 @@
 	
 	[[NSColor orangeColor] set];
 	NSRectFill(NSMakeRect(NSMaxX([self visibleRect]) - 50.0, 20.0, 20.0, 20.0));
+	
+	
+	// Draw grid
+	[[[NSColor lightGrayColor] colorWithAlphaComponent:0.5] set];
+	for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self interrowSpacing])
+		[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self interrowSpacing])];
+	for (float x = [self columnWidth] - 1.0; x < NSWidth([self bounds]); x += [self columnWidth])
+		[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), 1.0, NSHeight([self bounds]))];
 }
 
 

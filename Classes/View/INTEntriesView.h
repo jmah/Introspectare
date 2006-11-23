@@ -18,6 +18,7 @@
 	@private
 	INTLibrary *INT_library;
 	NSCalendar *INT_calendar;
+	NSColor *INT_backgroundColor;
 	float INT_rowHeight;
 	float INT_interrowSpacing;
 	float INT_headerHeight;
@@ -44,6 +45,8 @@
 - (INTLibrary *)library;
 
 #pragma mark Setting display attributes
+- (NSColor *)backgroundColor;
+- (void)setBackgroundColor:(NSColor *)color;
 - (float)rowHeight;
 - (void)setRowHeight:(float)rowHeight;
 - (float)interrowSpacing;
