@@ -42,9 +42,10 @@
 }
 
 
+
 #pragma mark Examining coordinate system modifications
 
-- (BOOL)isFlipped
+- (BOOL)isFlipped // NSView
 {
 	return YES;
 }
@@ -53,9 +54,12 @@
 
 #pragma mark Drawing
 
-- (void)drawRect:(NSRect)rect
+- (void)drawRect:(NSRect)rect // NSView
 {
 	float hh = [[self entriesView] headerHeight];
+	
+	[[NSColor whiteColor] set];
+	NSRectFill(rect);
 	
 	NSRect cornerRect = NSMakeRect(NSMinX([self bounds]), NSMinY([self bounds]), NSWidth([self bounds]), hh);
 	[INT_cornerCell drawWithFrame:cornerRect inView:self];
@@ -65,6 +69,15 @@
 	
 	cornerRect = NSOffsetRect(cornerRect, 0.0, hh);
 	[INT_cornerCell drawWithFrame:cornerRect inView:self];
+}
+
+
+
+#pragma mark Displaying
+
+- (BOOL)isOpaque // NSView
+{
+	return YES;
 }
 
 
