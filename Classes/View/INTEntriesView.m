@@ -11,6 +11,7 @@
 #import "INTLibrary.h"
 #import "INTEntry.h"
 #import "INTConstitution.h"
+#import "INTAnnotatedPrinciple.h"
 #import "INTEntriesHeaderView.h"
 #import "INTEntriesCornerView.h"
 
@@ -65,7 +66,6 @@
 		INT_headerHeight = 16.0;
 		INT_columnWidth = 22.0;
 		INT_headerFont = [NSFont fontWithName:@"Lucida Grande" size:11.0];
-		INT_principleFont = [NSFont fontWithName:@"Lucida Grande" size:13.0];
 		
 		NSRect headerFrame = NSMakeRect(0.0, 0.0, NSWidth(frame), 3.0 * [self headerHeight]);
 		INT_headerView = [[INTEntriesHeaderView alloc] initWithFrame:headerFrame
@@ -76,6 +76,21 @@
 														 entriesView:self];
 		
 		INT_prevClipViewFrameWidth = NAN;
+		
+		INT_principleLabelCell = [[NSTextFieldCell alloc] initTextCell:[NSString string]];
+		[INT_principleLabelCell setFont:[NSFont fontWithName:@"Lucida Grande" size:13.0]];
+		[INT_principleLabelCell setLineBreakMode:NSLineBreakByTruncatingTail];
+		[INT_principleLabelCell setAlignment:NSLeftTextAlignment];
+		[INT_principleLabelCell setControlView:self];
+		
+		NSButtonCell *dataCell = [[NSButtonCell alloc] initTextCell:[NSString string]];
+		// Set an attributed title, otherwise the button cell will generate one each time it's drawn
+		[dataCell setAttributedTitle:[[[NSAttributedString alloc] initWithString:[NSString string]] autorelease]];
+		[dataCell setButtonType:NSSwitchButton];
+		[dataCell setControlView:self];
+		INT_dataCell = dataCell;
+		
+		[self setFocusRingType:NSFocusRingTypeExterior];
 		
 		[self cacheSortedEntries];
 		[self updateFrameSize];
@@ -104,7 +119,8 @@
 	[INT_calendar release], INT_calendar = nil;
 	[INT_backgroundColor release], INT_backgroundColor = nil;
 	[INT_headerFont release], INT_headerFont = nil;
-	[INT_principleFont release], INT_principleFont = nil;
+	[INT_principleLabelCell release], INT_principleLabelCell = nil;
+	[INT_dataCell release], INT_dataCell = nil;
 	[INT_headerView release], INT_headerView = nil;
 	[INT_cornerView release], INT_cornerView = nil;
 	[INT_cachedSortedEntries release], INT_cachedSortedEntries = nil;
@@ -210,20 +226,53 @@
 	id oldValue = INT_headerFont;
 	INT_headerFont = [headerFont retain];
 	[oldValue release];
-	[self setNeedsDisplay:YES];
+	[[self headerView] setNeedsDisplay:YES];
 }
 
 
 - (NSFont *)principleFont
 {
-	return INT_principleFont;
+	return [[self principleLabelCell] font];
 }
 
 
 - (void)setPrincipleFont:(NSFont *)principleFont
 {
-	id oldValue = INT_principleFont;
-	INT_principleFont = [principleFont retain];
+	[[self principleLabelCell] setFont:principleFont];
+	[self setNeedsDisplay:YES];
+}
+
+
+
+#pragma mark Setting component cells
+
+- (NSCell *)principleLabelCell
+{
+	return INT_principleLabelCell;
+}
+
+
+- (void)setPrincipleLabelCell:(NSCell *)cell
+{
+	id oldValue = INT_principleLabelCell;
+	INT_principleLabelCell = [cell copy];
+	[INT_principleLabelCell setControlView:self];
+	[oldValue release];
+	[self setNeedsDisplay:YES];
+}
+
+
+- (NSActionCell *)dataCell
+{
+	return INT_dataCell;
+}
+
+
+- (void)setDataCell:(NSActionCell *)cell
+{
+	id oldValue = INT_dataCell;
+	INT_dataCell = [cell copy];
+	[INT_dataCell setControlView:self];
 	[oldValue release];
 	[self setNeedsDisplay:YES];
 }

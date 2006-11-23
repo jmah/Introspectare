@@ -24,13 +24,14 @@
 	float INT_headerHeight;
 	float INT_columnWidth;
 	NSFont *INT_headerFont;
-	NSFont *INT_principleFont;
 	INTEntriesHeaderView *INT_headerView;
 	INTEntriesCornerView *INT_cornerView;
 	NSSize INT_minimumFrameSize;
 	NSArray *INT_cachedSortedEntries;
 	BOOL INT_clipViewDidPostFrameChangeNotifications;
 	float INT_prevClipViewFrameWidth;
+	NSCell *INT_principleLabelCell;
+	NSActionCell *INT_dataCell;
 }
 
 
@@ -58,5 +59,11 @@
 - (void)setHeaderFont:(NSFont *)headerFont;
 - (NSFont *)principleFont;
 - (void)setPrincipleFont:(NSFont *)principleFont;
+
+#pragma mark Setting component cells
+- (NSCell *)principleLabelCell;
+- (void)setPrincipleLabelCell:(NSCell *)cell;
+- (NSActionCell *)dataCell;
+- (void)setDataCell:(NSActionCell *)cell;
 
 @end
