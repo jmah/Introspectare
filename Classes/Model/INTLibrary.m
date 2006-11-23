@@ -108,11 +108,8 @@
 	while (!foundConstitution && (currConstitution = [constitutionEnum nextObject]))
 	{
 		NSComparisonResult comparison = [[currConstitution creationDate] compare:date];
-		if ((comparison == NSOrderedAscending) ||
-			(comparison == NSOrderedSame))
-		{
+		if ((comparison == NSOrderedAscending) || (comparison == NSOrderedSame))
 			foundConstitution = currConstitution;
-		}
 	}
 	
 	[dateDescending release];
