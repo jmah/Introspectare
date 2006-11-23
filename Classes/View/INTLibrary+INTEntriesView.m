@@ -22,7 +22,7 @@
 	NSSortDescriptor *dateDescending = [[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:NO];
 	NSEnumerator *constitutionEnum = [[[self constitutions] sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateDescending]] objectEnumerator];
 	INTConstitution *currConstitution;
-	while (currConstitution = [constitutionEnum nextObject])
+	while ((currConstitution = [constitutionEnum nextObject]))
 	{
 		NSComparisonResult comparison = [[currConstitution creationDate] compare:date];
 		if ((comparison == NSOrderedAscending) || (comparison == NSOrderedSame))
