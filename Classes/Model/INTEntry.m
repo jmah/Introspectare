@@ -48,6 +48,8 @@
 	[INT_note release], INT_note = nil;
 	[INT_constitution release], INT_constitution = nil;
 	[INT_annotatedPrinciples release], INT_annotatedPrinciples = nil;
+	if (INT_cachedDate)
+		[INT_cachedDate release], INT_cachedDate = nil;
 	
 	[super dealloc];
 }
@@ -124,8 +126,9 @@
 
 - (NSDate *)date
 {
-	return 
-	[NSCalendarDate calendarDateWithDayOfCommonEra:[self dayOfCommonEra]];
+	if (!INT_cachedDate)
+		INT_cachedDate = [[NSCalendarDate calendarDateWithDayOfCommonEra:[self dayOfCommonEra]] retain];
+	return INT_cachedDate;
 }
 
 

@@ -15,6 +15,7 @@
 {
 	@private
 	int INT_dayOfCommonEra;
+	NSDate *INT_cachedDate;
 	NSString *INT_note;
 	INTConstitution *INT_constitution;
 	NSArray *INT_annotatedPrinciples;
