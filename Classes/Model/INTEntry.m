@@ -22,7 +22,8 @@
 	{
 		INT_dayOfCommonEra = dayOfCommonEra;
 		INT_constitution = [constitution retain];
-		[self setNote:[NSString string]];
+		INT_note = [[NSString string] retain];
+		INT_unread = YES;
 		
 		// Create annotated principles
 		NSMutableArray *annotatedPrinciples = [[NSMutableArray alloc] initWithCapacity:[[constitution principles] count]];
@@ -65,8 +66,9 @@
 		if ((self = [super init]))
 		{
 			INT_dayOfCommonEra = [decoder decodeIntForKey:@"dayOfCommonEra"];
-			[self setNote:[decoder decodeObjectForKey:@"note"]];
+			INT_note = [[decoder decodeObjectForKey:@"note"] retain];
 			INT_constitution = [[decoder decodeObjectForKey:@"constitution"] retain];
+			INT_unread = [decoder decodeBoolForKey:@"unread"];
 			INT_annotatedPrinciples = [[decoder decodeObjectForKey:@"annotatedPrinciples"] retain];
 		}
 	}
@@ -86,6 +88,7 @@
 		[encoder encodeInt:[self dayOfCommonEra] forKey:@"dayOfCommonEra"];
 		[encoder encodeObject:[self note] forKey:@"note"];
 		[encoder encodeObject:[self constitution] forKey:@"constitution"];
+		[encoder encodeBool:[self isUnread] forKey:@"unread"];
 		[encoder encodeObject:[self annotatedPrinciples] forKey:@"annotatedPrinciples"];
 	}
 	else
@@ -146,6 +149,21 @@
 	id oldValue = INT_note;
 	INT_note = [note copy];
 	[oldValue release];
+}
+
+
+
+#pragma mark Accessing the unread status
+
+- (BOOL)isUnread
+{
+	return INT_unread;
+}
+
+
+- (void)setUnread:(BOOL)unread
+{
+	INT_unread = unread;
 }
 
 

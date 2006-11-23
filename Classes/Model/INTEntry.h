@@ -19,6 +19,7 @@
 	NSString *INT_note;
 	INTConstitution *INT_constitution;
 	NSArray *INT_annotatedPrinciples;
+	BOOL INT_unread;
 }
 
 
@@ -35,6 +36,10 @@
 
 #pragma mark Accessing the constitution
 - (INTConstitution *)constitution;
+
+#pragma mark Accessing the unread status
+- (BOOL)isUnread;
+- (void)setUnread:(BOOL)unread;
 
 #pragma mark Accessing principles
 - (NSArray *)annotatedPrinciples; // NSArray of mutable INTAnnotatedPrinciple objects
