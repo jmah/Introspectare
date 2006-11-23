@@ -22,10 +22,14 @@
 		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
 		282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */; };
 		282E92FC0A5E5806008EDF1F /* INTPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E92FB0A5E5806008EDF1F /* INTPrinciple.m */; };
+		285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 285EE8610B11E795002F8B5A /* INTEntriesView.m */; };
 		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */; };
 		28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28BFA0CE0A5AD4510075D416 /* Constitutions.nib */; };
 		28CEA7D50A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */; };
+		28DB60A50B15D4F200A3E81D /* INTEntriesCornerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */; };
+		28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */; };
+		28DB60E00B15D86E00A3E81D /* INTLibrary+INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60DF0B15D86E00A3E81D /* INTLibrary+INTEntriesView.m */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
 		28E65A400A5A926B00DE0C5A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A380A5A926B00DE0C5A /* InfoPlist.strings */; };
 		28E65A5E0A5A931E00DE0C5A /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A3A0A5A926B00DE0C5A /* MainMenu.nib */; };
@@ -61,6 +65,8 @@
 		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
 		282E92FA0A5E5806008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
 		282E92FB0A5E5806008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
+		285EE8600B11E795002F8B5A /* INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesView.h; sourceTree = "<group>"; };
+		285EE8610B11E795002F8B5A /* INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesView.m; sourceTree = "<group>"; };
 		287031410A61607000A7F5A7 /* Introspectare.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Introspectare.icns; sourceTree = "<group>"; };
 		287031490A616EC500A7F5A7 /* Icons */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Icons; sourceTree = "<group>"; };
 		288FC9BD0A75DF520044C951 /* INTCircleSwitchButtonCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTCircleSwitchButtonCell.h; sourceTree = "<group>"; };
@@ -69,6 +75,13 @@
 		28BFA0CF0A5AD4510075D416 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Constitutions.nib; sourceTree = "<group>"; };
 		28CEA7D30A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCalendarDate+INTAdditions.h"; sourceTree = "<group>"; };
 		28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCalendarDate+INTAdditions.m"; sourceTree = "<group>"; };
+		28DB60A30B15D4F200A3E81D /* INTEntriesCornerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesCornerView.h; sourceTree = "<group>"; };
+		28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesCornerView.m; sourceTree = "<group>"; };
+		28DB60AC0B15D56700A3E81D /* INTEntriesHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderView.h; sourceTree = "<group>"; };
+		28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesHeaderView.m; sourceTree = "<group>"; };
+		28DB60C50B15D6EC00A3E81D /* INTEntriesView+INTProtectedMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntriesView+INTProtectedMethods.h"; sourceTree = "<group>"; };
+		28DB60DE0B15D86E00A3E81D /* INTLibrary+INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTLibrary+INTEntriesView.h"; sourceTree = "<group>"; };
+		28DB60DF0B15D86E00A3E81D /* INTLibrary+INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTLibrary+INTEntriesView.m"; sourceTree = "<group>"; };
 		28E65A2E0A5A926B00DE0C5A /* INTAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTAppController.h; sourceTree = "<group>"; };
 		28E65A2F0A5A926B00DE0C5A /* INTAppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTAppController.m; sourceTree = "<group>"; };
 		28E65A350A5A926B00DE0C5A /* Introspectare Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Introspectare Prefix.pch"; sourceTree = "<group>"; };
@@ -113,6 +126,22 @@
 				8D1107320486CEB800E47090 /* Introspectare.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		28DB60DD0B15D85F00A3E81D /* Entries View */ = {
+			isa = PBXGroup;
+			children = (
+				285EE8600B11E795002F8B5A /* INTEntriesView.h */,
+				28DB60C50B15D6EC00A3E81D /* INTEntriesView+INTProtectedMethods.h */,
+				285EE8610B11E795002F8B5A /* INTEntriesView.m */,
+				28DB60AC0B15D56700A3E81D /* INTEntriesHeaderView.h */,
+				28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */,
+				28DB60A30B15D4F200A3E81D /* INTEntriesCornerView.h */,
+				28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */,
+				28DB60DE0B15D86E00A3E81D /* INTLibrary+INTEntriesView.h */,
+				28DB60DF0B15D86E00A3E81D /* INTLibrary+INTEntriesView.m */,
+			);
+			name = "Entries View";
 			sourceTree = "<group>";
 		};
 		28E65A2C0A5A926B00DE0C5A /* Classes */ = {
@@ -166,6 +195,7 @@
 			children = (
 				288FC9BD0A75DF520044C951 /* INTCircleSwitchButtonCell.h */,
 				288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */,
+				28DB60DD0B15D85F00A3E81D /* Entries View */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -326,6 +356,10 @@
 				282DD9B90A7397D3009E2AFB /* INTInspectorController.m in Sources */,
 				282DDA2D0A73A79D009E2AFB /* INTActiveControlEnumerator.m in Sources */,
 				288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */,
+				285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */,
+				28DB60A50B15D4F200A3E81D /* INTEntriesCornerView.m in Sources */,
+				28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */,
+				28DB60E00B15D86E00A3E81D /* INTLibrary+INTEntriesView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,8 +449,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
-				CURRENT_MARKETING_VERSION = 1.0;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_MARKETING_VERSION = 1.5;
+				CURRENT_PROJECT_VERSION = 5;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -425,8 +459,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
-				CURRENT_MARKETING_VERSION = 1.0;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_MARKETING_VERSION = 1.5;
+				CURRENT_PROJECT_VERSION = 5;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;

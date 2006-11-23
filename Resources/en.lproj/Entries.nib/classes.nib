@@ -13,9 +13,11 @@
                 annotatedPrinciplesArrayController = NSArrayController; 
                 entriesArrayController = NSArrayController; 
                 entriesDateColumn = NSTableColumn; 
+                newEntriesWindow = NSWindow; 
             }; 
             SUPERCLASS = NSWindowController; 
-        }
+        }, 
+        {CLASS = INTEntriesView; LANGUAGE = ObjC; SUPERCLASS = NSView; }
     ); 
     IBVersion = 1; 
 }

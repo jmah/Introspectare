@@ -17,6 +17,7 @@
 	IBOutlet NSTableColumn *entriesDateColumn;
 	IBOutlet NSArrayController *entriesArrayController;
 	IBOutlet NSArrayController *annotatedPrinciplesArrayController;
+	IBOutlet NSWindow *newEntriesWindow;
 	
 	@private
 	NSTimer *INT_updateTimer; // Weak reference

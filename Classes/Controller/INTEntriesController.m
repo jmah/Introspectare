@@ -14,6 +14,7 @@
 #import "INTEntry.h"
 #import "INTAnnotatedPrinciple.h"
 #import "INTPrinciple.h"
+#import "INTEntriesView.h"
 #import "NSCalendarDate+INTAdditions.h"
 
 
@@ -51,6 +52,23 @@
 	[entriesArrayController rearrangeObjects];
 	[entriesArrayController setSelectionIndex:0];
 	[self scheduleUpdateTimer];
+	
+	// TODO Temp
+	NSCalendar *gregorianCalendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+	INTEntriesView *ev = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)
+													   library:[self library]
+													  calendar:gregorianCalendar];
+	//[ev setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];
+	NSScrollView *sv = [[NSScrollView alloc] initWithFrame:[[newEntriesWindow contentView] bounds]];
+	[sv setDocumentView:ev];
+	[ev release];
+	[sv setHasVerticalScroller:YES];
+	[sv setHasHorizontalScroller:YES];
+	[sv setBorderType:NSNoBorder];
+	[sv setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];
+	[[newEntriesWindow contentView] addSubview:sv];
+	[sv release];
+	[[newEntriesWindow contentView] setAutoresizesSubviews:YES];
 }
 
 
