@@ -471,21 +471,30 @@
 	
 	// Draw entries and constitutions
 	// TODO Draw constitutions
-	float currEntryMaxX = 0.0;
+	float currEntryMaxX = -[self intercellSpacing].width;
 	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
 	INTEntry *currEntry;
 	while ((currEntry = [entries nextObject]))
 	{
-		float currEntryMinX = currEntryMaxX;
-		currEntryMaxX += [self columnWidth];
+		float currEntryMinX = currEntryMaxX + [self intercellSpacing].width;
+		currEntryMaxX += [self columnWidth] + [self intercellSpacing].width;
+		if (currEntryMaxX < NSMinX(rect))
+			continue;
+		if (currEntryMinX > NSMaxX(rect))
+			break;
+		
 		// TODO Draw all annotatedPrinciples from the same constitution in the same order
-		float currAnnotatedPrincipleMaxY = 0.0;
+		float currAnnotatedPrincipleMaxY = -[self intercellSpacing].height;
 		NSEnumerator *annotatedPrinciples = [[currEntry annotatedPrinciples] objectEnumerator];
 		INTAnnotatedPrinciple *currAnnotatedPrinciple;
 		while ((currAnnotatedPrinciple = [annotatedPrinciples nextObject]))
 		{
-			float currAnnotatedPrincipleMinY = currAnnotatedPrincipleMaxY;
-			currAnnotatedPrincipleMaxY += [self rowHeight];
+			float currAnnotatedPrincipleMinY = currAnnotatedPrincipleMaxY + [self intercellSpacing].height;
+			currAnnotatedPrincipleMaxY += [self rowHeight] + [self intercellSpacing].height;
+			if (currAnnotatedPrincipleMaxY < NSMinY(rect))
+				continue;
+			if (currAnnotatedPrincipleMinY > NSMaxY(rect))
+				break;
 			
 			NSActionCell *cell = [self dataCell];
 			int state = [currAnnotatedPrinciple isUpheld] ? NSOffState : NSOnState;
@@ -495,10 +504,7 @@
 			cellFrame.size = [cell cellSizeForBounds:NSMakeRect(0.0, 0.0, currEntryMaxX - currEntryMinX, currAnnotatedPrincipleMaxY - currAnnotatedPrincipleMinY)];
 			
 			[cell drawWithFrame:cellFrame inView:self];
-			
-			currAnnotatedPrincipleMaxY += [self intercellSpacing].height;
 		}
-		currEntryMaxX += [self intercellSpacing].width;
 	}
 	
 	
