@@ -848,6 +848,7 @@
 	
 	// Draw entries and constitutions
 	INTConstitution *currConstitution = nil;
+	NSImage *currConstitutionLabelsImage = nil;
 	unsigned prevEntryIndex = 0;
 	float currEntryMaxX = -[self intercellSpacing].width;
 	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
@@ -861,30 +862,42 @@
 			float constitutionWidth = [self widthForConstitution:currConstitution];
 			currEntryMaxX += constitutionWidth + [self intercellSpacing].width;
 			
-			if (((constitutionMinX + constitutionWidth) >= NSMinX(rect)) || (constitutionMinX <= NSMaxX(rect)))
+			// Cache current principle labels in image
+			[currConstitutionLabelsImage release];
+			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(constitutionWidth + [self intercellSpacing].width, NSHeight([self bounds]))];
+			[currConstitutionLabelsImage setFlipped:YES];
+			
+			[currConstitutionLabelsImage lockFocus];
+			
+			[[self backgroundColor] set];
+			NSRectFill(rect);
+			
+			float currPrincipleMaxY = -[self intercellSpacing].height;
+			NSEnumerator *principles = [[currConstitution principles] objectEnumerator];
+			INTPrinciple *currPrinciple;
+			while ((currPrinciple = [principles nextObject]))
 			{
-				// Constitution is on-screen
-				float currPrincipleMaxY = -[self intercellSpacing].height;
-				NSEnumerator *principles = [[currConstitution principles] objectEnumerator];
-				INTPrinciple *currPrinciple;
-				while ((currPrinciple = [principles nextObject]))
-				{
-					float currPrincipleMinY = currPrincipleMaxY + [self intercellSpacing].height;
-					currPrincipleMaxY += [self rowHeight] + [self intercellSpacing].height;
-					if (currPrincipleMaxY < NSMinY(rect))
-						continue;
-					if (currPrincipleMinY > NSMaxY(rect))
-						break;
-					
-					NSRect cellFrame = NSMakeRect(constitutionMinX, currPrincipleMinY, constitutionWidth, [self rowHeight]);
-					NSCell *cell = [self principleLabelCell];
-					[cell setStringValue:[currPrinciple label]];
-					[cell drawWithFrame:cellFrame inView:self];
-				}
+				float currPrincipleMinY = currPrincipleMaxY + [self intercellSpacing].height;
+				currPrincipleMaxY += [self rowHeight] + [self intercellSpacing].height;
+				if (currPrincipleMaxY < NSMinY(rect))
+					continue;
+				if (currPrincipleMinY > NSMaxY(rect))
+					break;
 				
-				[[NSColor gridColor] set];
-				[NSBezierPath fillRect:NSMakeRect(constitutionMinX + constitutionWidth, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+				NSRect cellFrame = NSMakeRect(0.0, currPrincipleMinY, constitutionWidth, [self rowHeight]);
+				NSCell *cell = [self principleLabelCell];
+				[cell setStringValue:[currPrinciple label]];
+				[cell drawWithFrame:cellFrame inView:self];
 			}
+			
+			[[NSColor gridColor] set];
+			[NSBezierPath fillRect:NSMakeRect(constitutionWidth, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+			
+			[currConstitutionLabelsImage unlockFocus];
+			
+			if (((constitutionMinX + constitutionWidth) >= NSMinX(rect)) || (constitutionMinX <= NSMaxX(rect)))
+				[currConstitutionLabelsImage compositeToPoint:NSMakePoint(constitutionMinX, NSMaxY([self bounds]))
+													operation:NSCompositeSourceOver];
 		}
 		
 		float currEntryMinX = currEntryMaxX + [self intercellSpacing].width;
