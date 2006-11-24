@@ -21,6 +21,8 @@
 
 #pragma mark Event methods
 - (void)mouseDragTimerHit:(NSTimer *)timer;
+
+#pragma mark Action methods
 - (void)selectedAnnotatedPrincipleClicked:(id)sender;
 
 #pragma mark Managing the view hierarchy
@@ -664,6 +666,9 @@
 	[self autoscroll:event];
 }
 
+
+
+#pragma mark Action methods
 
 - (void)moveLeft:(id)sender // NSResponder
 {
