@@ -190,7 +190,10 @@
 	// Tell the controller to adjust its selection indexes, if there is one
 	id observingObject = [[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
 	if (observingObject)
-		[observingObject setValue:newIndexes forKeyPath:[[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+	{
+		if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
+			[observingObject setValue:newIndexes forKeyPath:[[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+	}
 	else
 		[[self entriesView] setSelectionIndexes:newIndexes];
 	
