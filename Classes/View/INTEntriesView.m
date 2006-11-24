@@ -119,12 +119,6 @@
 }
 
 
-- (void)awakeFromNib
-{
-	
-}
-
-
 - (void)dealloc
 {
 	[self unbind:@"selectionIndexes"];
