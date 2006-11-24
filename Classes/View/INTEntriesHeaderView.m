@@ -266,6 +266,9 @@
 			if (((constitutionMinX + constitutionWidth) >= NSMinX(rect)) || (constitutionMinX <= NSMaxX(rect)))
 			{
 				// Constitution is on-screen
+				[INT_headerCell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6]];
+				[INT_headerCell setTextColor:[NSColor whiteColor]];
+				
 				NSRect constitutionFrame = NSMakeRect(constitutionMinX, hh, constitutionWidth, hh);
 				[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
 				[INT_headerCell drawWithFrame:constitutionFrame inView:self];
@@ -274,11 +277,8 @@
 				[INT_headerCell setStringValue:[currConstitution versionLabel]];
 				[INT_headerCell drawWithFrame:labelFrame inView:self];
 				
-				[NSGraphicsContext saveGraphicsState];
-				[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositePlusDarker];
-				[[[NSColor blackColor] colorWithAlphaComponent:0.6] set];
-				[NSBezierPath fillRect:NSUnionRect(constitutionFrame, labelFrame)];
-				[NSGraphicsContext restoreGraphicsState];
+				[INT_headerCell setTextColor:[NSColor headerTextColor]];
+				[INT_headerCell setTintColor:[NSColor clearColor]];
 			}
 			
 			// Break the month header
@@ -356,24 +356,12 @@
 		float entryWidth = currEntryMaxX - currEntryMinX;
 		NSRect entryCellFrame = NSMakeRect(currEntryMinX, hh * 2.0, entryWidth, hh);
 		[INT_headerCell setStringValue:[self dayAsString:[components day]]];
-		[INT_headerCell drawWithFrame:entryCellFrame inView:self];
-		
 		if ([currEntry isUnread])
-		{
-			[NSGraphicsContext saveGraphicsState];
-			[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositePlusDarker];
-			[[[NSColor yellowColor] colorWithAlphaComponent:0.6] set];
-			[NSBezierPath fillRect:entryCellFrame];
-			[NSGraphicsContext restoreGraphicsState];
-		}
+			[INT_headerCell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.6]];
 		else if ([[currEntry note] length] > 0)
-		{
-			[NSGraphicsContext saveGraphicsState];
-			[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositePlusDarker];
-			[[[NSColor greenColor] colorWithAlphaComponent:0.3] set];
-			[NSBezierPath fillRect:entryCellFrame];
-			[NSGraphicsContext restoreGraphicsState];
-		}
+			[INT_headerCell setTintColor:[[NSColor greenColor] colorWithAlphaComponent:0.3]];
+		[INT_headerCell drawWithFrame:entryCellFrame inView:self];
+		[INT_headerCell setTintColor:[NSColor clearColor]];
 	}
 	
 	
