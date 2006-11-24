@@ -300,6 +300,14 @@
 			[NSBezierPath fillRect:entryCellFrame];
 			[NSGraphicsContext restoreGraphicsState];
 		}
+		else if ([[currEntry note] length] > 0)
+		{
+			[NSGraphicsContext saveGraphicsState];
+			[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositePlusDarker];
+			[[[NSColor greenColor] colorWithAlphaComponent:0.3] set];
+			[NSBezierPath fillRect:entryCellFrame];
+			[NSGraphicsContext restoreGraphicsState];
+		}
 	}
 	
 	
