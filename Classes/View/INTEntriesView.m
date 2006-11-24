@@ -678,6 +678,22 @@
 		else
 			newIndexes = [NSIndexSet indexSetWithIndex:([[self sortedEntries] count] - 1)];
 	}
+	else if ([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask)
+	{
+		// Select the last entry of the previous month
+		unsigned entryIndex = [[self selectionIndexes] firstIndex];
+		INTEntry *entry = [[self sortedEntries] objectAtIndex:entryIndex];
+		int month = [[[self calendar] components:NSMonthCalendarUnit fromDate:[entry date]] month];
+		int targetEntryIndex;
+		for (targetEntryIndex = entryIndex; targetEntryIndex > 0; targetEntryIndex--)
+		{
+			INTEntry *currEntry = [[self sortedEntries] objectAtIndex:targetEntryIndex];
+			if ([[[self calendar] components:NSMonthCalendarUnit fromDate:[currEntry date]] month] != month)
+				break;
+		}
+		
+		newIndexes = [NSIndexSet indexSetWithIndex:targetEntryIndex];
+	}
 	else
 	{
 		if ([[self selectionIndexes] containsIndex:0])
@@ -708,6 +724,22 @@
 			newIndexes = [NSIndexSet indexSet];
 		else
 			newIndexes = [NSIndexSet indexSetWithIndex:0];
+	}
+	else if ([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask)
+	{
+		// Select the first entry of the next month
+		unsigned entryIndex = [[self selectionIndexes] firstIndex];
+		INTEntry *entry = [[self sortedEntries] objectAtIndex:entryIndex];
+		int month = [[[self calendar] components:NSMonthCalendarUnit fromDate:[entry date]] month];
+		unsigned targetEntryIndex;
+		for (targetEntryIndex = entryIndex; targetEntryIndex < ([[self sortedEntries] count] - 1); targetEntryIndex++)
+		{
+			INTEntry *currEntry = [[self sortedEntries] objectAtIndex:targetEntryIndex];
+			if ([[[self calendar] components:NSMonthCalendarUnit fromDate:[currEntry date]] month] != month)
+				break;
+		}
+		
+		newIndexes = [NSIndexSet indexSetWithIndex:targetEntryIndex];
 	}
 	else
 	{
