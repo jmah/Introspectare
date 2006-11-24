@@ -18,8 +18,7 @@
 #pragma mark Managing entries
 - (NSArray *)sortedEntries;
 
-#pragma mark Calculating element positions
-//- (float)xPositionForEntry:(INTEntry *)entry;
-//- (float)xPositionForConstitution:(INTConstitution *)constitution;
+#pragma mark Layout
+- (INTEntry *)entryAtXLocation:(float)x;
 
 @end

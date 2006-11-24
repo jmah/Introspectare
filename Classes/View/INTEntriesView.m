@@ -840,6 +840,19 @@
 
 #pragma mark Layout
 
+- (INTEntry *)entryAtXLocation:(float)x // INTEntriesView (INTProtectedMethods)
+{
+	if ((x < NSMinX([self bounds])) || (x > NSMaxX([self bounds])))
+		return nil;
+	
+	unsigned entryIndex = floorf((x + [self intercellSpacing].width) / ([self columnWidth] + [self intercellSpacing].width));
+	if (entryIndex < [[self sortedEntries] count])
+		return [[self sortedEntries] objectAtIndex:entryIndex];
+	else
+		return nil;
+}
+
+
 - (INTEntry *)entryAtPoint:(NSPoint)point // INTEntriesView (INTPrivateMethods)
 {
 	if (!NSPointInRect(point, [self bounds]))

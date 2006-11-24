@@ -15,6 +15,9 @@
 
 @interface INTEntriesHeaderView (INTPrivateMethods)
 
+#pragma mark Event methods
+- (void)mouseDragTimerHit:(NSTimer *)timer;
+
 #pragma mark Drawing
 - (void)drawHeaderString:(NSString *)string inFrame:(NSRect)frame;
 - (void)drawMonth:(int)month withHintedFrame:(NSRect)frame;
@@ -139,6 +142,54 @@
 - (void)viewDidEndLiveResize // NSView
 {
 	[self setNeedsDisplay:YES];
+}
+
+
+
+#pragma mark Event methods
+
+- (void)mouseDown:(NSEvent *)event // NSResponder
+{
+	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+	if (point.y > ([[self entriesView] headerHeight] * 2.0))
+	{
+	// Track mouse while down
+		do
+		{
+			NSTimer *mouseDragTimer = [NSTimer timerWithTimeInterval:0.04
+															  target:self
+															selector:@selector(mouseDragTimerHit:)
+															userInfo:event
+															 repeats:YES];
+			[mouseDragTimer fire];
+			[[NSRunLoop currentRunLoop] addTimer:mouseDragTimer forMode:NSEventTrackingRunLoopMode];
+			
+			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
+			[mouseDragTimer invalidate];
+		} while ([event type] == NSLeftMouseDragged);
+	}
+}
+
+
+- (void)mouseDragTimerHit:(NSTimer *)timer // INTEntriesHeaderView (INTPrivateMethods)
+{
+	NSEvent *event = (NSEvent *)[timer userInfo];
+	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+	NSIndexSet *newIndexes;
+	
+	if ((point.y > ([[self entriesView] headerHeight] * 2.0)) && [[self entriesView] entryAtXLocation:point.x])
+		newIndexes = [NSIndexSet indexSetWithIndex:[[[self entriesView] sortedEntries] indexOfObject:[[self entriesView] entryAtXLocation:point.x]]];
+	else
+		newIndexes = [NSIndexSet indexSet];
+	
+	// Tell the controller to adjust its selection indexes, if there is one
+	id observingObject = [[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+	if (observingObject)
+		[observingObject setValue:newIndexes forKeyPath:[[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+	else
+		[[self entriesView] setSelectionIndexes:newIndexes];
+	
+	[self autoscroll:event];
 }
 
 
@@ -274,7 +325,6 @@
 }
 
 
-
 - (void)drawHeaderString:(NSString *)string inFrame:(NSRect)frame // INTEntriesHeaderView (INTPrivateMethods)
 {
 	[NSGraphicsContext saveGraphicsState];
@@ -284,7 +334,6 @@
 	[INT_headerCell drawWithFrame:frame inView:self];
 	[NSGraphicsContext restoreGraphicsState];
 }
-
 
 
 - (void)drawMonth:(int)month withHintedFrame:(NSRect)frame // INTEntriesHeaderView (INTPrivateMethods)
