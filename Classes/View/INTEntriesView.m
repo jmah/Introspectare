@@ -619,6 +619,7 @@
 	}
 	else
 	{
+		NSIndexSet *initialSelectionIndexes = [[self selectionIndexes] copy];
 		do
 		{
 			NSTimer *mouseDragTimer = [NSTimer timerWithTimeInterval:0.04
@@ -633,8 +634,9 @@
 			[mouseDragTimer invalidate];
 		} while ([event type] == NSLeftMouseDragged);
 		
-		if ([[self selectionIndexes] count] > 0)
+		if (([[self selectionIndexes] count] > 0) && ![initialSelectionIndexes isEqual:[self selectionIndexes]])
 			[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[[self selectionIndexes] firstIndex]]];
+		[initialSelectionIndexes release];
 	}
 }
 

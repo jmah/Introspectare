@@ -154,7 +154,9 @@
 	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
 	if (point.y > ([[self entriesView] headerHeight] * 2.0))
 	{
-	// Track mouse while down
+		// Track mouse while down
+		INTEntriesView *ev = [self entriesView];
+		NSIndexSet *initialSelectionIndexes = [[ev selectionIndexes] copy];
 		do
 		{
 			NSTimer *mouseDragTimer = [NSTimer timerWithTimeInterval:0.04
@@ -169,9 +171,9 @@
 			[mouseDragTimer invalidate];
 		} while ([event type] == NSLeftMouseDragged);
 		
-		INTEntriesView *ev = [self entriesView];
-		if ([[ev selectionIndexes] count] > 0)
+		if (([[ev selectionIndexes] count] > 0) && ![initialSelectionIndexes isEqual:[ev selectionIndexes]])
 			[ev scrollEntryToVisible:[[ev sortedEntries] objectAtIndex:[[ev selectionIndexes] firstIndex]]];
+		[initialSelectionIndexes release];
 	}
 }
 
