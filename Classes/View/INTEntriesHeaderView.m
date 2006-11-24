@@ -153,7 +153,16 @@
 	NSRectFill(rect);
 	
 	if ([[[self entriesView] sortedEntries] count] == 0)
+	{
+		// No entries; just draw filler
+		NSRect fillerFrame = NSMakeRect(0.0, 0.0, NSWidth([self visibleRect]) + 1.0, hh);
+		[self drawHeaderString:@"" inFrame:fillerFrame];
+		fillerFrame = NSOffsetRect(fillerFrame, 0.0, hh);
+		[self drawHeaderString:@"" inFrame:fillerFrame];
+		fillerFrame = NSOffsetRect(fillerFrame, 0.0, hh);
+		[self drawHeaderString:@"" inFrame:fillerFrame];
 		return;
+	}
 	
 	BOOL isYearInitialized = NO;
 	int currYear = 0;

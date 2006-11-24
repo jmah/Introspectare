@@ -541,8 +541,8 @@
 	INTEntry *currEntry;
 	while ((currEntry = [entries nextObject]))
 		maxPrincipleCount = MAX([[currEntry annotatedPrinciples] count], maxPrincipleCount);
-	float height = (maxPrincipleCount * [self rowHeight]) + ((maxPrincipleCount - 1) * [self intercellSpacing].height);
-	float width = ([[self sortedEntries] count] * [self columnWidth]) + (([[self sortedEntries] count] - 1) * [self intercellSpacing].width);
+	float height = (maxPrincipleCount * [self rowHeight]) + (MAX(0, (int)maxPrincipleCount - 1) * [self intercellSpacing].height);
+	float width = ([[self sortedEntries] count] * [self columnWidth]) + (MAX(0, (int)[[self sortedEntries] count] - 1) * [self intercellSpacing].width);
 	INT_minimumFrameSize = NSMakeSize(width, height);
 }
 
