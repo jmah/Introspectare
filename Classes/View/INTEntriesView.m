@@ -557,8 +557,7 @@
 {
 	if ([super becomeFirstResponder])
 	{
-		//[self setNeedsDisplay:YES];
-		[self setKeyboardFocusRingNeedsDisplayInRect:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+		[self setNeedsDisplay:YES];
 		return YES;
 	}
 	else
@@ -570,7 +569,6 @@
 {
 	if ([super resignFirstResponder])
 	{
-		[self setKeyboardFocusRingNeedsDisplayInRect:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
 		[self setNeedsDisplay:YES];
 		return YES;
 	}
@@ -869,7 +867,7 @@
 		if ([[self selectionIndexes] containsIndex:(prevEntryIndex - 1)])
 		{
 			// Entry is selected
-			if ([[self window] isMainWindow])
+			if ([[self window] isMainWindow] && ([[self window] firstResponder] == self))
 				[[NSColor selectedControlColor] set];
 			else
 				[[NSColor secondarySelectedControlColor] set];
