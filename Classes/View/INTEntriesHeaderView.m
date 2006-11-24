@@ -167,6 +167,10 @@
 			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
 			[mouseDragTimer invalidate];
 		} while ([event type] == NSLeftMouseDragged);
+		
+		INTEntriesView *ev = [self entriesView];
+		if ([[ev selectionIndexes] count] > 0)
+			[ev scrollEntryToVisible:[[ev sortedEntries] objectAtIndex:[[ev selectionIndexes] firstIndex]]];
 	}
 }
 

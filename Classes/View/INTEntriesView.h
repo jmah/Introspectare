@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class INTEntry;
 @class INTEntriesHeaderView;
 @class INTEntriesCornerView;
 @class INTAnnotatedPrinciple;
@@ -71,5 +72,8 @@
 #pragma mark Managing selection
 - (NSIndexSet *)selectionIndexes;
 - (void)setSelectionIndexes:(NSIndexSet *)indexes;
+
+#pragma mark Scrolling
+- (BOOL)scrollEntryToVisible:(INTEntry *)entry;
 
 @end

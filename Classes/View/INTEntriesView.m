@@ -434,12 +434,20 @@
 	}
 	
 	NSIndexSet *newIndexes = INT_selectionIndexes;
+	BOOL oneEntryVisible = NO;
 	currIndex = [newIndexes firstIndex];
 	while (currIndex != NSNotFound)
 	{
-		[self setNeedsDisplayInRect:[self rectForEntry:[[self sortedEntries] objectAtIndex:currIndex]]];
+		NSRect entryRect = [self rectForEntry:[[self sortedEntries] objectAtIndex:currIndex]];
+		[self setNeedsDisplayInRect:entryRect];
+		if (NSContainsRect([self visibleRect], entryRect))
+			oneEntryVisible = YES;
 		currIndex = [newIndexes indexGreaterThanIndex:currIndex];
 	}
+	
+	if (!oneEntryVisible && ([newIndexes count] > 0) && ![[[NSRunLoop currentRunLoop] currentMode] isEqualToString:NSEventTrackingRunLoopMode])
+		// Scroll to make the first selected entry visible
+		[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]];
 	
 	[oldIndexes release];
 }
@@ -612,6 +620,9 @@
 			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
 			[mouseDragTimer invalidate];
 		} while ([event type] == NSLeftMouseDragged);
+		
+		if ([[self selectionIndexes] count] > 0)
+			[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[[self selectionIndexes] firstIndex]]];
 	}
 }
 
@@ -664,9 +675,6 @@
 	else
 		// Just do it ourselves
 		[self setSelectionIndexes:newIndexes];
-	
-	if ([newIndexes count] > 0)
-		[self scrollRectToVisible:[self rectForEntry:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]]];
 }
 
 
@@ -695,15 +703,21 @@
 	else
 		// Just do it ourselves
 		[self setSelectionIndexes:newIndexes];
-	
-	if ([newIndexes count] > 0)
-		[self scrollRectToVisible:[self rectForEntry:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]]];
 }
 
 
 - (void)selectedAnnotatedPrincipleClicked:(id)sender // INTEntriesView (INTPrivateMethods)
 {
 	[INT_selectedAnnotatedPrinciple setUpheld:!([INT_selectedDataCell state] == NSOnState)];
+}
+
+
+
+#pragma mark Scrolling
+
+- (BOOL)scrollEntryToVisible:(INTEntry *)entry
+{
+	return [self scrollRectToVisible:[self rectForEntry:entry]];
 }
 
 
