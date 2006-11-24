@@ -61,7 +61,7 @@
 		INT_library = [library retain];
 		INT_calendar = [calendar retain];
 		INT_backgroundColor = [[NSColor whiteColor] retain];
-		INT_rowHeight = 20.0;
+		INT_rowHeight = 22.0;
 		INT_intercellSpacing = NSMakeSize(1.0, 1.0);
 		INT_headerHeight = 16.0;
 		INT_columnWidth = 22.0;
