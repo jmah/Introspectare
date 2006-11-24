@@ -15,6 +15,7 @@
 #import "INTAnnotatedPrinciple.h"
 #import "INTPrinciple.h"
 #import "INTEntriesView.h"
+#import "INTCircleSwitchButtonCell.h"
 #import "NSCalendarDate+INTAdditions.h"
 
 
@@ -56,7 +57,6 @@
 	// TODO Temp
 	NSCalendar *gregorianCalendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
 	INTEntriesView *ev = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)
-													   library:[self library]
 													  calendar:gregorianCalendar];
 	//[ev setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];
 	NSScrollView *sv = [[NSScrollView alloc] initWithFrame:[[newEntriesWindow contentView] bounds]];
@@ -69,6 +69,14 @@
 	[[newEntriesWindow contentView] addSubview:sv];
 	[sv release];
 	[[newEntriesWindow contentView] setAutoresizesSubviews:YES];
+	[newEntriesWindow setInitialFirstResponder:ev];
+	
+	[ev bind:@"entries" toObject:entriesArrayController withKeyPath:@"arrangedObjects" options:nil];
+	
+	NSButtonCell *dataCell = [[INTCircleSwitchButtonCell alloc] initTextCell:[NSString string]];
+	[dataCell setButtonType:NSSwitchButton];
+	[ev setDataCell:dataCell];
+	[dataCell release];
 }
 
 
