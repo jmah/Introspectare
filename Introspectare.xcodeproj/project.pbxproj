@@ -29,7 +29,6 @@
 		28CEA7D50A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */; };
 		28DB60A50B15D4F200A3E81D /* INTEntriesCornerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */; };
 		28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */; };
-		28DB60E00B15D86E00A3E81D /* INTLibrary+INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60DF0B15D86E00A3E81D /* INTLibrary+INTEntriesView.m */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
 		28E65A400A5A926B00DE0C5A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A380A5A926B00DE0C5A /* InfoPlist.strings */; };
 		28E65A5E0A5A931E00DE0C5A /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A3A0A5A926B00DE0C5A /* MainMenu.nib */; };
@@ -81,8 +80,6 @@
 		28DB60AC0B15D56700A3E81D /* INTEntriesHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderView.h; sourceTree = "<group>"; };
 		28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesHeaderView.m; sourceTree = "<group>"; };
 		28DB60C50B15D6EC00A3E81D /* INTEntriesView+INTProtectedMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntriesView+INTProtectedMethods.h"; sourceTree = "<group>"; };
-		28DB60DE0B15D86E00A3E81D /* INTLibrary+INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTLibrary+INTEntriesView.h"; sourceTree = "<group>"; };
-		28DB60DF0B15D86E00A3E81D /* INTLibrary+INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTLibrary+INTEntriesView.m"; sourceTree = "<group>"; };
 		28E65A2E0A5A926B00DE0C5A /* INTAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTAppController.h; sourceTree = "<group>"; };
 		28E65A2F0A5A926B00DE0C5A /* INTAppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTAppController.m; sourceTree = "<group>"; };
 		28E65A350A5A926B00DE0C5A /* Introspectare Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Introspectare Prefix.pch"; sourceTree = "<group>"; };
@@ -140,8 +137,6 @@
 				28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */,
 				28DB60A30B15D4F200A3E81D /* INTEntriesCornerView.h */,
 				28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */,
-				28DB60DE0B15D86E00A3E81D /* INTLibrary+INTEntriesView.h */,
-				28DB60DF0B15D86E00A3E81D /* INTLibrary+INTEntriesView.m */,
 			);
 			name = "Entries View";
 			sourceTree = "<group>";
@@ -361,7 +356,6 @@
 				285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */,
 				28DB60A50B15D4F200A3E81D /* INTEntriesCornerView.m in Sources */,
 				28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */,
-				28DB60E00B15D86E00A3E81D /* INTLibrary+INTEntriesView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
