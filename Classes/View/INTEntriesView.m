@@ -8,7 +8,6 @@
 
 #import "INTEntriesView.h"
 #import "INTEntriesView+INTProtectedMethods.h"
-#import "INTLibrary.h"
 #import "INTEntry.h"
 #import "INTConstitution.h"
 #import "INTAnnotatedPrinciple.h"
@@ -18,11 +17,12 @@
 
 @interface INTEntriesView (INTPrivateMethods)
 
-#pragma mark Managing entries
-- (void)cacheSortedEntries;
-
-#pragma mark Event handling
+#pragma mark Event methods
+- (void)mouseDragTimerHit:(NSTimer *)timer;
 - (void)selectedAnnotatedPrincipleClicked:(id)sender;
+
+#pragma mark Managing the view hierarchy
+- (void)windowDidChangeMain:(NSNotification *)notification;
 
 #pragma mark Getting auxiliary views for enclosing an scroll view
 - (NSView *)headerView;
@@ -39,6 +39,7 @@
 - (INTAnnotatedPrinciple *)annotatedPrincipleAtPoint:(NSPoint)point;
 - (NSActionCell *)dataCellAtPoint:(NSPoint)point frame:(NSRect *)outFrame;
 - (NSRect)rectForAnnotatedPrinciple:(INTAnnotatedPrinciple *)annotatedPrinciple ofEntry:(INTEntry *)entry;
+- (NSRect)rectForEntry:(INTEntry *)entry;
 
 @end
 
@@ -48,15 +49,25 @@
 
 @implementation INTEntriesView
 
-#pragma mark Creating an entries view
+#pragma mark Initialization
 
-- (id)initWithFrame:(NSRect)frame library:(INTLibrary *)library
++ (void)initialize
 {
-	return [self initWithFrame:frame library:library calendar:[NSCalendar currentCalendar]];
+	[self exposeBinding:@"entries"];
+	[self exposeBinding:@"selectionIndexes"];
 }
 
 
-- (id)initWithFrame:(NSRect)frame library:(INTLibrary *)library calendar:(NSCalendar *)calendar // Designated initializer
+
+#pragma mark Creating an entries view
+
+- (id)initWithFrame:(NSRect)frame
+{
+	return [self initWithFrame:frame calendar:[NSCalendar currentCalendar]];
+}
+
+
+- (id)initWithFrame:(NSRect)frame calendar:(NSCalendar *)calendar // Designated initializer
 {
 	if ((self = [super initWithFrame:frame]))
 	{
@@ -67,7 +78,6 @@
 			return nil;
 		}
 		
-		INT_library = [library retain];
 		INT_calendar = [calendar retain];
 		INT_backgroundColor = [[NSColor whiteColor] retain];
 		INT_rowHeight = 22.0;
@@ -85,6 +95,7 @@
 														 entriesView:self];
 		
 		INT_prevClipViewFrameWidth = NAN;
+		INT_selectionIndexes = [[NSIndexSet indexSet] retain];
 		
 		INT_principleLabelCell = [[NSTextFieldCell alloc] initTextCell:[NSString string]];
 		[INT_principleLabelCell setFont:[NSFont fontWithName:@"Lucida Grande" size:13.0]];
@@ -100,68 +111,7 @@
 		
 		[self setFocusRingType:NSFocusRingTypeExterior];
 		
-		[self cacheSortedEntries];
 		[self updateFrameSize];
-		
-		// Observe interesting things
-#warning TODO Redo this so we bind to a controller instead (and so get entry selection)
-		[library addObserver:self
-				  forKeyPath:@"entries"
-					 options:0
-					 context:NULL];
-		
-		NSEnumerator *entries = [[library entries] objectEnumerator];
-		INTEntry *entry;
-		while ((entry = [entries nextObject]))
-		{
-			[entry addObserver:self
-					forKeyPath:@"annotatedPrinciples"
-					   options:0
-					   context:NULL];
-			[entry addObserver:self
-					forKeyPath:@"unread"
-					   options:0
-					   context:NULL];
-			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
-			INTAnnotatedPrinciple *annotatedPrinciple;
-			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
-				[annotatedPrinciple addObserver:self
-									 forKeyPath:@"upheld"
-										options:0
-										context:NULL];
-		}
-		
-		[library addObserver:self
-				  forKeyPath:@"constitutions"
-					 options:0
-					 context:NULL];
-		NSEnumerator *constitutions = [[library constitutions] objectEnumerator];
-		INTConstitution *constitution;
-		while ((constitution = [constitutions nextObject]))
-		{
-			[constitution addObserver:self
-						   forKeyPath:@"versionLabel"
-							  options:0
-							  context:NULL];
-			[constitution addObserver:self
-						   forKeyPath:@"principles"
-							  options:0
-							  context:NULL];
-		}
-		
-		[library addObserver:self
-				  forKeyPath:@"principles"
-					 options:0
-					 context:NULL];
-		NSEnumerator *principles = [[library principles] objectEnumerator];
-		INTPrinciple *principle;
-		while ((principle = [principles nextObject]))
-		{
-			[principle addObserver:self
-						forKeyPath:@"label"
-						   options:0
-						   context:NULL];
-		}
 	}
 	return self;
 }
@@ -175,18 +125,19 @@
 
 - (void)dealloc
 {
-	[INT_library removeObserver:self
-					 forKeyPath:@"entries"];
+	[self unbind:@"selectionIndexes"];
+	[self unbind:@"entries"];
 	
-	[INT_library release], INT_library = nil;
 	[INT_calendar release], INT_calendar = nil;
 	[INT_backgroundColor release], INT_backgroundColor = nil;
 	[INT_headerFont release], INT_headerFont = nil;
 	[INT_principleLabelCell release], INT_principleLabelCell = nil;
 	[INT_dataCell release], INT_dataCell = nil;
+	[INT_selectionIndexes release], INT_selectionIndexes = nil;
 	[INT_headerView release], INT_headerView = nil;
 	[INT_cornerView release], INT_cornerView = nil;
-	[INT_cachedSortedEntries release], INT_cachedSortedEntries = nil;
+	[INT_entriesContainer release], INT_entriesContainer = nil;
+	[INT_entriesKeyPath release], INT_entriesKeyPath = nil;
 	
 	[super dealloc];
 }
@@ -198,15 +149,6 @@
 - (NSCalendar *)calendar
 {
 	return INT_calendar;
-}
-
-
-
-#pragma mark Getting the library
-
-- (INTLibrary *)library
-{
-	return INT_library;
 }
 
 
@@ -341,34 +283,125 @@
 
 
 
+#pragma mark Managing bindings
+
+- (void)bind:(NSString *)binding toObject:(id)observableController withKeyPath:(NSString *)keyPath options:(NSDictionary *)options
+{
+	if ([binding isEqualToString:@"entries"])
+	{
+		INT_entriesContainer = [observableController retain];
+		INT_entriesKeyPath = [keyPath copy];
+		[observableController addObserver:self
+							   forKeyPath:keyPath
+								  options:0
+								  context:NULL];
+		
+		if ([observableController isKindOfClass:[NSArrayController class]])
+		{
+			NSArrayController *ac = (NSArrayController *)observableController;
+			NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:YES];
+			[ac setSortDescriptors:[NSArray arrayWithObject:dateAscending]];
+			[dateAscending release];
+			if (![self infoForBinding:@"selectionIndexes"])
+				[self bind:@"selectionIndexes" toObject:ac withKeyPath:@"selectionIndexes" options:nil];
+		}
+		
+		[self updateFrameSize];
+		[self setNeedsDisplay:YES];
+		
+		
+		// Observe interesting things
+		NSEnumerator *entries = [[observableController valueForKeyPath:keyPath] objectEnumerator];
+		INTEntry *entry;
+		while ((entry = [entries nextObject]))
+		{
+			[entry addObserver:self
+					forKeyPath:@"unread"
+					   options:0
+					   context:NULL];
+			[entry addObserver:self
+					forKeyPath:@"annotatedPrinciples"
+					   options:0
+					   context:NULL];
+			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
+			INTAnnotatedPrinciple *annotatedPrinciple;
+			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+				[annotatedPrinciple addObserver:self
+									 forKeyPath:@"upheld"
+										options:0
+										context:entry];
+		}
+	}
+	else
+		[super bind:binding toObject:observableController withKeyPath:keyPath options:options];
+}
+
+
+- (void)unbind:(NSString *)binding // <NSKeyValueBindingCreation>
+{
+	if ([binding isEqualToString:@"entries"])
+	{
+		NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
+		INTEntry *entry;
+		while ((entry = [entries nextObject]))
+		{
+			[entry removeObserver:self forKeyPath:@"unread"];
+			[entry removeObserver:self forKeyPath:@"annotatedPrinciples"];
+			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
+			INTAnnotatedPrinciple *annotatedPrinciple;
+			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+				[annotatedPrinciple removeObserver:self forKeyPath:@"upheld"];
+		}
+		
+		[INT_entriesContainer removeObserver:self forKeyPath:INT_entriesKeyPath];
+		[INT_entriesContainer release], INT_entriesContainer = nil;
+		[INT_entriesKeyPath release], INT_entriesKeyPath = nil;
+		
+		[self updateFrameSize];
+		[self setNeedsDisplay:YES];
+	}
+		[super unbind:binding];
+}
+
+
+
 #pragma mark Change notification
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
 	BOOL handled = NO;
-	if (object == [self library])
+	if (object == INT_entriesContainer)
 	{
-		if ([keyPath isEqualToString:@"entries"])
+		if ([keyPath isEqualToString:INT_entriesKeyPath])
 		{
-			[self cacheSortedEntries];
 			[self updateFrameSize];
 			[self setNeedsDisplay:YES];
 			handled = YES;
 		}
 	}
-	else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+	if ([object isKindOfClass:[INTEntry class]])
 	{
-		NSEnumerator *entries = [[[self library] entries] objectEnumerator];
-		INTEntry *entry;
-		while ((entry = [entries nextObject]))
-			if ([[entry annotatedPrinciples] indexOfObjectIdenticalTo:object] != NSNotFound)
-				break;
-		NSRect rect = [self rectForAnnotatedPrinciple:object ofEntry:entry];
-		if (!NSIsEmptyRect(rect))
+		if ([keyPath isEqualToString:@"unread"])
+		{
+			[[self headerView] setNeedsDisplay:YES];
+			handled = YES;
+		}
+		else if ([keyPath isEqualToString:@"annotatedPrinciples"])
+		{
+			[self setNeedsDisplay:YES];
+			[[self headerView] setNeedsDisplay:YES];
+			handled = YES;
+		}
+	}
+	if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+	{
+		if ([keyPath isEqualToString:@"upheld"])
+		{
+			INTEntry *entry = (INTEntry *)context;
+			NSRect rect = [self rectForAnnotatedPrinciple:object ofEntry:entry];
 			[self setNeedsDisplayInRect:rect];
-		else
-			NSLog(@"Received change for an unexpected annotated principle");
-		handled = YES;
+			handled = YES;
+		}
 	}
 	
 	if (!handled)
@@ -377,20 +410,44 @@
 
 
 
-#pragma mark Managing entries
+#pragma mark Managing selection
 
-- (void)cacheSortedEntries // INTEntriesView (INTPrivateMethods)
+- (NSIndexSet *)selectionIndexes
 {
-	NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:YES];
-	[INT_cachedSortedEntries release];
-	INT_cachedSortedEntries = [[[[[self library] entries] allObjects] sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateAscending]] retain];
-	[dateAscending release];
+	return INT_selectionIndexes;
 }
 
 
+- (void)setSelectionIndexes:(NSIndexSet *)indexes
+{
+	NSIndexSet *oldIndexes = INT_selectionIndexes;
+	INT_selectionIndexes = [indexes copy];
+	
+	unsigned currIndex = [oldIndexes firstIndex];
+	while (currIndex != NSNotFound)
+	{
+		[self setNeedsDisplayInRect:[self rectForEntry:[[self sortedEntries] objectAtIndex:currIndex]]];
+		currIndex = [oldIndexes indexGreaterThanIndex:currIndex];
+	}
+	
+	NSIndexSet *newIndexes = INT_selectionIndexes;
+	currIndex = [newIndexes firstIndex];
+	while (currIndex != NSNotFound)
+	{
+		[self setNeedsDisplayInRect:[self rectForEntry:[[self sortedEntries] objectAtIndex:currIndex]]];
+		currIndex = [newIndexes indexGreaterThanIndex:currIndex];
+	}
+	
+	[oldIndexes release];
+}
+
+
+
+#pragma mark Managing entries
+
 - (NSArray *)sortedEntries // INTEntriesView (INTProtectedMethods)
 {
-	return INT_cachedSortedEntries;
+	return [INT_entriesContainer valueForKeyPath:INT_entriesKeyPath];
 }
 
 
@@ -426,9 +483,30 @@
 												   object:[sv contentView]];
 		INT_clipViewDidPostFrameChangeNotifications = [[sv contentView] postsFrameChangedNotifications];
 		[[sv contentView] setPostsFrameChangedNotifications:YES];
+		
+		[self clipViewFrameDidChangeChange:nil];
 	}
 	else
 		NSLog(@"The INTEntriesView expects to be enclosed in an NSScrollView");
+}
+
+
+- (void)viewWillMoveToWindow:(NSWindow *)newWindow // NSView
+{
+	if ([self window])
+		[[NSNotificationCenter defaultCenter] removeObserver:self
+														name:NSWindowDidBecomeMainNotification
+													  object:[self window]];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowDidChangeMain:)
+												 name:NSWindowDidBecomeMainNotification
+											   object:newWindow];
+}
+
+
+- (void)windowDidChangeMain:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
+{
+	[self setNeedsDisplay:YES];
 }
 
 
@@ -497,7 +575,6 @@
 		
 		do
 		{
-			point = [self convertPoint:[event locationInWindow] fromView:nil];
 			if (NSPointInRect(point, cellFrame))
 			{
 				[dataCell setHighlighted:YES];
@@ -511,11 +588,113 @@
 					break;
 			}
 			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
+			point = [self convertPoint:[event locationInWindow] fromView:nil];
 		} while ([event type] == NSLeftMouseDragged);
 		
 		INT_selectedAnnotatedPrinciple = nil;
 		INT_selectedDataCell = nil;
 	}
+	else
+	{
+		do
+		{
+			NSTimer *mouseDragTimer = [NSTimer timerWithTimeInterval:0.04
+															  target:self
+															selector:@selector(mouseDragTimerHit:)
+															userInfo:event
+															 repeats:YES];
+			[mouseDragTimer fire];
+			[[NSRunLoop currentRunLoop] addTimer:mouseDragTimer forMode:NSEventTrackingRunLoopMode];
+			
+			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
+			[mouseDragTimer invalidate];
+		} while ([event type] == NSLeftMouseDragged);
+	}
+}
+
+
+- (void)mouseDragTimerHit:(NSTimer *)timer // INTEntriesView (INTPrivateMethods)
+{
+	NSEvent *event = (NSEvent *)[timer userInfo];
+	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+	NSIndexSet *newIndexes;
+	
+	if ([self entryAtPoint:point])
+		newIndexes = [NSIndexSet indexSetWithIndex:[[self sortedEntries] indexOfObject:[self entryAtPoint:point]]];
+	else
+		newIndexes = [NSIndexSet indexSet];
+	
+	// Tell the controller to adjust its selection indexes, if there is one
+	id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+	if (observingObject)
+		[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+	else
+		// Just do it ourselves
+		[self setSelectionIndexes:newIndexes];
+	
+	[self autoscroll:event];
+}
+
+
+- (void)moveLeft:(id)sender // NSResponder
+{
+	NSIndexSet *newIndexes;
+	if ([[self selectionIndexes] count] == 0)
+	{
+		if ([[self sortedEntries] count] == 0)
+			newIndexes = [NSIndexSet indexSet];
+		else
+			newIndexes = [NSIndexSet indexSetWithIndex:([[self sortedEntries] count] - 1)];
+	}
+	else
+	{
+		if ([[self selectionIndexes] containsIndex:0])
+			newIndexes = [NSIndexSet indexSetWithIndex:0];
+		else
+			newIndexes = [NSIndexSet indexSetWithIndex:([[self selectionIndexes] firstIndex] - 1)];
+	}
+	
+	// Tell the controller to adjust its selection indexes, if there is one
+	id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+	if (observingObject)
+		[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+	else
+		// Just do it ourselves
+		[self setSelectionIndexes:newIndexes];
+	
+	if ([newIndexes count] > 0)
+		[self scrollRectToVisible:[self rectForEntry:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]]];
+}
+
+
+- (void)moveRight:(id)sender // NSResponder
+{
+	NSIndexSet *newIndexes;
+	if ([[self selectionIndexes] count] == 0)
+	{
+		if ([[self sortedEntries] count] == 0)
+			newIndexes = [NSIndexSet indexSet];
+		else
+			newIndexes = [NSIndexSet indexSetWithIndex:0];
+	}
+	else
+	{
+		if ([[self selectionIndexes] containsIndex:([[self sortedEntries] count] - 1)])
+			newIndexes = [NSIndexSet indexSetWithIndex:([[self sortedEntries] count] - 1)];
+		else
+			newIndexes = [NSIndexSet indexSetWithIndex:([[self selectionIndexes] lastIndex] + 1)];
+	}
+	
+	// Tell the controller to adjust its selection indexes, if there is one
+	id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+	if (observingObject)
+		[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+	else
+		// Just do it ourselves
+		[self setSelectionIndexes:newIndexes];
+	
+	if ([newIndexes count] > 0)
+		[self scrollRectToVisible:[self rectForEntry:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]]];
 }
 
 
@@ -544,6 +723,8 @@
 	float height = (maxPrincipleCount * [self rowHeight]) + (MAX(0, (int)maxPrincipleCount - 1) * [self intercellSpacing].height);
 	float width = ([[self sortedEntries] count] * [self columnWidth]) + (MAX(0, (int)[[self sortedEntries] count] - 1) * [self intercellSpacing].width);
 	INT_minimumFrameSize = NSMakeSize(width, height);
+	
+	[self clipViewFrameDidChangeChange:nil];
 }
 
 
@@ -553,7 +734,7 @@
 - (void)clipViewFrameDidChangeChange:(NSNotification *)notification // INTEntriesView (INTProtectedMethods)
 {
 	NSSize newFrameSize = INT_minimumFrameSize;
-	NSSize newClipViewSize = [[notification object] bounds].size;
+	NSSize newClipViewSize = [[[self enclosingScrollView] contentView] bounds].size;
 	newFrameSize.width  = fmaxf(newClipViewSize.width , newFrameSize.width );
 	newFrameSize.height = fmaxf(newClipViewSize.height, newFrameSize.height);
 	
@@ -571,7 +752,7 @@
 
 
 
-#pragma mark Drawing the entries view
+#pragma mark Drawing
 
 - (void)drawRect:(NSRect)rect // NSView
 {
@@ -582,6 +763,7 @@
 	
 	// Draw entries and constitutions
 	// TODO Draw constitutions
+	unsigned prevEntryIndex = 0;
 	float currEntryMaxX = -[self intercellSpacing].width;
 	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
 	INTEntry *currEntry;
@@ -589,20 +771,25 @@
 	{
 		float currEntryMinX = currEntryMaxX + [self intercellSpacing].width;
 		currEntryMaxX += [self columnWidth] + [self intercellSpacing].width;
+		prevEntryIndex++;
 		if (currEntryMaxX < NSMinX(rect))
 			continue;
 		if (currEntryMinX > NSMaxX(rect))
 			break;
 		
-		if (NO)// If entry is selected
+		if ([[self selectionIndexes] containsIndex:(prevEntryIndex - 1)])
 		{
-			[[NSColor selectedControlColor] set];
-			[NSBezierPath fillRect:NSMakeRect(currEntryMinX, NSMinY([self bounds]), [self columnWidth], NSHeight([self bounds]))];
+			// Entry is selected
+			if ([[self window] isMainWindow])
+				[[NSColor selectedControlColor] set];
+			else
+				[[NSColor secondarySelectedControlColor] set];
+			[NSBezierPath fillRect:[self rectForEntry:currEntry]];
 		}
 		
 		// TODO Draw all annotatedPrinciples from the same constitution in the same order
 		float currPrincipleMaxY = -[self intercellSpacing].height;
-		NSEnumerator *principles = [[[[self library] constitutionForDate:[currEntry date]] principles] objectEnumerator];
+		NSEnumerator *principles = [[[currEntry constitution] principles] objectEnumerator];
 		INTPrinciple *currPrinciple;
 		while ((currPrinciple = [principles nextObject]))
 		{
@@ -675,7 +862,7 @@
 	unsigned principleIndex = floorf((point.y + [self intercellSpacing].height) / ([self rowHeight] + [self intercellSpacing].height));
 	if (principleIndex < [[entry annotatedPrinciples] count])
 	{
-		INTPrinciple *principle = [[[[self library] constitutionForDate:[entry date]] principles] objectAtIndex:principleIndex];
+		INTPrinciple *principle = [[[entry constitution] principles] objectAtIndex:principleIndex];
 		NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
 		INTAnnotatedPrinciple *annotatedPrinciple;
 		while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
@@ -710,7 +897,7 @@
 - (NSRect)rectForAnnotatedPrinciple:(INTAnnotatedPrinciple *)annotatedPrinciple ofEntry:(INTEntry *)entry // INTEntriesView (INTPrivateMethods)
 {
 	unsigned entryIndex = [[self sortedEntries] indexOfObject:entry];
-	unsigned annotatedPrincipleIndex = [[[[self library] constitutionForDate:[entry date]] principles] indexOfObject:[annotatedPrinciple principle]];
+	unsigned annotatedPrincipleIndex = [[[entry constitution] principles] indexOfObject:[annotatedPrinciple principle]];
 	if ((entryIndex == NSNotFound) || (annotatedPrincipleIndex == NSNotFound))
 		return NSZeroRect;
 	else
@@ -718,6 +905,19 @@
 						  annotatedPrincipleIndex * ([self rowHeight] + [self intercellSpacing].height),
 						  [self columnWidth],
 						  [self rowHeight]);
+}
+
+
+- (NSRect)rectForEntry:(INTEntry *)entry // INTEntriesView (INTPrivateMethods)
+{
+	unsigned entryIndex = [[self sortedEntries] indexOfObject:entry];
+	if (entryIndex == NSNotFound)
+		return NSZeroRect;
+	else
+		return NSMakeRect(entryIndex * ([self columnWidth] + [self intercellSpacing].width),
+						  NSMinY([self bounds]),
+						  [self columnWidth],
+						  NSHeight([self bounds]));
 }
 
 

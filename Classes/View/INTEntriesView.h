@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class INTLibrary;
 @class INTEntriesHeaderView;
 @class INTEntriesCornerView;
 @class INTAnnotatedPrinciple;
@@ -17,7 +16,6 @@
 @interface INTEntriesView : NSView
 {
 	@private
-	INTLibrary *INT_library;
 	NSCalendar *INT_calendar;
 	NSColor *INT_backgroundColor;
 	float INT_rowHeight;
@@ -28,25 +26,26 @@
 	INTEntriesHeaderView *INT_headerView;
 	INTEntriesCornerView *INT_cornerView;
 	NSSize INT_minimumFrameSize;
-	NSArray *INT_cachedSortedEntries;
 	BOOL INT_clipViewDidPostFrameChangeNotifications;
 	float INT_prevClipViewFrameWidth;
 	NSCell *INT_principleLabelCell;
 	NSActionCell *INT_dataCell;
+	NSIndexSet *INT_selectionIndexes;
 	INTAnnotatedPrinciple *INT_selectedAnnotatedPrinciple; // Weak reference
 	NSActionCell *INT_selectedDataCell; // Weak reference
+	
+	// Bindings
+	NSObject *INT_entriesContainer;
+	NSString *INT_entriesKeyPath;
 }
 
 
 #pragma mark Creating an entries view
-- (id)initWithFrame:(NSRect)frame library:(INTLibrary *)library;
-- (id)initWithFrame:(NSRect)frame library:(INTLibrary *)library calendar:(NSCalendar *)calendar; // Designated initializer
+- (id)initWithFrame:(NSRect)frame;
+- (id)initWithFrame:(NSRect)frame calendar:(NSCalendar *)calendar; // Designated initializer
 
 #pragma mark Getting the calendar
 - (NSCalendar *)calendar;
-
-#pragma mark Getting the library
-- (INTLibrary *)library;
 
 #pragma mark Setting display attributes
 - (NSColor *)backgroundColor;
@@ -68,5 +67,9 @@
 - (void)setPrincipleLabelCell:(NSCell *)cell;
 - (NSActionCell *)dataCell;
 - (void)setDataCell:(NSActionCell *)cell;
+
+#pragma mark Managing selection
+- (NSIndexSet *)selectionIndexes;
+- (void)setSelectionIndexes:(NSIndexSet *)indexes;
 
 @end
