@@ -400,6 +400,9 @@
 			INTEntry *entry = (INTEntry *)context;
 			NSRect rect = [self rectForAnnotatedPrinciple:object ofEntry:entry];
 			[self setNeedsDisplayInRect:rect];
+			
+			if ([entry isUnread])
+				[entry setUnread:NO];
 			handled = YES;
 		}
 	}
