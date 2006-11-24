@@ -471,6 +471,13 @@
 														name:NSViewFrameDidChangeNotification
 													  object:cv];
 	}
+	
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:NSApplicationDidBecomeActiveNotification
+												  object:NSApp];
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:NSApplicationDidResignActiveNotification
+												  object:NSApp];
 }
 
 
@@ -495,6 +502,15 @@
 	}
 	else
 		NSLog(@"The INTEntriesView expects to be enclosed in an NSScrollView");
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowDidChangeMain:)
+												 name:NSApplicationDidBecomeActiveNotification
+											   object:NSApp];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowDidChangeMain:)
+												 name:NSApplicationDidResignActiveNotification
+											   object:NSApp];
 }
 
 
