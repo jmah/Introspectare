@@ -21,6 +21,9 @@
 #pragma mark Managing entries
 - (void)cacheSortedEntries;
 
+#pragma mark Event handling
+- (void)selectedAnnotatedPrincipleClicked:(id)sender;
+
 #pragma mark Getting auxiliary views for enclosing an scroll view
 - (NSView *)headerView;
 - (NSView *)cornerView;
@@ -30,6 +33,12 @@
 
 #pragma mark Managing clip view bounds changes
 - (void)clipViewFrameDidChangeChange:(NSNotification *)notification;
+
+#pragma mark Layout
+- (INTEntry *)entryAtPoint:(NSPoint)point;
+- (INTAnnotatedPrinciple *)annotatedPrincipleAtPoint:(NSPoint)point;
+- (NSActionCell *)dataCellAtPoint:(NSPoint)point frame:(NSRect *)outFrame;
+- (NSRect)rectForAnnotatedPrinciple:(INTAnnotatedPrinciple *)annotatedPrinciple ofEntry:(INTEntry *)entry;
 
 @end
 
@@ -87,7 +96,6 @@
 		// Set an attributed title, otherwise the button cell will generate one each time it's drawn
 		[dataCell setAttributedTitle:[[[NSAttributedString alloc] initWithString:[NSString string]] autorelease]];
 		[dataCell setButtonType:NSSwitchButton];
-		[dataCell setControlView:self];
 		INT_dataCell = dataCell;
 		
 		[self setFocusRingType:NSFocusRingTypeExterior];
@@ -95,10 +103,65 @@
 		[self cacheSortedEntries];
 		[self updateFrameSize];
 		
+		// Observe interesting things
+#warning TODO Redo this so we bind to a controller instead (and so get entry selection)
 		[library addObserver:self
 				  forKeyPath:@"entries"
 					 options:0
 					 context:NULL];
+		
+		NSEnumerator *entries = [[library entries] objectEnumerator];
+		INTEntry *entry;
+		while ((entry = [entries nextObject]))
+		{
+			[entry addObserver:self
+					forKeyPath:@"annotatedPrinciples"
+					   options:0
+					   context:NULL];
+			[entry addObserver:self
+					forKeyPath:@"unread"
+					   options:0
+					   context:NULL];
+			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
+			INTAnnotatedPrinciple *annotatedPrinciple;
+			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+				[annotatedPrinciple addObserver:self
+									 forKeyPath:@"upheld"
+										options:0
+										context:NULL];
+		}
+		
+		[library addObserver:self
+				  forKeyPath:@"constitutions"
+					 options:0
+					 context:NULL];
+		NSEnumerator *constitutions = [[library constitutions] objectEnumerator];
+		INTConstitution *constitution;
+		while ((constitution = [constitutions nextObject]))
+		{
+			[constitution addObserver:self
+						   forKeyPath:@"versionLabel"
+							  options:0
+							  context:NULL];
+			[constitution addObserver:self
+						   forKeyPath:@"principles"
+							  options:0
+							  context:NULL];
+		}
+		
+		[library addObserver:self
+				  forKeyPath:@"principles"
+					 options:0
+					 context:NULL];
+		NSEnumerator *principles = [[library principles] objectEnumerator];
+		INTPrinciple *principle;
+		while ((principle = [principles nextObject]))
+		{
+			[principle addObserver:self
+						forKeyPath:@"label"
+						   options:0
+						   context:NULL];
+		}
 	}
 	return self;
 }
@@ -272,7 +335,6 @@
 {
 	id oldValue = INT_dataCell;
 	INT_dataCell = [cell copy];
-	[INT_dataCell setControlView:self];
 	[oldValue release];
 	[self setNeedsDisplay:YES];
 }
@@ -294,6 +356,21 @@
 			handled = YES;
 		}
 	}
+	else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+	{
+		NSEnumerator *entries = [[[self library] entries] objectEnumerator];
+		INTEntry *entry;
+		while ((entry = [entries nextObject]))
+			if ([[entry annotatedPrinciples] indexOfObjectIdenticalTo:object] != NSNotFound)
+				break;
+		NSRect rect = [self rectForAnnotatedPrinciple:object ofEntry:entry];
+		if (!NSIsEmptyRect(rect))
+			[self setNeedsDisplayInRect:rect];
+		else
+			NSLog(@"Received change for an unexpected annotated principle");
+		handled = YES;
+	}
+	
 	if (!handled)
 		[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 }
@@ -405,12 +482,46 @@
 - (void)mouseDown:(NSEvent *)event // NSResponder
 {
 	[[self window] makeFirstResponder:self];
+	
+	// Track mouse while down
+	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+	NSRect cellFrame;
+	NSActionCell *dataCell = [self dataCellAtPoint:point frame:&cellFrame];
+	if (dataCell)
+	{
+		[dataCell setTarget:self];
+		[dataCell setAction:@selector(selectedAnnotatedPrincipleClicked:)];
+		[dataCell sendActionOn:NSLeftMouseUpMask];
+		INT_selectedDataCell = dataCell;
+		INT_selectedAnnotatedPrinciple = [self annotatedPrincipleAtPoint:point];
+		
+		do
+		{
+			point = [self convertPoint:[event locationInWindow] fromView:nil];
+			if (NSPointInRect(point, cellFrame))
+			{
+				[dataCell setHighlighted:YES];
+				[self displayRect:cellFrame];
+				BOOL trackUntilMouseUp = [[dataCell class] prefersTrackingUntilMouseUp];
+				BOOL shouldEndTracking = [dataCell trackMouse:event inRect:cellFrame ofView:self untilMouseUp:trackUntilMouseUp];
+				[dataCell setHighlighted:NO];
+				[self displayRect:cellFrame];
+				
+				if (shouldEndTracking)
+					break;
+			}
+			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
+		} while ([event type] == NSLeftMouseDragged);
+		
+		INT_selectedAnnotatedPrinciple = nil;
+		INT_selectedDataCell = nil;
+	}
 }
 
 
-- (void)keyDown:(NSEvent *)event // NSResponder
+- (void)selectedAnnotatedPrincipleClicked:(id)sender // INTEntriesView (INTPrivateMethods)
 {
-	NSLog(@"%@", event);
+	[INT_selectedAnnotatedPrinciple setUpheld:!([INT_selectedDataCell state] == NSOnState)];
 }
 
 
@@ -490,23 +601,34 @@
 		}
 		
 		// TODO Draw all annotatedPrinciples from the same constitution in the same order
-		float currAnnotatedPrincipleMaxY = -[self intercellSpacing].height;
-		NSEnumerator *annotatedPrinciples = [[currEntry annotatedPrinciples] objectEnumerator];
-		INTAnnotatedPrinciple *currAnnotatedPrinciple;
-		while ((currAnnotatedPrinciple = [annotatedPrinciples nextObject]))
+		float currPrincipleMaxY = -[self intercellSpacing].height;
+		NSEnumerator *principles = [[[[self library] constitutionForDate:[currEntry date]] principles] objectEnumerator];
+		INTPrinciple *currPrinciple;
+		while ((currPrinciple = [principles nextObject]))
 		{
-			float currAnnotatedPrincipleMinY = currAnnotatedPrincipleMaxY + [self intercellSpacing].height;
-			currAnnotatedPrincipleMaxY += [self rowHeight] + [self intercellSpacing].height;
-			if (currAnnotatedPrincipleMaxY < NSMinY(rect))
+			float currPrincipleMinY = currPrincipleMaxY + [self intercellSpacing].height;
+			currPrincipleMaxY += [self rowHeight] + [self intercellSpacing].height;
+			if (currPrincipleMaxY < NSMinY(rect))
 				continue;
-			if (currAnnotatedPrincipleMinY > NSMaxY(rect))
+			if (currPrincipleMinY > NSMaxY(rect))
 				break;
 			
-			NSRect gridFrame = NSMakeRect(currEntryMinX, currAnnotatedPrincipleMinY, [self columnWidth], [self rowHeight]);
+			NSEnumerator *annotatedPrinciples = [[currEntry annotatedPrinciples] objectEnumerator];
+			INTAnnotatedPrinciple *currAnnotatedPrinciple;
+			while ((currAnnotatedPrinciple = [annotatedPrinciples nextObject]))
+				if ([currAnnotatedPrinciple principle] == currPrinciple)
+					break;
+			NSAssert(currAnnotatedPrinciple != nil, @"If an entry's constitution contains a principle, a corresponding annotated principle should exist");
+			
+			NSRect gridFrame = NSMakeRect(currEntryMinX, currPrincipleMinY, [self columnWidth], [self rowHeight]);
 			
 			NSActionCell *cell = [self dataCell];
 			int state = [currAnnotatedPrinciple isUpheld] ? NSOffState : NSOnState;
 			[cell setState:state];
+			
+			if (currAnnotatedPrinciple == INT_selectedAnnotatedPrinciple)
+				cell = INT_selectedDataCell;
+			
 			NSSize cellSize = [cell cellSizeForBounds:NSMakeRect(0.0, 0.0, NSWidth(gridFrame), NSHeight(gridFrame))];
 			
 			NSRect cellFrame = gridFrame;
@@ -525,6 +647,77 @@
 		[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self intercellSpacing].width)];
 	for (float x = [self columnWidth]; x < NSWidth([self bounds]); x += [self columnWidth] + [self intercellSpacing].height)
 		[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+}
+
+
+
+#pragma mark Layout
+
+- (INTEntry *)entryAtPoint:(NSPoint)point // INTEntriesView (INTPrivateMethods)
+{
+	if (!NSPointInRect(point, [self bounds]))
+		return nil;
+	
+	unsigned entryIndex = floorf((point.x + [self intercellSpacing].width) / ([self columnWidth] + [self intercellSpacing].width));
+	if (entryIndex < [[self sortedEntries] count])
+		return [[self sortedEntries] objectAtIndex:entryIndex];
+	else
+		return nil;
+}
+
+
+- (INTAnnotatedPrinciple *)annotatedPrincipleAtPoint:(NSPoint)point // INTEntriesView (INTPrivateMethods)
+{
+	INTEntry *entry = [self entryAtPoint:point];
+	if (!entry)
+		return nil;
+	
+	unsigned principleIndex = floorf((point.y + [self intercellSpacing].height) / ([self rowHeight] + [self intercellSpacing].height));
+	if (principleIndex < [[entry annotatedPrinciples] count])
+	{
+		INTPrinciple *principle = [[[[self library] constitutionForDate:[entry date]] principles] objectAtIndex:principleIndex];
+		NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
+		INTAnnotatedPrinciple *annotatedPrinciple;
+		while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+			if ([annotatedPrinciple principle] == principle)
+				break;
+		NSAssert(annotatedPrinciple != nil, @"If an entry's constitution contains a principle, a corresponding annotated principle should exist");
+		return annotatedPrinciple;
+	}
+	else
+		return nil;
+}
+
+
+- (NSActionCell *)dataCellAtPoint:(NSPoint)point frame:(NSRect *)outFrame // INTEntriesView (INTPrivateMethods)
+{
+	INTEntry *entry = [self entryAtPoint:point];
+	INTAnnotatedPrinciple *annotatedPrinciple = [self annotatedPrincipleAtPoint:point];
+	if (!entry || !annotatedPrinciple)
+		return nil;
+	
+	if (outFrame)
+		*outFrame = [self rectForAnnotatedPrinciple:annotatedPrinciple ofEntry:entry];
+	
+	NSActionCell *cell = [[self dataCell] copy];
+	int state = [annotatedPrinciple isUpheld] ? NSOffState : NSOnState;
+	[cell setState:state];
+	
+	return [cell autorelease];
+}
+
+
+- (NSRect)rectForAnnotatedPrinciple:(INTAnnotatedPrinciple *)annotatedPrinciple ofEntry:(INTEntry *)entry // INTEntriesView (INTPrivateMethods)
+{
+	unsigned entryIndex = [[self sortedEntries] indexOfObject:entry];
+	unsigned annotatedPrincipleIndex = [[[[self library] constitutionForDate:[entry date]] principles] indexOfObject:[annotatedPrinciple principle]];
+	if ((entryIndex == NSNotFound) || (annotatedPrincipleIndex == NSNotFound))
+		return NSZeroRect;
+	else
+		return NSMakeRect(entryIndex * ([self columnWidth] + [self intercellSpacing].width),
+						  annotatedPrincipleIndex * ([self rowHeight] + [self intercellSpacing].height),
+						  [self columnWidth],
+						  [self rowHeight]);
 }
 
 

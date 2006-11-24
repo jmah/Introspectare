@@ -11,6 +11,7 @@
 @class INTLibrary;
 @class INTEntriesHeaderView;
 @class INTEntriesCornerView;
+@class INTAnnotatedPrinciple;
 
 
 @interface INTEntriesView : NSView
@@ -32,6 +33,8 @@
 	float INT_prevClipViewFrameWidth;
 	NSCell *INT_principleLabelCell;
 	NSActionCell *INT_dataCell;
+	INTAnnotatedPrinciple *INT_selectedAnnotatedPrinciple; // Weak reference
+	NSActionCell *INT_selectedDataCell; // Weak reference
 }
 
 
