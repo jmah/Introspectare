@@ -65,6 +65,7 @@
 		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
 		282E92FA0A5E5806008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
 		282E92FB0A5E5806008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
+		284818640B17451B00EEAD7A /* INTEntriesHeaderView+INTProtectedMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntriesHeaderView+INTProtectedMethods.h"; sourceTree = "<group>"; };
 		285EE8600B11E795002F8B5A /* INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesView.h; sourceTree = "<group>"; };
 		285EE8610B11E795002F8B5A /* INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesView.m; sourceTree = "<group>"; };
 		287031410A61607000A7F5A7 /* Introspectare.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Introspectare.icns; sourceTree = "<group>"; };
@@ -135,6 +136,7 @@
 				28DB60C50B15D6EC00A3E81D /* INTEntriesView+INTProtectedMethods.h */,
 				285EE8610B11E795002F8B5A /* INTEntriesView.m */,
 				28DB60AC0B15D56700A3E81D /* INTEntriesHeaderView.h */,
+				284818640B17451B00EEAD7A /* INTEntriesHeaderView+INTProtectedMethods.h */,
 				28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */,
 				28DB60A30B15D4F200A3E81D /* INTEntriesCornerView.h */,
 				28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */,
@@ -450,7 +452,7 @@
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -460,7 +462,7 @@
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;

@@ -10,8 +10,10 @@
 #import "INTEntriesView+INTProtectedMethods.h"
 #import "INTEntry.h"
 #import "INTConstitution.h"
+#import "INTPrinciple.h"
 #import "INTAnnotatedPrinciple.h"
 #import "INTEntriesHeaderView.h"
+#import "INTEntriesHeaderView+INTProtectedMethods.h"
 #import "INTEntriesCornerView.h"
 
 
@@ -733,12 +735,22 @@
 - (void)updateFrameSize // INTEntriesView (INTPrivateMethods)
 {
 	unsigned maxPrincipleCount = 0;
+	INTConstitution *currConstitution = nil;
+	float width = -[self intercellSpacing].width;
 	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
 	INTEntry *currEntry;
 	while ((currEntry = [entries nextObject]))
+	{
+		if ([currEntry constitution] != currConstitution)
+		{
+			currConstitution = [currEntry constitution];
+			width += [self widthForConstitution:currConstitution] + [self intercellSpacing].width;
+		}
 		maxPrincipleCount = MAX([[currEntry annotatedPrinciples] count], maxPrincipleCount);
+		width += [self columnWidth] + [self intercellSpacing].width;
+	}
+	
 	float height = (maxPrincipleCount * [self rowHeight]) + (MAX(0, (int)maxPrincipleCount - 1) * [self intercellSpacing].height);
-	float width = ([[self sortedEntries] count] * [self columnWidth]) + (MAX(0, (int)[[self sortedEntries] count] - 1) * [self intercellSpacing].width);
 	INT_minimumFrameSize = NSMakeSize(width, height);
 	
 	[self clipViewFrameDidChangeChange:nil];
@@ -779,16 +791,52 @@
 	
 	
 	// Draw entries and constitutions
-	// TODO Draw constitutions
+	INTConstitution *currConstitution = nil;
 	unsigned prevEntryIndex = 0;
 	float currEntryMaxX = -[self intercellSpacing].width;
 	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
 	INTEntry *currEntry;
 	while ((currEntry = [entries nextObject]))
 	{
+		if ([currEntry constitution] != currConstitution)
+		{
+			currConstitution = [currEntry constitution];
+			float constitutionMinX = currEntryMaxX + [self intercellSpacing].width;
+			float constitutionWidth = [self widthForConstitution:currConstitution];
+			currEntryMaxX += constitutionWidth + [self intercellSpacing].width;
+			
+			if (((constitutionMinX + constitutionWidth) >= NSMinX(rect)) || (constitutionMinX <= NSMaxX(rect)))
+			{
+				// Constitution is on-screen
+				float currPrincipleMaxY = -[self intercellSpacing].height;
+				NSEnumerator *principles = [[currConstitution principles] objectEnumerator];
+				INTPrinciple *currPrinciple;
+				while ((currPrinciple = [principles nextObject]))
+				{
+					float currPrincipleMinY = currPrincipleMaxY + [self intercellSpacing].height;
+					currPrincipleMaxY += [self rowHeight] + [self intercellSpacing].height;
+					if (currPrincipleMaxY < NSMinY(rect))
+						continue;
+					if (currPrincipleMinY > NSMaxY(rect))
+						break;
+					
+					NSRect cellFrame = NSMakeRect(constitutionMinX, currPrincipleMinY, constitutionWidth, [self rowHeight]);
+					NSCell *cell = [self principleLabelCell];
+					[cell setStringValue:[currPrinciple label]];
+					[cell drawWithFrame:cellFrame inView:self];
+				}
+				
+				[[NSColor gridColor] set];
+				[NSBezierPath fillRect:NSMakeRect(constitutionMinX + constitutionWidth, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+			}
+		}
+		
 		float currEntryMinX = currEntryMaxX + [self intercellSpacing].width;
 		currEntryMaxX += [self columnWidth] + [self intercellSpacing].width;
 		prevEntryIndex++;
+		
+		[[NSColor gridColor] set];
+		[NSBezierPath fillRect:NSMakeRect(currEntryMaxX, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
 		if (currEntryMaxX < NSMinX(rect))
 			continue;
 		if (currEntryMinX > NSMaxX(rect))
@@ -804,7 +852,7 @@
 			[NSBezierPath fillRect:[self rectForEntry:currEntry]];
 		}
 		
-		// TODO Draw all annotatedPrinciples from the same constitution in the same order
+		
 		float currPrincipleMaxY = -[self intercellSpacing].height;
 		NSEnumerator *principles = [[[currEntry constitution] principles] objectEnumerator];
 		INTPrinciple *currPrinciple;
@@ -850,7 +898,11 @@
 	for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self intercellSpacing].width)
 		[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self intercellSpacing].width)];
 	for (float x = [self columnWidth]; x < NSWidth([self bounds]); x += [self columnWidth] + [self intercellSpacing].height)
-		[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+		// Most of the vertical grid has already been drawn
+		if (x < currEntryMaxX)
+			continue;
+		else
+			[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
 }
 
 
@@ -862,22 +914,33 @@
 	if ((x < NSMinX([self bounds])) || (x > NSMaxX([self bounds])))
 		return nil;
 	
-	unsigned entryIndex = floorf((x + [self intercellSpacing].width) / ([self columnWidth] + [self intercellSpacing].width));
-	if (entryIndex < [[self sortedEntries] count])
-		return [[self sortedEntries] objectAtIndex:entryIndex];
-	else
-		return nil;
+	INTConstitution *currConstitution = nil;
+	float currEntryMaxX = -[self intercellSpacing].width;
+	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
+	INTEntry *currEntry;
+	while ((currEntry = [entries nextObject]))
+	{
+		if ([currEntry constitution] != currConstitution)
+		{
+			currConstitution = [currEntry constitution];
+			currEntryMaxX += [self widthForConstitution:currConstitution] + [self intercellSpacing].width;
+		}
+		float currEntryMinX = currEntryMaxX + [self intercellSpacing].width;
+		currEntryMaxX += [self columnWidth] + [self intercellSpacing].width;
+		
+		if ((x >= currEntryMinX) && (x <= currEntryMaxX))
+			return currEntry;
+	}
+	
+	// Not found
+	return nil;
 }
 
 
 - (INTEntry *)entryAtPoint:(NSPoint)point // INTEntriesView (INTPrivateMethods)
 {
-	if (!NSPointInRect(point, [self bounds]))
-		return nil;
-	
-	unsigned entryIndex = floorf((point.x + [self intercellSpacing].width) / ([self columnWidth] + [self intercellSpacing].width));
-	if (entryIndex < [[self sortedEntries] count])
-		return [[self sortedEntries] objectAtIndex:entryIndex];
+	if (NSPointInRect(point, [self bounds]))
+		return [self entryAtXLocation:point.x];
 	else
 		return nil;
 }
@@ -926,28 +989,66 @@
 
 - (NSRect)rectForAnnotatedPrinciple:(INTAnnotatedPrinciple *)annotatedPrinciple ofEntry:(INTEntry *)entry // INTEntriesView (INTPrivateMethods)
 {
-	unsigned entryIndex = [[self sortedEntries] indexOfObject:entry];
 	unsigned annotatedPrincipleIndex = [[[entry constitution] principles] indexOfObject:[annotatedPrinciple principle]];
-	if ((entryIndex == NSNotFound) || (annotatedPrincipleIndex == NSNotFound))
+	if (![[self sortedEntries] containsObject:entry] || (annotatedPrincipleIndex == NSNotFound))
 		return NSZeroRect;
 	else
-		return NSMakeRect(entryIndex * ([self columnWidth] + [self intercellSpacing].width),
-						  annotatedPrincipleIndex * ([self rowHeight] + [self intercellSpacing].height),
-						  [self columnWidth],
-						  [self rowHeight]);
+	{
+		NSRect entryRect = [self rectForEntry:entry];
+		NSRect principleRowRect = NSMakeRect(NSMinX([self bounds]),
+											 annotatedPrincipleIndex * ([self rowHeight] + [self intercellSpacing].height),
+											 NSWidth([self bounds]),
+											 [self rowHeight]);
+		return NSIntersectionRect(entryRect, principleRowRect);
+	}
 }
 
 
 - (NSRect)rectForEntry:(INTEntry *)entry // INTEntriesView (INTPrivateMethods)
 {
-	unsigned entryIndex = [[self sortedEntries] indexOfObject:entry];
-	if (entryIndex == NSNotFound)
+	if (![[self sortedEntries] containsObject:entry])
 		return NSZeroRect;
 	else
-		return NSMakeRect(entryIndex * ([self columnWidth] + [self intercellSpacing].width),
-						  NSMinY([self bounds]),
-						  [self columnWidth],
-						  NSHeight([self bounds]));
+	{
+		INTConstitution *currConstitution = nil;
+		float currEntryMaxX = -[self intercellSpacing].width;
+		NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
+		INTEntry *currEntry;
+		while ((currEntry = [entries nextObject]))
+		{
+			if ([currEntry constitution] != currConstitution)
+			{
+				currConstitution = [currEntry constitution];
+				currEntryMaxX += [self widthForConstitution:currConstitution] + [self intercellSpacing].width;
+			}
+			float currEntryMinX = currEntryMaxX + [self intercellSpacing].width;
+			currEntryMaxX += [self columnWidth] + [self intercellSpacing].width;
+			
+			if (currEntry == entry)
+				return NSMakeRect(currEntryMinX,
+								  NSMinY([self bounds]),
+								  [self columnWidth],
+								  NSHeight([self bounds]));
+		}
+		
+		NSLog(@"Unexpectedly couldn't get rect for entry");
+		return NSZeroRect;
+	}
+}
+
+
+- (float)widthForConstitution:(INTConstitution *)constitution // INTEntriesView (INTProtectedMethods)
+{
+	float width = [(INTEntriesHeaderView *)[self headerView] headerWidthForConstitution:constitution];
+	NSCell *cell = [self principleLabelCell];
+	NSEnumerator *principles = [[constitution principles] objectEnumerator];
+	INTPrinciple *principle;
+	while ((principle = [principles nextObject]))
+	{
+		[cell setStringValue:[principle label]];
+		width = fmaxf(width, [cell cellSize].width);
+	}
+	return ceilf(width);
 }
 
 

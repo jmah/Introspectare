@@ -7,10 +7,11 @@
 //
 
 #import "INTEntriesHeaderView.h"
+#import "INTEntriesHeaderView+INTProtectedMethods.h"
 #import "INTEntriesView.h"
 #import "INTEntriesView+INTProtectedMethods.h"
-#import "INTLibrary.h"
 #import "INTEntry.h"
+#import "INTConstitution.h"
 
 
 @interface INTEntriesHeaderView (INTPrivateMethods)
@@ -20,6 +21,7 @@
 
 #pragma mark Drawing
 - (void)drawHeaderString:(NSString *)string inFrame:(NSRect)frame;
+- (void)drawHighlightedHeaderString:(NSString *)string inFrame:(NSRect)frame;
 - (void)drawMonth:(int)month withHintedFrame:(NSRect)frame;
 
 #pragma mark Displaying date components
@@ -198,6 +200,23 @@
 
 
 
+#pragma mark Layout
+
+- (float)headerWidthForConstitution:(INTConstitution *)constitution // INTEntriesHeaderView (INTProtectedMethods)
+{
+	float width = 0.0;
+	
+	[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
+	width = fmaxf(width, [INT_headerCell cellSize].width);
+	
+	[INT_headerCell setStringValue:[constitution versionLabel]];
+	width = fmaxf(width, [INT_headerCell cellSize].width);
+	
+	return width;
+}
+
+
+
 #pragma mark Drawing
 
 - (void)drawRect:(NSRect)rect // NSView
@@ -226,20 +245,53 @@
 	float currMonthMinX = 0.0;
 	
 	
+	INTConstitution *currConstitution = nil;
 	float currEntryMaxX = 0.0;
 	float currEntryMinX = currEntryMaxX;
 	NSEnumerator *entries = [[[self entriesView] sortedEntries] objectEnumerator];
 	INTEntry *currEntry;
 	while ((currEntry = [entries nextObject]))
 	{
+		const unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
+		NSDateComponents *components = [[[self entriesView] calendar] components:unitFlags fromDate:[currEntry date]];
+		
+		if ([currEntry constitution] != currConstitution)
+		{
+			currConstitution = [currEntry constitution];
+			float constitutionMinX = currEntryMaxX;
+			float constitutionWidth = [[self entriesView] widthForConstitution:currConstitution] + [[self entriesView] intercellSpacing].width;
+			float prevEntryMaxX = currEntryMaxX;
+			currEntryMaxX += constitutionWidth;
+			
+			if (((constitutionMinX + constitutionWidth) >= NSMinX(rect)) || (constitutionMinX <= NSMaxX(rect)))
+			{
+				// Constitution is on-screen
+				NSRect constitutionFrame = NSMakeRect(constitutionMinX, hh, constitutionWidth, hh);
+				[self drawHighlightedHeaderString:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title") inFrame:constitutionFrame];
+				
+				NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0, hh);
+				[self drawHeaderString:[currConstitution versionLabel] inFrame:labelFrame];
+			}
+			
+			// Break the month header
+			if (currMonth != -1)
+			{
+				float monthWidth = prevEntryMaxX - currMonthMinX;
+				NSRect monthCellFrame = NSMakeRect(currMonthMinX, hh, monthWidth, hh);
+				[self drawMonth:currMonth withHintedFrame:monthCellFrame];
+				currMonth = [components month];
+				currMonthMinX += monthWidth + constitutionWidth;
+			}
+		}
+		
 		currEntryMinX = currEntryMaxX;
 		currEntryMaxX += [[self entriesView] columnWidth] + [[self entriesView] intercellSpacing].width;
 		
-		const unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
-		NSDateComponents *components = [[[self entriesView] calendar] components:unitFlags fromDate:[currEntry date]];
 		if (currMonth == -1)
-			// Run once
+		{
 			currMonth = [components month];
+			currMonthMinX = currEntryMinX;
+		}
 		
 		if (currEntryMaxX < NSMinX([self visibleRect]))
 		{
@@ -280,7 +332,7 @@
 			NSRect yearCellFrame = NSMakeRect(currYearMinX, 0.0, yearWidth, hh);
 			[self drawHeaderString:[self yearAsString:currYear] inFrame:yearCellFrame];
 			currYear = [components year];
-			currYearMinX = currEntryMinX;
+			currYearMinX += yearWidth;
 		}
 		
 		if ([components month] != currMonth)
@@ -289,7 +341,7 @@
 			NSRect monthCellFrame = NSMakeRect(currMonthMinX, hh, monthWidth, hh);
 			[self drawMonth:currMonth withHintedFrame:monthCellFrame];
 			currMonth = [components month];
-			currMonthMinX = currEntryMinX;
+			currMonthMinX += monthWidth;
 		}
 		
 		float entryWidth = currEntryMaxX - currEntryMinX;
@@ -344,6 +396,17 @@
 	[NSBezierPath clipRect:frame];
 	[INT_headerCell setStringValue:string];
 	[INT_headerCell drawWithFrame:frame inView:self];
+	[NSGraphicsContext restoreGraphicsState];
+}
+
+
+- (void)drawHighlightedHeaderString:(NSString *)string inFrame:(NSRect)frame // INTEntriesHeaderView (INTPrivateMethods)
+{
+	[NSGraphicsContext saveGraphicsState];
+	// NSTableHeaderCell likes to draw below it should, so we'll clip it
+	[NSBezierPath clipRect:frame];
+	[INT_headerCell setStringValue:string];
+	[INT_headerCell highlight:YES withFrame:frame inView:self];
 	[NSGraphicsContext restoreGraphicsState];
 }
 

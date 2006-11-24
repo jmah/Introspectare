@@ -20,5 +20,6 @@
 
 #pragma mark Layout
 - (INTEntry *)entryAtXLocation:(float)x;
+- (float)widthForConstitution:(INTConstitution *)constitution;
 
 @end
