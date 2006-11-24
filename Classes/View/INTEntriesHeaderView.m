@@ -10,6 +10,7 @@
 #import "INTEntriesHeaderView+INTProtectedMethods.h"
 #import "INTEntriesView.h"
 #import "INTEntriesView+INTProtectedMethods.h"
+#import "INTEntriesHeaderCell.h"
 #import "INTEntry.h"
 #import "INTConstitution.h"
 
@@ -20,7 +21,6 @@
 - (void)mouseDragTimerHit:(NSTimer *)timer;
 
 #pragma mark Drawing
-- (void)drawHeaderString:(NSString *)string inFrame:(NSRect)frame;
 - (void)drawMonth:(int)month withHintedFrame:(NSRect)frame;
 
 #pragma mark Displaying date components
@@ -53,7 +53,7 @@
 						 options:NSKeyValueObservingOptionNew
 						 context:NULL];
 		
-		INT_headerCell = [[NSTableHeaderCell alloc] initTextCell:[NSString string]];
+		INT_headerCell = [[INTEntriesHeaderCell alloc] initTextCell:[NSString string]];
 		[INT_headerCell setFont:[[self entriesView] headerFont]];
 		[INT_headerCell setAlignment:NSCenterTextAlignment];
 		[INT_headerCell setLineBreakMode:NSLineBreakByTruncatingTail];
@@ -228,12 +228,13 @@
 	if ([[[self entriesView] sortedEntries] count] == 0)
 	{
 		// No entries; just draw filler
+		[INT_headerCell setStringValue:[NSString string]];
 		NSRect fillerFrame = NSMakeRect(0.0, 0.0, NSWidth([self visibleRect]) + 1.0, hh);
-		[self drawHeaderString:@"" inFrame:fillerFrame];
+		[INT_headerCell drawWithFrame:fillerFrame inView:self];
 		fillerFrame = NSOffsetRect(fillerFrame, 0.0, hh);
-		[self drawHeaderString:@"" inFrame:fillerFrame];
+		[INT_headerCell drawWithFrame:fillerFrame inView:self];
 		fillerFrame = NSOffsetRect(fillerFrame, 0.0, hh);
-		[self drawHeaderString:@"" inFrame:fillerFrame];
+		[INT_headerCell drawWithFrame:fillerFrame inView:self];
 		return;
 	}
 	
@@ -266,10 +267,18 @@
 			{
 				// Constitution is on-screen
 				NSRect constitutionFrame = NSMakeRect(constitutionMinX, hh, constitutionWidth, hh);
-				[self drawHeaderString:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title") inFrame:constitutionFrame];
+				[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
+				[INT_headerCell drawWithFrame:constitutionFrame inView:self];
 				
 				NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0, hh);
-				[self drawHeaderString:[currConstitution versionLabel] inFrame:labelFrame];
+				[INT_headerCell setStringValue:[currConstitution versionLabel]];
+				[INT_headerCell drawWithFrame:labelFrame inView:self];
+				
+				[NSGraphicsContext saveGraphicsState];
+				[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositePlusDarker];
+				[[[NSColor blackColor] colorWithAlphaComponent:0.6] set];
+				[NSBezierPath fillRect:NSUnionRect(constitutionFrame, labelFrame)];
+				[NSGraphicsContext restoreGraphicsState];
 			}
 			
 			// Break the month header
@@ -329,7 +338,8 @@
 		{
 			float yearWidth = currEntryMinX - currYearMinX;
 			NSRect yearCellFrame = NSMakeRect(currYearMinX, 0.0, yearWidth, hh);
-			[self drawHeaderString:[self yearAsString:currYear] inFrame:yearCellFrame];
+			[INT_headerCell setStringValue:[self yearAsString:currYear]];
+			[INT_headerCell drawWithFrame:yearCellFrame inView:self];
 			currYear = [components year];
 			currYearMinX += yearWidth;
 		}
@@ -345,7 +355,8 @@
 		
 		float entryWidth = currEntryMaxX - currEntryMinX;
 		NSRect entryCellFrame = NSMakeRect(currEntryMinX, hh * 2.0, entryWidth, hh);
-		[self drawHeaderString:[self dayAsString:[components day]] inFrame:entryCellFrame];
+		[INT_headerCell setStringValue:[self dayAsString:[components day]]];
+		[INT_headerCell drawWithFrame:entryCellFrame inView:self];
 		
 		if ([currEntry isUnread])
 		{
@@ -371,7 +382,10 @@
 	float yearWidth = NSMaxX([self visibleRect]) - currYearMinX;
 	NSRect yearCellFrame = NSMakeRect(currYearMinX, 0.0, yearWidth + 1.0, hh);
 	if (!NSIsEmptyRect(yearCellFrame))
-		[self drawHeaderString:[self yearAsString:currYear] inFrame:yearCellFrame];
+	{
+		[INT_headerCell setStringValue:[self yearAsString:currYear]];
+		[INT_headerCell drawWithFrame:yearCellFrame inView:self];
+	}
 	
 	float monthWidth = currEntryMaxX - currMonthMinX;
 	NSRect monthCellFrame = NSMakeRect(currMonthMinX, hh, monthWidth + 1.0, hh);
@@ -379,23 +393,13 @@
 		[self drawMonth:currMonth withHintedFrame:monthCellFrame];
 	
 	// Fill any empty space on the right
+	[INT_headerCell setStringValue:[NSString string]];
 	NSRect monthFillerFrame = NSMakeRect(currEntryMaxX, hh, NSWidth([self visibleRect]) - currEntryMaxX + 1.0, hh);
 	if (!NSIsEmptyRect(monthFillerFrame))
-		[self drawHeaderString:@"" inFrame:monthFillerFrame];
+		[INT_headerCell drawWithFrame:monthFillerFrame inView:self];
 	NSRect entryFillerFrame = NSOffsetRect(monthFillerFrame, 0.0, hh);
 	if (!NSIsEmptyRect(entryFillerFrame))
-		[self drawHeaderString:@"" inFrame:entryFillerFrame];
-}
-
-
-- (void)drawHeaderString:(NSString *)string inFrame:(NSRect)frame // INTEntriesHeaderView (INTPrivateMethods)
-{
-	[NSGraphicsContext saveGraphicsState];
-	// NSTableHeaderCell likes to draw below it should, so we'll clip it
-	[NSBezierPath clipRect:frame];
-	[INT_headerCell setStringValue:string];
-	[INT_headerCell drawWithFrame:frame inView:self];
-	[NSGraphicsContext restoreGraphicsState];
+		[INT_headerCell drawWithFrame:entryFillerFrame inView:self];
 }
 
 
@@ -425,7 +429,7 @@
 	}
 	else
 		realFrame = NSIntersectionRect([self visibleRect], frame);
-	[self drawHeaderString:monthString inFrame:realFrame];
+	[INT_headerCell drawWithFrame:realFrame inView:self];
 }
 
 

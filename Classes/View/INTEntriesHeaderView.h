@@ -9,13 +9,14 @@
 #import <Cocoa/Cocoa.h>
 
 @class INTEntriesView;
+@class INTEntriesHeaderCell;
 
 
 @interface INTEntriesHeaderView : NSView
 {
 	@private
 	INTEntriesView *INT_entriesView; // Weak reference
-	NSTableHeaderCell *INT_headerCell;
+	INTEntriesHeaderCell *INT_headerCell;
 	NSDateFormatter *INT_dateFormatter;
 }
 
