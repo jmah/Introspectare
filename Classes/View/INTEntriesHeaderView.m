@@ -21,7 +21,6 @@
 
 #pragma mark Drawing
 - (void)drawHeaderString:(NSString *)string inFrame:(NSRect)frame;
-- (void)drawHighlightedHeaderString:(NSString *)string inFrame:(NSRect)frame;
 - (void)drawMonth:(int)month withHintedFrame:(NSRect)frame;
 
 #pragma mark Displaying date components
@@ -267,7 +266,7 @@
 			{
 				// Constitution is on-screen
 				NSRect constitutionFrame = NSMakeRect(constitutionMinX, hh, constitutionWidth, hh);
-				[self drawHighlightedHeaderString:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title") inFrame:constitutionFrame];
+				[self drawHeaderString:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title") inFrame:constitutionFrame];
 				
 				NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0, hh);
 				[self drawHeaderString:[currConstitution versionLabel] inFrame:labelFrame];
@@ -396,17 +395,6 @@
 	[NSBezierPath clipRect:frame];
 	[INT_headerCell setStringValue:string];
 	[INT_headerCell drawWithFrame:frame inView:self];
-	[NSGraphicsContext restoreGraphicsState];
-}
-
-
-- (void)drawHighlightedHeaderString:(NSString *)string inFrame:(NSRect)frame // INTEntriesHeaderView (INTPrivateMethods)
-{
-	[NSGraphicsContext saveGraphicsState];
-	// NSTableHeaderCell likes to draw below it should, so we'll clip it
-	[NSBezierPath clipRect:frame];
-	[INT_headerCell setStringValue:string];
-	[INT_headerCell highlight:YES withFrame:frame inView:self];
 	[NSGraphicsContext restoreGraphicsState];
 }
 
