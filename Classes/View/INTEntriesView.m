@@ -208,7 +208,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 {
 	INT_rowHeight = rowHeight;
 	[self updateFrameSize];
-	[[self enclosingScrollView] setVerticalLineScroll:rowHeight];
+	[[self enclosingScrollView] setVerticalLineScroll:([self rowHeight] + [self intercellSpacing].height)];
 	[self setNeedsDisplay:YES];
 }
 
@@ -223,6 +223,8 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 {
 	INT_intercellSpacing = intercellSpacing;
 	[self updateFrameSize];
+	[[self enclosingScrollView] setHorizontalLineScroll:([self columnWidth] + [self intercellSpacing].width)];
+	[[self enclosingScrollView] setVerticalLineScroll:([self rowHeight] + [self intercellSpacing].height)];
 	[self setNeedsDisplay:YES];
 }
 
@@ -243,7 +245,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 {
 	INT_columnWidth = columnWidth;
 	[self updateFrameSize];
-	[[self enclosingScrollView] setHorizontalLineScroll:columnWidth];
+	[[self enclosingScrollView] setHorizontalLineScroll:([self columnWidth] + [self intercellSpacing].width)];
 	[self setNeedsDisplay:YES];
 }
 
@@ -536,8 +538,8 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	NSScrollView *sv = [self enclosingScrollView];
 	if (sv)
 	{
-		[sv setHorizontalLineScroll:[self columnWidth]];
-		[sv setVerticalLineScroll:[self rowHeight]];
+		[sv setHorizontalLineScroll:([self columnWidth] + [self intercellSpacing].width)];
+		[sv setVerticalLineScroll:([self rowHeight] + [self intercellSpacing].height)];
 		[[sv contentView] setCopiesOnScroll:NO];
 		INT_prevClipViewFrameWidth = NSWidth([[sv contentView] frame]);
 		
