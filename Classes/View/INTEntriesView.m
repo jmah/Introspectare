@@ -1019,12 +1019,8 @@
 	[[NSColor gridColor] set];
 	for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self intercellSpacing].width)
 		[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self intercellSpacing].width)];
-	for (float x = [self columnWidth]; x < NSWidth([self bounds]); x += [self columnWidth] + [self intercellSpacing].height)
-		// Most of the vertical grid has already been drawn
-		if (x < currEntryMaxX)
-			continue;
-		else
-			[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+	for (float x = currEntryMaxX; x < NSWidth([self bounds]); x += [self columnWidth] + [self intercellSpacing].height)
+		[NSBezierPath fillRect:NSMakeRect(x, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
 }
 
 
