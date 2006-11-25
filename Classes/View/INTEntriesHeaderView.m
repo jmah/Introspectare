@@ -61,6 +61,7 @@
 		[INT_dateFormatter setDateStyle:NSDateFormatterLongStyle];
 		
 		INT_constitutionLabelExtraWidth = 0.0f;
+		INT_toolTipStrings = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
@@ -243,8 +244,7 @@
 	float hh = [[self entriesView] headerHeight];
 	INT_constitutionLabelExtraWidth = 0.0f;
 	
-	[INT_toolTipStrings release];
-	INT_toolTipStrings = [[NSMutableArray alloc] init];
+	[INT_toolTipStrings removeAllObjects];
 	[self removeAllToolTips];
 	[[NSColor whiteColor] set];
 	NSRectFill(rect);
@@ -319,6 +319,7 @@
 			NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0f, hh);
 			[cell setStringValue:[currConstitution versionLabel]];
 			[cell drawWithFrame:labelFrame inView:self];
+			[cell release];
 			
 			[currConstitutionLabelsImage unlockFocus];
 			
@@ -417,6 +418,7 @@
 						userData:NULL];
 		}
 		[cell drawWithFrame:entryCellFrame inView:self];
+		[cell release];
 	}
 	
 	if (currConstitutionLabelsImage)
