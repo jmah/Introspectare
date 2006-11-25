@@ -17,6 +17,9 @@
 #import "INTEntriesCornerView.h"
 
 
+static const float INTPrincipleLabelXPadding = 2.0;
+
+
 @interface INTEntriesView (INTPrivateMethods)
 
 #pragma mark Action methods
@@ -909,9 +912,11 @@
 				if (currPrincipleMinY > NSMaxY(rect))
 					break;
 				
-				NSRect cellFrame = NSMakeRect(0.0, currPrincipleMinY, currConstitutionWidth, [self rowHeight]);
 				NSCell *cell = [self principleLabelCell];
 				[cell setStringValue:[currPrinciple label]];
+				
+				NSRect cellFrame = NSInsetRect(NSMakeRect(0.0, currPrincipleMinY, currConstitutionWidth, [self rowHeight]), INTPrincipleLabelXPadding, 0.0);
+				cellFrame = NSOffsetRect(cellFrame, 0.0, (NSHeight(cellFrame) - [cell cellSize].height) / 2.0);
 				[cell drawWithFrame:cellFrame inView:self];
 			}
 			
@@ -1164,7 +1169,8 @@
 	while ((principle = [principles nextObject]))
 	{
 		[cell setStringValue:[principle label]];
-		width = fmaxf(width, [cell cellSize].width);
+		float cellWidth = [cell cellSize].width + 2.0 * INTPrincipleLabelXPadding;
+		width = fmaxf(width, cellWidth);
 	}
 	return ceilf(width);
 }
