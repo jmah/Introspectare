@@ -42,17 +42,20 @@ static NSRect INTMakeCenteredRect(NSRect enclosingRect, NSSize size)
 	NSBezierPath *circle = [NSBezierPath bezierPathWithOvalInRect:circleFrame];
 	
 	[NSGraphicsContext saveGraphicsState];
+	[[NSColor whiteColor] set];
+	[circle fill];
+	
 	[[NSColor grayColor] set];
 	[circle stroke];
+	
+	if ([self state] == NSOnState)
+		[circle fill];
 	
 	if ([self isHighlighted])
 	{
 		[[NSColor lightGrayColor] set];
 		[circle fill];
 	}
-	else
-		if ([self state] == NSOnState)
-			[circle fill];
 	[NSGraphicsContext restoreGraphicsState];
 }
 
