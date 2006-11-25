@@ -14,10 +14,10 @@
 @interface INTEntriesController : NSWindowController
 {
 	@public
-	IBOutlet NSTableColumn *entriesDateColumn;
 	IBOutlet NSArrayController *entriesArrayController;
-	IBOutlet NSArrayController *annotatedPrinciplesArrayController;
-	IBOutlet NSWindow *newEntriesWindow;
+	IBOutlet NSView *entryInspectorView;
+	IBOutlet NSTextField *inspectorDateField;
+	IBOutlet NSScrollView *entriesScrollView;
 	
 	@private
 	NSTimer *INT_updateTimer; // Weak reference
@@ -30,5 +30,8 @@
 #pragma mark Managing editing
 - (BOOL)commitEditing;
 - (void)discardEditing;
+
+#pragma mark Managing the inspector panel
+- (NSView *)inspectorView;
 
 @end

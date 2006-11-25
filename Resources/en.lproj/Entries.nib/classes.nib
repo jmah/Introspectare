@@ -1,6 +1,11 @@
 {
     IBClasses = (
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {"" = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
         {
             CLASS = INTCircleSwitchButtonCell; 
             LANGUAGE = ObjC; 
@@ -10,10 +15,10 @@
             CLASS = INTEntriesController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
-                annotatedPrinciplesArrayController = NSArrayController; 
                 entriesArrayController = NSArrayController; 
-                entriesDateColumn = NSTableColumn; 
-                newEntriesWindow = NSWindow; 
+                entriesScrollView = NSScrollView; 
+                entryInspectorView = NSView; 
+                inspectorDateField = NSTextField; 
             }; 
             SUPERCLASS = NSWindowController; 
         }, 

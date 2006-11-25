@@ -28,6 +28,7 @@
 		288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */; };
 		28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28BFA0CE0A5AD4510075D416 /* Constitutions.nib */; };
 		28CEA7D50A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */; };
+		28D707F80B18A1B100727436 /* Unread.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 28D707F70B18A1B100727436 /* Unread.tiff */; };
 		28DB60A50B15D4F200A3E81D /* INTEntriesCornerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */; };
 		28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
@@ -78,6 +79,7 @@
 		28BFA0CF0A5AD4510075D416 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/Constitutions.nib; sourceTree = "<group>"; };
 		28CEA7D30A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCalendarDate+INTAdditions.h"; sourceTree = "<group>"; };
 		28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCalendarDate+INTAdditions.m"; sourceTree = "<group>"; };
+		28D707F70B18A1B100727436 /* Unread.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Unread.tiff; sourceTree = "<group>"; };
 		28DB60A30B15D4F200A3E81D /* INTEntriesCornerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesCornerView.h; sourceTree = "<group>"; };
 		28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesCornerView.m; sourceTree = "<group>"; };
 		28DB60AC0B15D56700A3E81D /* INTEntriesHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderView.h; sourceTree = "<group>"; };
@@ -227,6 +229,7 @@
 				282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */,
 				282DD9D20A7398CA009E2AFB /* Inspector.nib */,
 				287031410A61607000A7F5A7 /* Introspectare.icns */,
+				28D707F70B18A1B100727436 /* Unread.tiff */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				2801824A0A5FB656007288D3 /* Entries.nib in Resources */,
 				287031420A61607000A7F5A7 /* Introspectare.icns in Resources */,
 				282DD9D40A7398CA009E2AFB /* Inspector.nib in Resources */,
+				28D707F80B18A1B100727436 /* Unread.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,7 +456,7 @@
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -462,7 +466,7 @@
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;

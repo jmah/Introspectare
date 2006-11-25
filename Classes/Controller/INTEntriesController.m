@@ -37,46 +37,39 @@
 {
 	[self setWindowFrameAutosaveName:@"INTEntriesWindowFrame"];
 	
-	// Attach a date formatter
+	// Configure inspector panel
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 	[dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
 	[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
 	[dateFormatter setTimeStyle:NSDateFormatterNoStyle];
-	[[entriesDateColumn dataCell] setFormatter:dateFormatter];
+	[inspectorDateField setFormatter:dateFormatter];
 	[dateFormatter release];
 	
-	NSSortDescriptor *dateDescending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO];
-	[entriesArrayController setSortDescriptors:[NSArray arrayWithObject:dateDescending]];
-	[dateDescending release];
+	// Configure array controller
+	NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"date" ascending:YES];
+	[entriesArrayController setSortDescriptors:[NSArray arrayWithObject:dateAscending]];
+	[dateAscending release];
 	
 	[self createEntriesUpToToday];
 	[entriesArrayController rearrangeObjects];
-	[entriesArrayController setSelectionIndex:0];
+	[entriesArrayController setSelectionIndex:([[entriesArrayController arrangedObjects] count] - 1)];
 	[self scheduleUpdateTimer];
 	
-	// TODO Temp
+	// Create entries view
 	NSCalendar *gregorianCalendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
-	INTEntriesView *ev = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0f, 0.0f, 500.0f, 500.0f)
-													  calendar:gregorianCalendar];
-	//[ev setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];
-	NSScrollView *sv = [[NSScrollView alloc] initWithFrame:[[newEntriesWindow contentView] bounds]];
-	[sv setDocumentView:ev];
-	[ev release];
-	[sv setHasVerticalScroller:YES];
-	[sv setHasHorizontalScroller:YES];
-	[sv setBorderType:NSNoBorder];
-	[sv setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];
-	[[newEntriesWindow contentView] addSubview:sv];
-	[sv release];
-	[[newEntriesWindow contentView] setAutoresizesSubviews:YES];
-	[newEntriesWindow setInitialFirstResponder:ev];
+	INTEntriesView *entriesView = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0f, 0.0f, 500.0f, 500.0f)
+															   calendar:gregorianCalendar];
 	
-	[ev bind:@"entries" toObject:entriesArrayController withKeyPath:@"arrangedObjects" options:nil];
+	[entriesScrollView setDocumentView:entriesView];
+	[[self window] makeFirstResponder:entriesView];
+	
+	[entriesView bind:@"entries" toObject:entriesArrayController withKeyPath:@"arrangedObjects" options:nil];
 	
 	NSButtonCell *dataCell = [[INTCircleSwitchButtonCell alloc] initTextCell:[NSString string]];
-	[dataCell setButtonType:NSSwitchButton];
-	[ev setDataCell:dataCell];
+	[entriesView setDataCell:dataCell];
 	[dataCell release];
+	
+	[entriesView release];
 }
 
 
@@ -103,14 +96,22 @@
 
 - (BOOL)commitEditing
 {
-	return ([annotatedPrinciplesArrayController commitEditing] && [entriesArrayController commitEditing]);
+	return [entriesArrayController commitEditing];
 }
 
 
 - (void)discardEditing
 {
-	[annotatedPrinciplesArrayController discardEditing];
 	[entriesArrayController discardEditing];
+}
+
+
+
+#pragma mark Managing the inspector panel
+
+- (NSView *)inspectorView
+{
+	return entryInspectorView;
 }
 
 
