@@ -18,6 +18,8 @@
 	INTEntriesView *INT_entriesView; // Weak reference
 	INTEntriesHeaderCell *INT_headerCell;
 	NSDateFormatter *INT_dateFormatter;
+	
+	float INT_constitutionLabelExtraWidth;
 }
 
 

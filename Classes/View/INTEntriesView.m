@@ -888,7 +888,7 @@
 			float currConstitutionWidth = [self widthForConstitution:currConstitution];
 			currEntryMaxX += currConstitutionWidth + [self intercellSpacing].width;
 			
-			// Cache current principle labels in image
+			// Draw current principle labels in image
 			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(currConstitutionWidth + [self intercellSpacing].width, NSHeight([self bounds]))];
 			[currConstitutionLabelsImage setFlipped:YES];
 			

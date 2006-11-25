@@ -17,11 +17,9 @@
 
 @interface INTEntriesHeaderView (INTPrivateMethods)
 
-#pragma mark Event methods
-- (void)mouseDragTimerHit:(NSTimer *)timer;
-
 #pragma mark Drawing
 - (void)drawMonth:(int)month withHintedFrame:(NSRect)frame;
+- (NSRect)visibleRectExcludingConstitutionLabelExtraWidth;
 
 #pragma mark Displaying date components
 - (NSString *)yearAsString:(int)year;
@@ -61,6 +59,8 @@
 		INT_dateFormatter = [[NSDateFormatter alloc] init];
 		[INT_dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
 		[INT_dateFormatter setDateStyle:NSDateFormatterLongStyle];
+		
+		INT_constitutionLabelExtraWidth = 0.0;
 	}
 	return self;
 }
@@ -155,51 +155,61 @@
 	if (point.y > ([[self entriesView] headerHeight] * 2.0))
 	{
 		// Track mouse while down
+		NSEvent *lastNonPeriodicEvent = event;
+		[NSEvent startPeriodicEventsAfterDelay:0.2 withPeriod:0.05];
 		INTEntriesView *ev = [self entriesView];
 		NSIndexSet *initialSelectionIndexes = [[ev selectionIndexes] copy];
 		do
 		{
-			NSTimer *mouseDragTimer = [NSTimer timerWithTimeInterval:0.04
-															  target:self
-															selector:@selector(mouseDragTimerHit:)
-															userInfo:event
-															 repeats:YES];
-			[mouseDragTimer fire];
-			[[NSRunLoop currentRunLoop] addTimer:mouseDragTimer forMode:NSEventTrackingRunLoopMode];
+			NSIndexSet *newIndexes;
 			
-			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
-			[mouseDragTimer invalidate];
-		} while ([event type] == NSLeftMouseDragged);
+			if ((point.y > ([[self entriesView] headerHeight] * 2.0)) && [[self entriesView] entryAtXLocation:point.x])
+				newIndexes = [NSIndexSet indexSetWithIndex:[[[self entriesView] sortedEntries] indexOfObject:[[self entriesView] entryAtXLocation:point.x]]];
+			else
+				newIndexes = [NSIndexSet indexSet];
+			
+			// Tell the controller to adjust its selection indexes, if there is one
+			id observingObject = [[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+			if (observingObject)
+			{
+				if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
+					[observingObject setValue:newIndexes forKeyPath:[[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+			}
+			else
+				[[self entriesView] setSelectionIndexes:newIndexes];
+			
+			if ((point.x - NSMinX([self visibleRect])) < INT_constitutionLabelExtraWidth)
+			{
+				// Adjust location in window to take into account constitution label extra width for correct autoscrolling
+				NSPoint newLocation = NSMakePoint([lastNonPeriodicEvent locationInWindow].x - INT_constitutionLabelExtraWidth, [lastNonPeriodicEvent locationInWindow].y);
+				NSEvent *newEvent = [NSEvent mouseEventWithType:[lastNonPeriodicEvent type]
+													   location:newLocation
+												  modifierFlags:[lastNonPeriodicEvent modifierFlags]
+													  timestamp:[lastNonPeriodicEvent timestamp]
+												   windowNumber:[lastNonPeriodicEvent windowNumber]
+														context:[lastNonPeriodicEvent context]
+													eventNumber:[lastNonPeriodicEvent eventNumber]
+													 clickCount:[lastNonPeriodicEvent clickCount]
+													   pressure:[lastNonPeriodicEvent pressure]];
+				[self autoscroll:newEvent];
+			}
+			else
+				[self autoscroll:lastNonPeriodicEvent];
+			
+			event = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
+									   untilDate:[NSDate distantFuture]
+										  inMode:NSEventTrackingRunLoopMode
+										 dequeue:YES];
+			if ([event type] != NSPeriodic)
+				lastNonPeriodicEvent = event;
+			point = [self convertPoint:[lastNonPeriodicEvent locationInWindow] fromView:nil];
+		} while ([event type] != NSLeftMouseUp);
+		[NSEvent stopPeriodicEvents];
 		
 		if (([[ev selectionIndexes] count] > 0) && ![initialSelectionIndexes isEqual:[ev selectionIndexes]])
 			[ev scrollEntryToVisible:[[ev sortedEntries] objectAtIndex:[[ev selectionIndexes] firstIndex]]];
 		[initialSelectionIndexes release];
 	}
-}
-
-
-- (void)mouseDragTimerHit:(NSTimer *)timer // INTEntriesHeaderView (INTPrivateMethods)
-{
-	NSEvent *event = (NSEvent *)[timer userInfo];
-	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
-	NSIndexSet *newIndexes;
-	
-	if ((point.y > ([[self entriesView] headerHeight] * 2.0)) && [[self entriesView] entryAtXLocation:point.x])
-		newIndexes = [NSIndexSet indexSetWithIndex:[[[self entriesView] sortedEntries] indexOfObject:[[self entriesView] entryAtXLocation:point.x]]];
-	else
-		newIndexes = [NSIndexSet indexSet];
-	
-	// Tell the controller to adjust its selection indexes, if there is one
-	id observingObject = [[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
-	if (observingObject)
-	{
-		if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
-			[observingObject setValue:newIndexes forKeyPath:[[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
-	}
-	else
-		[[self entriesView] setSelectionIndexes:newIndexes];
-	
-	[self autoscroll:event];
 }
 
 
@@ -251,6 +261,9 @@
 	
 	
 	INTConstitution *currConstitution = nil;
+	NSImage *currConstitutionLabelsImage = nil;
+	float currConstitutionMinX = 0.0;
+	NSMutableArray *constitutionLabels = [[NSMutableArray alloc] init];
 	float currEntryMaxX = 0.0;
 	float currEntryMinX = currEntryMaxX;
 	NSEnumerator *entries = [[[self entriesView] sortedEntries] objectEnumerator];
@@ -260,31 +273,47 @@
 		const unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
 		NSDateComponents *components = [[[self entriesView] calendar] components:unitFlags fromDate:[currEntry date]];
 		
+		// Save constitution labels in images, but don't draw them on-screen yet
 		if ([currEntry constitution] != currConstitution)
 		{
-			currConstitution = [currEntry constitution];
-			float constitutionMinX = currEntryMaxX;
-			float constitutionWidth = [[self entriesView] widthForConstitution:currConstitution] + [[self entriesView] intercellSpacing].width;
-			float prevEntryMaxX = currEntryMaxX;
-			currEntryMaxX += constitutionWidth;
+			if (currConstitutionLabelsImage)
+				[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+					[currConstitutionLabelsImage autorelease], @"image",
+					[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
+					[NSNumber numberWithFloat:(currEntryMaxX - [[self entriesView] columnWidth] - [currConstitutionLabelsImage size].width)], @"maxMinX",
+					nil]];
 			
-			if (((constitutionMinX + constitutionWidth) >= NSMinX(rect)) || (constitutionMinX <= NSMaxX(rect)))
-			{
-				// Constitution is on-screen
-				[INT_headerCell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6]];
-				[INT_headerCell setTextColor:[NSColor whiteColor]];
-				
-				NSRect constitutionFrame = NSMakeRect(constitutionMinX, hh, constitutionWidth, hh);
-				[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
-				[INT_headerCell drawWithFrame:constitutionFrame inView:self];
-				
-				NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0, hh);
-				[INT_headerCell setStringValue:[currConstitution versionLabel]];
-				[INT_headerCell drawWithFrame:labelFrame inView:self];
-				
-				[INT_headerCell setTextColor:[NSColor headerTextColor]];
-				[INT_headerCell setTintColor:[NSColor clearColor]];
-			}
+			currConstitution = [currEntry constitution];
+			currConstitutionMinX = currEntryMaxX;
+			float currConstitutionWidth = [[self entriesView] widthForConstitution:currConstitution] + [[self entriesView] intercellSpacing].width;
+			float prevEntryMaxX = currEntryMaxX;
+			currEntryMaxX += currConstitutionWidth;
+			
+			// Draw current principle labels in image
+			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(currConstitutionWidth, hh * 2.0)];
+			[currConstitutionLabelsImage setFlipped:YES];
+			
+			[currConstitutionLabelsImage lockFocus];
+			
+			[[NSColor whiteColor] set];
+			NSRectFill(NSMakeRect(0.0, 0.0, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
+			
+			// Constitution is on-screen
+			[INT_headerCell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6]];
+			[INT_headerCell setTextColor:[NSColor whiteColor]];
+			
+			NSRect constitutionFrame = NSMakeRect(0.0, 0.0, currConstitutionWidth, hh);
+			[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
+			[INT_headerCell drawWithFrame:constitutionFrame inView:self];
+			
+			NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0, hh);
+			[INT_headerCell setStringValue:[currConstitution versionLabel]];
+			[INT_headerCell drawWithFrame:labelFrame inView:self];
+			
+			[INT_headerCell setTextColor:[NSColor headerTextColor]];
+			[INT_headerCell setTintColor:[NSColor clearColor]];
+			
+			[currConstitutionLabelsImage unlockFocus];
 			
 			// Break the month header
 			if (currMonth != -1)
@@ -293,7 +322,7 @@
 				NSRect monthCellFrame = NSMakeRect(currMonthMinX, hh, monthWidth, hh);
 				[self drawMonth:currMonth withHintedFrame:monthCellFrame];
 				currMonth = [components month];
-				currMonthMinX += monthWidth + constitutionWidth;
+				currMonthMinX += monthWidth + currConstitutionWidth;
 			}
 		}
 		
@@ -362,12 +391,42 @@
 		NSRect entryCellFrame = NSMakeRect(currEntryMinX, hh * 2.0, entryWidth, hh);
 		[INT_headerCell setStringValue:[self dayAsString:[components day]]];
 		if ([currEntry isUnread])
-			[INT_headerCell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.6]];
+			[INT_headerCell setTintColor:[[NSColor keyboardFocusIndicatorColor] colorWithAlphaComponent:0.4]];
 		else if ([[currEntry note] length] > 0)
-			[INT_headerCell setTintColor:[[NSColor greenColor] colorWithAlphaComponent:0.3]];
+			[INT_headerCell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.4]];
 		[INT_headerCell drawWithFrame:entryCellFrame inView:self];
 		[INT_headerCell setTintColor:[NSColor clearColor]];
 	}
+	
+	if (currConstitutionLabelsImage)
+		[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+			[currConstitutionLabelsImage autorelease], @"image",
+			[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
+			[NSNumber numberWithFloat:(currEntryMaxX - [[self entriesView] columnWidth] - [currConstitutionLabelsImage size].width)], @"maxMinX",
+			nil]];
+	
+	
+	// Draw constitutions
+	INT_constitutionLabelExtraWidth = 0.0;
+	NSEnumerator *constitutionLabelsEnum = [constitutionLabels objectEnumerator];
+	NSDictionary *constitutionLabel;
+	while ((constitutionLabel = [constitutionLabelsEnum nextObject]))
+	{
+		float minMinX = [[constitutionLabel objectForKey:@"minMinX"] floatValue];
+		float maxMinX = [[constitutionLabel objectForKey:@"maxMinX"] floatValue];
+		float minX = NSMinX([self visibleRect]);
+		minX = MAX(minMinX, minX);
+		minX = MIN(maxMinX, minX);
+		
+		NSImage *image = [constitutionLabel objectForKey:@"image"];
+		[image compositeToPoint:NSMakePoint(minX, NSMaxY([self bounds]))
+					  operation:NSCompositeSourceOver];
+		
+		if (minX == NSMinX([self visibleRect]))
+			INT_constitutionLabelExtraWidth = [image size].width;
+	}
+	
+	[constitutionLabels release];
 	
 	
 	// Draw final month and year cells
@@ -398,6 +457,7 @@
 
 - (void)drawMonth:(int)month withHintedFrame:(NSRect)frame // INTEntriesHeaderView (INTPrivateMethods)
 {
+	NSRect visRect = [self visibleRectExcludingConstitutionLabelExtraWidth];
 	NSRect realFrame = frame;
 	NSString *monthString = [self monthAsString:month];
 	[INT_headerCell setStringValue:monthString];
@@ -406,23 +466,36 @@
 	// Calculate text frame
 	NSRect textFrame = NSInsetRect(frame, (NSWidth(frame) - textWidth) / 2.0, 0.0);
 	
-	if (textWidth < NSWidth(NSIntersectionRect([self visibleRect], frame)))
+	if (textWidth < NSWidth(NSIntersectionRect(visRect, frame)))
 	{
-		if (!NSContainsRect([self visibleRect], textFrame))
+		if (!NSContainsRect(visRect, textFrame))
 		{
-			if (NSMinX(textFrame) < NSMinX([self visibleRect]))
+			if (NSMinX(textFrame) < NSMinX(visRect))
 			{
-				float xShift = (NSMinX([self visibleRect]) - NSMinX(textFrame)) * 2.0;
+				float xShift = (NSMinX(visRect) - NSMinX(textFrame)) * 2.0;
 				realFrame.origin.x += xShift;
 				realFrame.size.width -= xShift;
 			}
 			else
-				realFrame.size.width -= (NSMaxX(textFrame) - NSMaxX([self visibleRect])) * 2.0;
+				realFrame.size.width -= (NSMaxX(textFrame) - NSMaxX(visRect)) * 2.0;
 		}
 	}
 	else
-		realFrame = NSIntersectionRect([self visibleRect], frame);
+		realFrame = NSIntersectionRect(visRect, frame);
+	
+	[NSGraphicsContext saveGraphicsState];
+	[NSBezierPath clipRect:visRect];
 	[INT_headerCell drawWithFrame:realFrame inView:self];
+	[NSGraphicsContext restoreGraphicsState];
+}
+
+
+- (NSRect)visibleRectExcludingConstitutionLabelExtraWidth // INTEntriesHeaderView (INTPrivateMethods)
+{
+	NSRect rect = [self visibleRect];
+	rect = NSInsetRect(rect, INT_constitutionLabelExtraWidth / 2.0, 0.0);
+	rect = NSOffsetRect(rect, INT_constitutionLabelExtraWidth / 2.0, 0.0);
+	return rect;
 }
 
 
