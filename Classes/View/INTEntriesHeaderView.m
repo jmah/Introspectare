@@ -8,6 +8,7 @@
 
 #import "INTEntriesHeaderView.h"
 #import "INTEntriesHeaderView+INTProtectedMethods.h"
+#import "NSIndexSet+INTAdditions.h"
 #import "INTEntriesView.h"
 #import "INTEntriesView+INTProtectedMethods.h"
 #import "INTEntriesHeaderCell.h"
@@ -161,28 +162,82 @@
 	{
 		INTEntriesView *ev = [self entriesView];
 		
-		// Track mouse while down
+		BOOL shouldSelectRange = ([event modifierFlags] & NSShiftKeyMask) != 0;
+		BOOL shouldExtendSelection = ([event modifierFlags] & NSCommandKeyMask) != 0;
+		
+		id observedObject = [[ev infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+		unsigned firstIndex = NSNotFound;
+		if (!shouldSelectRange && !shouldExtendSelection)
+		{
+			if (observedObject)
+				[observedObject setValue:[NSIndexSet indexSet] forKeyPath:[[ev infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+			else
+				[ev setSelectionIndexes:[NSIndexSet indexSet]];
+		}
+		
+		NSIndexSet *originalIndexes = [[[ev selectionIndexes] copy] autorelease];
 		[ev setEventTrackingSelection:YES];
 		NSEvent *lastNonPeriodicEvent = event;
 		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
 		do
 		{
+			unsigned currIndex = NSNotFound;
 			NSIndexSet *newIndexes;
 			
-			if ((point.y > ([[self entriesView] headerHeight] * 2.0f)) && [[self entriesView] entryAtXLocation:point.x])
-				newIndexes = [NSIndexSet indexSetWithIndex:[[[self entriesView] sortedEntries] indexOfObject:[[self entriesView] entryAtXLocation:point.x]]];
+			if ((point.y > ([[self entriesView] headerHeight] * 2.0f)) && [ev entryAtXLocation:point.x])
+				currIndex = [[ev sortedEntries] indexOfObject:[ev entryAtXLocation:point.x]];
+			
+			if (firstIndex == NSNotFound)
+				firstIndex = currIndex;
+			
+			if (currIndex != NSNotFound)
+			{
+				if (shouldSelectRange)
+				{
+					if ([[ev selectionIndexes] count] == 0)
+						newIndexes = [NSIndexSet indexSetWithIndex:currIndex];
+					else
+					{
+						unsigned first = MIN([[ev selectionIndexes] firstIndex], currIndex);
+						unsigned last = MAX([[ev selectionIndexes] lastIndex], currIndex);
+						newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(first, last - first + 1)];
+					}
+				}
+				else
+				{
+					unsigned first = MIN(firstIndex, currIndex);
+					unsigned last = MAX(firstIndex, currIndex);
+					if (shouldExtendSelection)
+						newIndexes = [originalIndexes indexSetByTogglingIndexesInRange:NSMakeRange(first, last - first + 1)];
+					else
+						newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(first, last - first + 1)];
+				}
+			}
 			else
-				newIndexes = [NSIndexSet indexSet];
+			{
+				if (shouldSelectRange)
+				{
+					if ([[ev selectionIndexes] count] == 0)
+						newIndexes = [NSIndexSet indexSet];
+					else
+					{
+						unsigned first = [[ev selectionIndexes] firstIndex];
+						unsigned last = [[ev selectionIndexes] lastIndex];
+						newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(first, last - first + 1)];
+					}
+				}
+				else
+					newIndexes = [ev selectionIndexes];
+			}
 			
 			// Tell the controller to adjust its selection indexes, if there is one
-			id observedObject = [[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
 			if (observedObject)
 			{
 				if (([newIndexes count] > 0) || ![observedObject avoidsEmptySelection])
-					[observedObject setValue:newIndexes forKeyPath:[[[self entriesView] infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+					[observedObject setValue:newIndexes forKeyPath:[[ev infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
 			}
 			else
-				[[self entriesView] setSelectionIndexes:newIndexes];
+				[ev setSelectionIndexes:newIndexes];
 			
 			if ((point.x - NSMinX([self visibleRect])) < INT_constitutionLabelExtraWidth)
 			{

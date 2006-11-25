@@ -689,10 +689,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	else
 	{
 		BOOL shouldSelectRange = ([event modifierFlags] & NSShiftKeyMask) != 0;
+		BOOL shouldExtendSelection = ([event modifierFlags] & NSCommandKeyMask) != 0;
 		
 		id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
 		unsigned firstIndex = NSNotFound;
-		if (!shouldSelectRange && !([event modifierFlags] & NSCommandKeyMask))
+		if (!shouldSelectRange && !shouldExtendSelection)
 		{
 			if (observedObject)
 				[observedObject setValue:[NSIndexSet indexSet] forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
@@ -700,7 +701,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 				[self setSelectionIndexes:[NSIndexSet indexSet]];
 		}
 		
-		
+		NSIndexSet *originalIndexes = [[[self selectionIndexes] copy] autorelease];
 		[self setEventTrackingSelection:YES];
 		NSEvent *lastNonPeriodicEvent = event;
 		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
@@ -732,7 +733,10 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 				{
 					unsigned first = MIN(firstIndex, currIndex);
 					unsigned last = MAX(firstIndex, currIndex);
-					newIndexes = [[self selectionIndexes] indexSetByAddingIndexesInRange:NSMakeRange(first, last - first + 1)];
+					if (shouldExtendSelection)
+						newIndexes = [originalIndexes indexSetByTogglingIndexesInRange:NSMakeRange(first, last - first + 1)];
+					else
+						newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(first, last - first + 1)];
 				}
 			}
 			else

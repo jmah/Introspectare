@@ -13,5 +13,6 @@
 
 - (NSIndexSet *)indexSetByAddingIndex:(unsigned)index;
 - (NSIndexSet *)indexSetByAddingIndexesInRange:(NSRange)range;
+- (NSIndexSet *)indexSetByTogglingIndexesInRange:(NSRange)range;
 
 @end

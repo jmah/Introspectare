@@ -27,4 +27,16 @@
 }
 
 
+- (NSIndexSet *)indexSetByTogglingIndexesInRange:(NSRange)range
+{
+	NSMutableIndexSet *newSet = [self mutableCopy];
+	for (unsigned i = range.location; i < NSMaxRange(range); i++)
+		if ([newSet containsIndex:i])
+			[newSet removeIndex:i];
+		else
+			[newSet addIndex:i];
+	return [newSet autorelease];
+}
+
+
 @end
