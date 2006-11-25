@@ -60,5 +60,6 @@
 - (IBAction)showConstitutions:(id)sender;
 - (IBAction)showPrinciples:(id)sender;
 - (IBAction)showHideInspector:(id)sender;
+- (IBAction)showInspector:(id)sender;
 
 @end

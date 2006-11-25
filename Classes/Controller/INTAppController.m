@@ -402,6 +402,15 @@ static INTAppController *sharedAppController = nil;
 }
 
 
+- (IBAction)showInspector:(id)sender
+{
+	if (!INT_inspectorController)
+		[self showHideInspector:self];
+	if (![[INT_inspectorController window] isVisible])
+		[INT_inspectorController showWindow:self];
+}
+
+
 
 #pragma mark NSApplication delegate methods
 

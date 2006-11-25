@@ -16,6 +16,7 @@
 #import "INTEntriesHeaderView.h"
 #import "INTEntriesHeaderView+INTProtectedMethods.h"
 #import "INTEntriesCornerView.h"
+#import "INTAppController.h"
 
 
 static const float INTPrincipleLabelXPadding = 2.0f;
@@ -25,6 +26,8 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 #pragma mark Action methods
 - (void)selectedAnnotatedPrincipleClicked:(id)sender;
+- (void)markSelectedEntriesAsRead:(id)sender;
+- (void)markSelectedEntriesAsUnread:(id)sender;
 
 #pragma mark Managing the view hierarchy
 - (void)windowDidChangeKey:(NSNotification *)notification;
@@ -102,12 +105,14 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		INT_prevClipViewFrameWidth = NAN;
 		INT_selectionIndexes = [[NSIndexSet indexSet] retain];
 		
+		// Create default principle label cell
 		INT_principleLabelCell = [[NSTextFieldCell alloc] initTextCell:[NSString string]];
 		[INT_principleLabelCell setFont:[NSFont fontWithName:@"Lucida Grande" size:13.0f]];
 		[INT_principleLabelCell setLineBreakMode:NSLineBreakByTruncatingTail];
 		[INT_principleLabelCell setAlignment:NSLeftTextAlignment];
 		[INT_principleLabelCell setControlView:self];
 		
+		// Create default data cell
 		NSButtonCell *dataCell = [[NSButtonCell alloc] initTextCell:[NSString string]];
 		// Set an attributed title, otherwise the button cell will generate one each time it's drawn
 		[dataCell setAttributedTitle:[[[NSAttributedString alloc] initWithString:[NSString string]] autorelease]];
@@ -116,6 +121,23 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		
 		INT_constitutionLabelExtraWidth = 0.0f;
 		INT_isEventTrackingSelection = NO;
+		
+		// Create contextual menu items
+		INT_markAsReadItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"INTMarkAsReadContextualMenuTitle", @"Mark as Read menu title")
+														action:@selector(markSelectedEntriesAsRead:)
+												 keyEquivalent:[NSString string]];
+		[INT_markAsReadItem setTarget:self];
+		
+		INT_markAsUnreadItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"INTMarkAsUnreadContextualMenuTitle", @"Mark as Unread menu title")
+														  action:@selector(markSelectedEntriesAsUnread:)
+												   keyEquivalent:[NSString string]];
+		[INT_markAsUnreadItem setTarget:self];
+		
+		INT_showInspectorItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"INTShowInspectorContextualMenuTitle", @"Show Inspector menu title")
+														   action:@selector(showInspector:)
+													keyEquivalent:[NSString string]];
+		[INT_showInspectorItem setTarget:[INTAppController sharedAppController]];
+		
 		
 		[self setFocusRingType:NSFocusRingTypeExterior];
 		
@@ -138,6 +160,9 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	[INT_selectionIndexes release], INT_selectionIndexes = nil;
 	[INT_headerView release], INT_headerView = nil;
 	[INT_cornerView release], INT_cornerView = nil;
+	[INT_markAsReadItem release], INT_markAsReadItem = nil;
+	[INT_markAsUnreadItem release], INT_markAsUnreadItem = nil;
+	[INT_showInspectorItem release], INT_showInspectorItem = nil;
 	[INT_entriesContainer release], INT_entriesContainer = nil;
 	[INT_entriesKeyPath release], INT_entriesKeyPath = nil;
 	
@@ -462,6 +487,16 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]];
 	
 	[oldIndexes release];
+}
+
+
+- (NSArray *)selectedObjects
+{
+	id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+	if (observedObject)
+		return [observedObject selectedObjects];
+	else
+		return [[self sortedEntries] objectsAtIndexes:[self selectionIndexes]];
 }
 
 
@@ -848,6 +883,78 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)selectedAnnotatedPrincipleClicked:(id)sender // INTEntriesView (INTPrivateMethods)
 {
 	[INT_selectedAnnotatedPrinciple setUpheld:!([INT_selectedDataCell state] == NSOnState)];
+}
+
+
+- (void)markSelectedEntriesAsRead:(id)sender // INTEntriesView (INTPrivateMethods)
+{
+	if ([[self selectionIndexes] count] > 0)
+		[[self selectedObjects] setValue:[NSNumber numberWithBool:NO]
+							  forKeyPath:@"unread"];
+}
+
+
+- (void)markSelectedEntriesAsUnread:(id)sender // INTEntriesView (INTPrivateMethods)
+{
+	if ([[self selectionIndexes] count] > 0)
+		[[self selectedObjects] setValue:[NSNumber numberWithBool:YES]
+							  forKeyPath:@"unread"];
+}
+
+
+
+#pragma mark Context-sensitive menus
+
+- (NSMenu *)menuForEvent:(NSEvent *)event
+{
+	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+	BOOL eventInSelection = NO;
+	NSEnumerator *selectedEntries = [[self selectedObjects] objectEnumerator];
+	INTEntry *entry;
+	while (!eventInSelection && (entry = [selectedEntries nextObject]))
+		if (NSPointInRect(point, [self rectForEntry:entry]))
+			eventInSelection = YES;
+	
+	// The click was outside all selected entries; select the one that was clicked
+	if (!eventInSelection)
+	{
+		if (!((point.x - NSMinX([self visibleRect])) < INT_constitutionLabelExtraWidth))
+		{
+			// Click is not in the constitution label; do nothing
+			if ([self entryAtPoint:point])
+			{
+				NSIndexSet *newIndexes = [NSIndexSet indexSetWithIndex:[[self sortedEntries] indexOfObject:[self entryAtPoint:point]]];
+				
+				// Tell the controller to adjust its selection indexes, if there is one
+				id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+				if (observedObject)
+				{
+					if (([newIndexes count] > 0) || ![observedObject avoidsEmptySelection])
+						[observedObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+				}
+				else
+					// Just do it ourselves
+					[self setSelectionIndexes:newIndexes];
+				
+				eventInSelection = YES;
+			}
+		}
+	}
+	
+	
+	NSMenu *menu = [[NSMenu alloc] initWithTitle:[NSString string]];
+	if (eventInSelection && ([[self selectionIndexes] count] > 0))
+	{
+		NSArray *unreadStatuses = [[self selectedObjects] valueForKeyPath:@"unread"];
+		// Key-value coding gives back booleans as 1/0, not YES/NO
+		if ([unreadStatuses containsObject:[NSNumber numberWithInt:1]])
+			[menu addItem:INT_markAsReadItem];
+		if ([unreadStatuses containsObject:[NSNumber numberWithInt:0]])
+			[menu addItem:INT_markAsUnreadItem];
+		[menu addItem:[NSMenuItem separatorItem]];
+	}
+	[menu addItem:INT_showInspectorItem];
+	return [menu autorelease];
 }
 
 

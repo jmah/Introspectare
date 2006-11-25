@@ -38,6 +38,11 @@
 	
 	float INT_constitutionLabelExtraWidth;
 	
+	// Contextual menu items
+	NSMenuItem *INT_markAsReadItem;
+	NSMenuItem *INT_markAsUnreadItem;
+	NSMenuItem *INT_showInspectorItem;
+	
 	// Bindings
 	NSObject *INT_entriesContainer;
 	NSString *INT_entriesKeyPath;
@@ -75,6 +80,7 @@
 #pragma mark Managing selection
 - (NSIndexSet *)selectionIndexes;
 - (void)setSelectionIndexes:(NSIndexSet *)indexes;
+- (NSArray *)selectedObjects;
 
 #pragma mark Scrolling
 - (BOOL)scrollEntryToVisible:(INTEntry *)entry;
