@@ -26,7 +26,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)selectedAnnotatedPrincipleClicked:(id)sender;
 
 #pragma mark Managing the view hierarchy
-- (void)windowDidChangeMain:(NSNotification *)notification;
+- (void)windowDidChangeKey:(NSNotification *)notification;
 
 #pragma mark Getting auxiliary views for enclosing an scroll view
 - (NSView *)headerView;
@@ -519,11 +519,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		NSLog(@"The INTEntriesView expects to be enclosed in an NSScrollView");
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeMain:)
+											 selector:@selector(windowDidChangeKey:)
 												 name:NSApplicationDidBecomeActiveNotification
 											   object:NSApp];
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeMain:)
+											 selector:@selector(windowDidChangeKey:)
 												 name:NSApplicationDidResignActiveNotification
 											   object:NSApp];
 }
@@ -532,17 +532,26 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)viewWillMoveToWindow:(NSWindow *)newWindow // NSView
 {
 	if ([self window])
+	{
 		[[NSNotificationCenter defaultCenter] removeObserver:self
-														name:NSWindowDidBecomeMainNotification
+														name:NSWindowDidResignKeyNotification
 													  object:[self window]];
+		[[NSNotificationCenter defaultCenter] removeObserver:self
+														name:NSWindowDidBecomeKeyNotification
+													  object:[self window]];
+	}
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeMain:)
-												 name:NSWindowDidBecomeMainNotification
+											 selector:@selector(windowDidChangeKey:)
+												 name:NSWindowDidResignKeyNotification
+											   object:newWindow];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowDidChangeKey:)
+												 name:NSWindowDidBecomeKeyNotification
 											   object:newWindow];
 }
 
 
-- (void)windowDidChangeMain:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
+- (void)windowDidChangeKey:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
 {
 	[self setNeedsDisplay:YES];
 }
@@ -962,7 +971,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		if ([[self selectionIndexes] containsIndex:(prevEntryIndex - 1)])
 		{
 			// Entry is selected
-			if ([[self window] isMainWindow] && ([[self window] firstResponder] == self))
+			if ([[self window] isKeyWindow] && ([[self window] firstResponder] == self))
 				[[NSColor selectedControlColor] set];
 			else
 				[[NSColor secondarySelectedControlColor] set];
