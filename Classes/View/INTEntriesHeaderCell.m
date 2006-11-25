@@ -34,6 +34,18 @@
 
 
 
+#pragma mark Copying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+	INTEntriesHeaderCell *copiedCell = [super copyWithZone:zone];
+	copiedCell->INT_textFieldCell = [INT_textFieldCell copyWithZone:zone];
+	copiedCell->INT_tintColor = [INT_tintColor copyWithZone:zone];
+	return copiedCell;
+}
+
+
+
 #pragma mark Modifying textual attributes of cells
 
 - (void)setFont:(NSFont *)font // NSCell
