@@ -320,6 +320,10 @@ static const float INTPrincipleLabelXPadding = 2.0;
 					   options:0
 					   context:NULL];
 			[entry addObserver:self
+					forKeyPath:@"note"
+					   options:0
+					   context:NULL];
+			[entry addObserver:self
 					forKeyPath:@"annotatedPrinciples"
 					   options:0
 					   context:NULL];
@@ -381,7 +385,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 	}
 	if ([object isKindOfClass:[INTEntry class]])
 	{
-		if ([keyPath isEqualToString:@"unread"])
+		if ([keyPath isEqualToString:@"unread"] || [keyPath isEqualToString:@"note"])
 		{
 			[[self headerView] setNeedsDisplay:YES];
 			handled = YES;
