@@ -864,6 +864,8 @@ static const float INTPrincipleLabelXPadding = 2.0;
 
 - (void)drawRect:(NSRect)rect // NSView
 {
+	[self removeAllToolTips];
+	
 	// Draw background
 	[[self backgroundColor] set];
 	NSRectFill(rect);
@@ -885,6 +887,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 		{
 			if (currConstitutionLabelsImage)
 				[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+					currConstitution, @"constitution",
 					[currConstitutionLabelsImage autorelease], @"image",
 					[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
 					[NSNumber numberWithFloat:(currEntryMaxX - [self columnWidth] - [currConstitutionLabelsImage size].width)], @"maxMinX",
@@ -995,6 +998,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 	
 	if (currConstitutionLabelsImage)
 		[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+			currConstitution, @"constitution",
 			[currConstitutionLabelsImage autorelease], @"image",
 			[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
 			[NSNumber numberWithFloat:(currEntryMaxX - [self columnWidth] - [self intercellSpacing].width - [currConstitutionLabelsImage size].width)], @"maxMinX",
@@ -1019,6 +1023,19 @@ static const float INTPrincipleLabelXPadding = 2.0;
 		
 		if (minX == NSMinX([self visibleRect]))
 			INT_constitutionLabelExtraWidth = [image size].width;
+		
+		float currPrincipleMaxY = -[self intercellSpacing].height;
+		NSEnumerator *principles = [[[constitutionLabel objectForKey:@"constitution"] principles] objectEnumerator];
+		INTPrinciple *currPrinciple;
+		while ((currPrinciple = [principles nextObject]))
+		{
+			float currPrincipleMinY = currPrincipleMaxY + [self intercellSpacing].height;
+			currPrincipleMaxY += [self rowHeight] + [self intercellSpacing].height;
+			NSRect principleFrame = NSMakeRect(minX, currPrincipleMinY, [image size].width, currPrincipleMaxY - currPrincipleMinY);
+			[self addToolTipRect:principleFrame
+						   owner:[currPrinciple explanation]
+						userData:NULL];
+		}
 	}
 	
 	[constitutionLabels release];
