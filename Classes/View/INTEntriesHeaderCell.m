@@ -131,7 +131,7 @@
 		[NSBezierPath fillRect:frame];
 		
 		[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositeSourceOver];
-		NSRect textCellFrame = NSInsetRect(frame, 0.0, 1.0);
+		NSRect textCellFrame = NSInsetRect(frame, 0.0f, 1.0f);
 		[INT_textFieldCell drawInteriorWithFrame:textCellFrame inView:controlView];
 		
 		[super setStringValue:[INT_textFieldCell stringValue]];

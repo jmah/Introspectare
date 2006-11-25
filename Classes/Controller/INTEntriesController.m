@@ -56,7 +56,7 @@
 	
 	// TODO Temp
 	NSCalendar *gregorianCalendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
-	INTEntriesView *ev = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)
+	INTEntriesView *ev = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0f, 0.0f, 500.0f, 500.0f)
 													  calendar:gregorianCalendar];
 	//[ev setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];
 	NSScrollView *sv = [[NSScrollView alloc] initWithFrame:[[newEntriesWindow contentView] bounds]];

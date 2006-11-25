@@ -17,7 +17,7 @@
 #import "INTEntriesCornerView.h"
 
 
-static const float INTPrincipleLabelXPadding = 2.0;
+static const float INTPrincipleLabelXPadding = 2.0f;
 
 
 @interface INTEntriesView (INTPrivateMethods)
@@ -84,17 +84,17 @@ static const float INTPrincipleLabelXPadding = 2.0;
 		
 		INT_calendar = [calendar retain];
 		INT_backgroundColor = [[NSColor whiteColor] retain];
-		INT_rowHeight = 22.0;
-		INT_intercellSpacing = NSMakeSize(1.0, 1.0);
-		INT_headerHeight = 16.0;
-		INT_columnWidth = 22.0;
-		INT_headerFont = [NSFont fontWithName:@"Lucida Grande" size:11.0];
+		INT_rowHeight = 22.0f;
+		INT_intercellSpacing = NSMakeSize(1.0f, 1.0f);
+		INT_headerHeight = 16.0f;
+		INT_columnWidth = 22.0f;
+		INT_headerFont = [NSFont fontWithName:@"Lucida Grande" size:11.0f];
 		
-		NSRect headerFrame = NSMakeRect(0.0, 0.0, NSWidth(frame), 3.0 * [self headerHeight]);
+		NSRect headerFrame = NSMakeRect(0.0f, 0.0f, NSWidth(frame), 3.0f * [self headerHeight]);
 		INT_headerView = [[INTEntriesHeaderView alloc] initWithFrame:headerFrame
 														 entriesView:self];
 		
-		NSRect cornerFrame = NSMakeRect(0.0, 0.0, 20.0, NSHeight(headerFrame));
+		NSRect cornerFrame = NSMakeRect(0.0f, 0.0f, 20.0f, NSHeight(headerFrame));
 		INT_cornerView = [[INTEntriesCornerView alloc] initWithFrame:cornerFrame
 														 entriesView:self];
 		
@@ -102,7 +102,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 		INT_selectionIndexes = [[NSIndexSet indexSet] retain];
 		
 		INT_principleLabelCell = [[NSTextFieldCell alloc] initTextCell:[NSString string]];
-		[INT_principleLabelCell setFont:[NSFont fontWithName:@"Lucida Grande" size:13.0]];
+		[INT_principleLabelCell setFont:[NSFont fontWithName:@"Lucida Grande" size:13.0f]];
 		[INT_principleLabelCell setLineBreakMode:NSLineBreakByTruncatingTail];
 		[INT_principleLabelCell setAlignment:NSLeftTextAlignment];
 		[INT_principleLabelCell setControlView:self];
@@ -113,7 +113,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 		[dataCell setButtonType:NSSwitchButton];
 		INT_dataCell = dataCell;
 		
-		INT_constitutionLabelExtraWidth = 0.0;
+		INT_constitutionLabelExtraWidth = 0.0f;
 		
 		[self setFocusRingType:NSFocusRingTypeExterior];
 		
@@ -438,8 +438,8 @@ static const float INTPrincipleLabelXPadding = 2.0;
 	}
 	
 	NSRect visibleRectExcludingConstitutionLabelExtraWidth = [self visibleRect];
-	visibleRectExcludingConstitutionLabelExtraWidth = NSInsetRect(visibleRectExcludingConstitutionLabelExtraWidth, INT_constitutionLabelExtraWidth / 2.0, 0.0);
-	visibleRectExcludingConstitutionLabelExtraWidth = NSOffsetRect(visibleRectExcludingConstitutionLabelExtraWidth, INT_constitutionLabelExtraWidth / 2.0, 0.0);
+	visibleRectExcludingConstitutionLabelExtraWidth = NSInsetRect(visibleRectExcludingConstitutionLabelExtraWidth, INT_constitutionLabelExtraWidth / 2.0f, 0.0f);
+	visibleRectExcludingConstitutionLabelExtraWidth = NSOffsetRect(visibleRectExcludingConstitutionLabelExtraWidth, INT_constitutionLabelExtraWidth / 2.0f, 0.0f);
 	
 	NSIndexSet *newIndexes = INT_selectionIndexes;
 	BOOL oneEntryVisible = NO;
@@ -636,7 +636,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 	else
 	{
 		NSEvent *lastNonPeriodicEvent = event;
-		[NSEvent startPeriodicEventsAfterDelay:0.2 withPeriod:0.05];
+		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
 		NSIndexSet *initialSelectionIndexes = [[self selectionIndexes] copy];
 		do
 		{
@@ -802,8 +802,8 @@ static const float INTPrincipleLabelXPadding = 2.0;
 - (BOOL)scrollEntryToVisible:(INTEntry *)entry
 {
 	NSRect rect = [self rectForEntry:entry];
-	rect = NSInsetRect(rect, -(INT_constitutionLabelExtraWidth / 2.0), 0.0);
-	rect = NSOffsetRect(rect, -(INT_constitutionLabelExtraWidth / 2.0), 0.0);
+	rect = NSInsetRect(rect, -(INT_constitutionLabelExtraWidth / 2.0f), 0.0f);
+	rect = NSOffsetRect(rect, -(INT_constitutionLabelExtraWidth / 2.0f), 0.0f);
 	return [self scrollRectToVisible:rect];
 }
 
@@ -874,7 +874,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 	// Draw entries
 	INTConstitution *currConstitution = nil;
 	NSImage *currConstitutionLabelsImage = nil;
-	float currConstitutionMinX = 0.0;
+	float currConstitutionMinX = 0.0f;
 	NSMutableArray *constitutionLabels = [[NSMutableArray alloc] init];
 	unsigned prevEntryIndex = 0;
 	float currEntryMaxX = -[self intercellSpacing].width;
@@ -905,7 +905,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 			[currConstitutionLabelsImage lockFocus];
 			
 			[[self backgroundColor] set];
-			NSRectFill(NSMakeRect(0.0, 0.0, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
+			NSRectFill(NSMakeRect(0.0f, 0.0f, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
 			
 			float currPrincipleMaxY = -[self intercellSpacing].height;
 			NSEnumerator *principles = [[currConstitution principles] objectEnumerator];
@@ -922,8 +922,8 @@ static const float INTPrincipleLabelXPadding = 2.0;
 				NSCell *cell = [self principleLabelCell];
 				[cell setStringValue:[currPrinciple label]];
 				
-				NSRect cellFrame = NSInsetRect(NSMakeRect(0.0, currPrincipleMinY, currConstitutionWidth, [self rowHeight]), INTPrincipleLabelXPadding, 0.0);
-				cellFrame = NSOffsetRect(cellFrame, 0.0, (NSHeight(cellFrame) - [cell cellSize].height) / 2.0);
+				NSRect cellFrame = NSInsetRect(NSMakeRect(0.0f, currPrincipleMinY, currConstitutionWidth, [self rowHeight]), INTPrincipleLabelXPadding, 0.0f);
+				cellFrame = NSOffsetRect(cellFrame, 0.0f, (NSHeight(cellFrame) - [cell cellSize].height) / 2.0f);
 				[cell drawWithFrame:cellFrame inView:self];
 			}
 			
@@ -985,11 +985,11 @@ static const float INTPrincipleLabelXPadding = 2.0;
 			if (currAnnotatedPrinciple == INT_selectedAnnotatedPrinciple)
 				cell = INT_selectedDataCell;
 			
-			NSSize cellSize = [cell cellSizeForBounds:NSMakeRect(0.0, 0.0, NSWidth(gridFrame), NSHeight(gridFrame))];
+			NSSize cellSize = [cell cellSizeForBounds:NSMakeRect(0.0f, 0.0f, NSWidth(gridFrame), NSHeight(gridFrame))];
 			
 			NSRect cellFrame = gridFrame;
-			cellFrame.origin.x = NSMidX(gridFrame) - cellSize.width / 2.0;
-			cellFrame.origin.y = NSMidY(gridFrame) - cellSize.height / 2.0;
+			cellFrame.origin.x = NSMidX(gridFrame) - cellSize.width / 2.0f;
+			cellFrame.origin.y = NSMidY(gridFrame) - cellSize.height / 2.0f;
 			cellFrame.size = cellSize;
 			
 			[cell drawWithFrame:cellFrame inView:self];
@@ -1006,7 +1006,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 	
 	
 	// Draw constitutions
-	INT_constitutionLabelExtraWidth = 0.0;
+	INT_constitutionLabelExtraWidth = 0.0f;
 	NSEnumerator *constitutionLabelsEnum = [constitutionLabels objectEnumerator];
 	NSDictionary *constitutionLabel;
 	while ((constitutionLabel = [constitutionLabelsEnum nextObject]))
@@ -1190,7 +1190,7 @@ static const float INTPrincipleLabelXPadding = 2.0;
 	while ((principle = [principles nextObject]))
 	{
 		[cell setStringValue:[principle label]];
-		float cellWidth = [cell cellSize].width + 2.0 * INTPrincipleLabelXPadding;
+		float cellWidth = [cell cellSize].width + 2.0f * INTPrincipleLabelXPadding;
 		width = fmaxf(width, cellWidth);
 	}
 	return ceilf(width);

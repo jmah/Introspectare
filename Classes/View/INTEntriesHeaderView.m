@@ -60,7 +60,7 @@
 		[INT_dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4];
 		[INT_dateFormatter setDateStyle:NSDateFormatterLongStyle];
 		
-		INT_constitutionLabelExtraWidth = 0.0;
+		INT_constitutionLabelExtraWidth = 0.0f;
 	}
 	return self;
 }
@@ -153,18 +153,18 @@
 - (void)mouseDown:(NSEvent *)event // NSResponder
 {
 	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
-	if (point.y > ([[self entriesView] headerHeight] * 2.0))
+	if (point.y > ([[self entriesView] headerHeight] * 2.0f))
 	{
 		// Track mouse while down
 		NSEvent *lastNonPeriodicEvent = event;
-		[NSEvent startPeriodicEventsAfterDelay:0.2 withPeriod:0.05];
+		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
 		INTEntriesView *ev = [self entriesView];
 		NSIndexSet *initialSelectionIndexes = [[ev selectionIndexes] copy];
 		do
 		{
 			NSIndexSet *newIndexes;
 			
-			if ((point.y > ([[self entriesView] headerHeight] * 2.0)) && [[self entriesView] entryAtXLocation:point.x])
+			if ((point.y > ([[self entriesView] headerHeight] * 2.0f)) && [[self entriesView] entryAtXLocation:point.x])
 				newIndexes = [NSIndexSet indexSetWithIndex:[[[self entriesView] sortedEntries] indexOfObject:[[self entriesView] entryAtXLocation:point.x]]];
 			else
 				newIndexes = [NSIndexSet indexSet];
@@ -219,7 +219,7 @@
 
 - (float)headerWidthForConstitution:(INTConstitution *)constitution // INTEntriesHeaderView (INTProtectedMethods)
 {
-	float width = 0.0;
+	float width = 0.0f;
 	
 	[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
 	width = fmaxf(width, [INT_headerCell cellSize].width);
@@ -248,27 +248,27 @@
 	{
 		// No entries; just draw filler
 		[INT_headerCell setStringValue:[NSString string]];
-		NSRect fillerFrame = NSMakeRect(0.0, 0.0, NSWidth([self visibleRect]) + 1.0, hh);
+		NSRect fillerFrame = NSMakeRect(0.0f, 0.0f, NSWidth([self visibleRect]) + 1.0f, hh);
 		[INT_headerCell drawWithFrame:fillerFrame inView:self];
-		fillerFrame = NSOffsetRect(fillerFrame, 0.0, hh);
+		fillerFrame = NSOffsetRect(fillerFrame, 0.0f, hh);
 		[INT_headerCell drawWithFrame:fillerFrame inView:self];
-		fillerFrame = NSOffsetRect(fillerFrame, 0.0, hh);
+		fillerFrame = NSOffsetRect(fillerFrame, 0.0f, hh);
 		[INT_headerCell drawWithFrame:fillerFrame inView:self];
 		return;
 	}
 	
 	BOOL isYearInitialized = NO;
 	int currYear = 0;
-	float currYearMinX = 0.0;
+	float currYearMinX = 0.0f;
 	int currMonth = -1;
-	float currMonthMinX = 0.0;
+	float currMonthMinX = 0.0f;
 	
 	
 	INTConstitution *currConstitution = nil;
 	NSImage *currConstitutionLabelsImage = nil;
-	float currConstitutionMinX = 0.0;
+	float currConstitutionMinX = 0.0f;
 	NSMutableArray *constitutionLabels = [[NSMutableArray alloc] init];
-	float currEntryMaxX = 0.0;
+	float currEntryMaxX = 0.0f;
 	float currEntryMinX = currEntryMaxX;
 	NSEnumerator *entries = [[[self entriesView] sortedEntries] objectEnumerator];
 	INTEntry *currEntry;
@@ -294,24 +294,24 @@
 			currEntryMaxX += currConstitutionWidth;
 			
 			// Draw current principle labels in image
-			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(currConstitutionWidth, hh * 2.0)];
+			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(currConstitutionWidth, hh * 2.0f)];
 			[currConstitutionLabelsImage setFlipped:YES];
 			
 			[currConstitutionLabelsImage lockFocus];
 			
 			[[NSColor whiteColor] set];
-			NSRectFill(NSMakeRect(0.0, 0.0, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
+			NSRectFill(NSMakeRect(0.0f, 0.0f, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
 			
 			// Constitution is on-screen
 			INTEntriesHeaderCell *cell = [INT_headerCell copy];
-			[cell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6]];
+			[cell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6f]];
 			[cell setTextColor:[NSColor whiteColor]];
 			
-			NSRect constitutionFrame = NSMakeRect(0.0, 0.0, currConstitutionWidth, hh);
+			NSRect constitutionFrame = NSMakeRect(0.0f, 0.0f, currConstitutionWidth, hh);
 			[cell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
 			[cell drawWithFrame:constitutionFrame inView:self];
 			
-			NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0, hh);
+			NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0f, hh);
 			[cell setStringValue:[currConstitution versionLabel]];
 			[cell drawWithFrame:labelFrame inView:self];
 			
@@ -373,7 +373,7 @@
 		if ([components year] != currYear)
 		{
 			float yearWidth = currEntryMinX - currYearMinX;
-			NSRect yearCellFrame = NSMakeRect(currYearMinX, 0.0, yearWidth, hh);
+			NSRect yearCellFrame = NSMakeRect(currYearMinX, 0.0f, yearWidth, hh);
 			[INT_headerCell setStringValue:[self yearAsString:currYear]];
 			[INT_headerCell drawWithFrame:yearCellFrame inView:self];
 			currYear = [components year];
@@ -391,12 +391,12 @@
 		
 		INTEntriesHeaderCell *cell = [INT_headerCell copy];
 		float entryWidth = currEntryMaxX - currEntryMinX;
-		NSRect entryCellFrame = NSMakeRect(currEntryMinX, hh * 2.0, entryWidth, hh);
+		NSRect entryCellFrame = NSMakeRect(currEntryMinX, hh * 2.0f, entryWidth, hh);
 		[cell setStringValue:[self dayAsString:[components day]]];
 		if ([currEntry isUnread])
 		{
 			NSString *unreadToolTip = NSLocalizedString(@"INTUnreadEntryToolTip", @"Unread entry tool tip");
-			[cell setTintColor:[NSColor colorWithDeviceRed:0.53 green:0.71 blue:0.92 alpha:0.8]];
+			[cell setTintColor:[NSColor colorWithDeviceRed:0.53f green:0.71f blue:0.92f alpha:0.8f]];
 			[INT_toolTipStrings addObject:unreadToolTip];
 			[self addToolTipRect:entryCellFrame
 						   owner:unreadToolTip
@@ -405,7 +405,7 @@
 		else if ([[currEntry note] length] > 0)
 		{
 			NSString *noteToolTip = [NSString stringWithFormat:NSLocalizedString(@"INTEntryNoteToolTip", @"Entry note tool tip"), [currEntry note]];
-			[cell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.4]];
+			[cell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.4f]];
 			[INT_toolTipStrings addObject:noteToolTip];
 			[self addToolTipRect:entryCellFrame
 						   owner:noteToolTip
@@ -423,7 +423,7 @@
 	
 	
 	// Draw constitutions
-	INT_constitutionLabelExtraWidth = 0.0;
+	INT_constitutionLabelExtraWidth = 0.0f;
 	NSEnumerator *constitutionLabelsEnum = [constitutionLabels objectEnumerator];
 	NSDictionary *constitutionLabel;
 	while ((constitutionLabel = [constitutionLabelsEnum nextObject]))
@@ -448,7 +448,7 @@
 	// Draw final month and year cells
 	// Add one pixel to the width to avoid drawing the right divider bar
 	float yearWidth = NSMaxX([self visibleRect]) - currYearMinX;
-	NSRect yearCellFrame = NSMakeRect(currYearMinX, 0.0, yearWidth + 1.0, hh);
+	NSRect yearCellFrame = NSMakeRect(currYearMinX, 0.0f, yearWidth + 1.0f, hh);
 	if (!NSIsEmptyRect(yearCellFrame))
 	{
 		[INT_headerCell setStringValue:[self yearAsString:currYear]];
@@ -456,16 +456,16 @@
 	}
 	
 	float monthWidth = currEntryMaxX - currMonthMinX;
-	NSRect monthCellFrame = NSMakeRect(currMonthMinX, hh, monthWidth + 1.0, hh);
+	NSRect monthCellFrame = NSMakeRect(currMonthMinX, hh, monthWidth + 1.0f, hh);
 	if (!NSIsEmptyRect(monthCellFrame))
 		[self drawMonth:currMonth withHintedFrame:monthCellFrame];
 	
 	// Fill any empty space on the right
 	[INT_headerCell setStringValue:[NSString string]];
-	NSRect monthFillerFrame = NSMakeRect(currEntryMaxX, hh, NSWidth([self visibleRect]) - currEntryMaxX + 1.0, hh);
+	NSRect monthFillerFrame = NSMakeRect(currEntryMaxX, hh, NSWidth([self visibleRect]) - currEntryMaxX + 1.0f, hh);
 	if (!NSIsEmptyRect(monthFillerFrame))
 		[INT_headerCell drawWithFrame:monthFillerFrame inView:self];
-	NSRect entryFillerFrame = NSOffsetRect(monthFillerFrame, 0.0, hh);
+	NSRect entryFillerFrame = NSOffsetRect(monthFillerFrame, 0.0f, hh);
 	if (!NSIsEmptyRect(entryFillerFrame))
 		[INT_headerCell drawWithFrame:entryFillerFrame inView:self];
 }
@@ -480,7 +480,7 @@
 	float textWidth = [INT_headerCell cellSize].width;
 	
 	// Calculate text frame
-	NSRect textFrame = NSInsetRect(frame, (NSWidth(frame) - textWidth) / 2.0, 0.0);
+	NSRect textFrame = NSInsetRect(frame, (NSWidth(frame) - textWidth) / 2.0f, 0.0f);
 	
 	if (textWidth < NSWidth(NSIntersectionRect(visRect, frame)))
 	{
@@ -488,12 +488,12 @@
 		{
 			if (NSMinX(textFrame) < NSMinX(visRect))
 			{
-				float xShift = (NSMinX(visRect) - NSMinX(textFrame)) * 2.0;
+				float xShift = (NSMinX(visRect) - NSMinX(textFrame)) * 2.0f;
 				realFrame.origin.x += xShift;
 				realFrame.size.width -= xShift;
 			}
 			else
-				realFrame.size.width -= (NSMaxX(textFrame) - NSMaxX(visRect)) * 2.0;
+				realFrame.size.width -= (NSMaxX(textFrame) - NSMaxX(visRect)) * 2.0f;
 		}
 	}
 	else
@@ -514,8 +514,8 @@
 - (NSRect)visibleRectExcludingConstitutionLabelExtraWidth // INTEntriesHeaderView (INTPrivateMethods)
 {
 	NSRect rect = [self visibleRect];
-	rect = NSInsetRect(rect, INT_constitutionLabelExtraWidth / 2.0, 0.0);
-	rect = NSOffsetRect(rect, INT_constitutionLabelExtraWidth / 2.0, 0.0);
+	rect = NSInsetRect(rect, INT_constitutionLabelExtraWidth / 2.0f, 0.0f);
+	rect = NSOffsetRect(rect, INT_constitutionLabelExtraWidth / 2.0f, 0.0f);
 	return rect;
 }
 

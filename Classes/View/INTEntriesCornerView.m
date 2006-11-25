@@ -64,10 +64,10 @@
 	NSRect cornerRect = NSMakeRect(NSMinX([self bounds]), NSMinY([self bounds]), NSWidth([self bounds]), hh);
 	[INT_cornerCell drawWithFrame:cornerRect inView:self];
 	
-	cornerRect = NSOffsetRect(cornerRect, 0.0, hh);
+	cornerRect = NSOffsetRect(cornerRect, 0.0f, hh);
 	[INT_cornerCell drawWithFrame:cornerRect inView:self];
 	
-	cornerRect = NSOffsetRect(cornerRect, 0.0, hh);
+	cornerRect = NSOffsetRect(cornerRect, 0.0f, hh);
 	[INT_cornerCell drawWithFrame:cornerRect inView:self];
 }
 
