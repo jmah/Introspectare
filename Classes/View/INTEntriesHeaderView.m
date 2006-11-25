@@ -241,6 +241,7 @@
 - (void)drawRect:(NSRect)rect // NSView
 {
 	float hh = [[self entriesView] headerHeight];
+	INT_constitutionLabelExtraWidth = 0.0f;
 	
 	[INT_toolTipStrings release];
 	INT_toolTipStrings = [[NSMutableArray alloc] init];
@@ -427,7 +428,6 @@
 	
 	
 	// Draw constitutions
-	INT_constitutionLabelExtraWidth = 0.0f;
 	NSEnumerator *constitutionLabelsEnum = [constitutionLabels objectEnumerator];
 	NSDictionary *constitutionLabel;
 	while ((constitutionLabel = [constitutionLabelsEnum nextObject]))
