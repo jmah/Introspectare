@@ -690,9 +690,16 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	{
 		BOOL shouldSelectRange = ([event modifierFlags] & NSShiftKeyMask) != 0;
 		
+		id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
 		unsigned firstIndex = NSNotFound;
 		if (!shouldSelectRange && !([event modifierFlags] & NSCommandKeyMask))
-			[self setSelectionIndexes:[NSIndexSet indexSet]];
+		{
+			if (observedObject)
+				[observedObject setValue:[NSIndexSet indexSet] forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+			else
+				[self setSelectionIndexes:[NSIndexSet indexSet]];
+		}
+		
 		
 		[self setEventTrackingSelection:YES];
 		NSEvent *lastNonPeriodicEvent = event;
@@ -746,7 +753,6 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			}
 			
 			// Tell the controller to adjust its selection indexes, if there is one
-			id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
 			if (observedObject)
 			{
 				if (([newIndexes count] > 0) || ![observedObject avoidsEmptySelection])
