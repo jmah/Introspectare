@@ -34,6 +34,19 @@ static NSRect INTMakeCenteredRect(NSRect enclosingRect, NSSize size)
 
 @implementation INTCircleSwitchButtonCell
 
+#pragma mark Creating a circle switch button cell
+
+- (id)initTextCell:(NSString *)string
+{
+	if ((self = [super initTextCell:[NSString string]]))
+	{
+		[self setButtonType:NSSwitchButton];
+	}
+	return self;
+}
+
+
+
 #pragma mark Drawing
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView // NSCell
