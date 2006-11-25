@@ -401,7 +401,7 @@
 		if ([currEntry isUnread])
 		{
 			NSString *unreadToolTip = NSLocalizedString(@"INTUnreadEntryToolTip", @"Unread entry tool tip");
-			[cell setTintColor:[NSColor colorWithDeviceRed:0.53f green:0.71f blue:0.92f alpha:0.8f]];
+			[cell setTintColor:[NSColor colorWithDeviceRed:0.53f green:0.71f blue:0.92f alpha:0.6f]];
 			[INT_toolTipStrings addObject:unreadToolTip];
 			[self addToolTipRect:entryCellFrame
 						   owner:unreadToolTip
