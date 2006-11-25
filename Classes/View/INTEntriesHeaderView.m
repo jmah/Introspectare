@@ -303,19 +303,17 @@
 			NSRectFill(NSMakeRect(0.0, 0.0, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
 			
 			// Constitution is on-screen
-			[INT_headerCell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6]];
-			[INT_headerCell setTextColor:[NSColor whiteColor]];
+			INTEntriesHeaderCell *cell = [INT_headerCell copy];
+			[cell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6]];
+			[cell setTextColor:[NSColor whiteColor]];
 			
 			NSRect constitutionFrame = NSMakeRect(0.0, 0.0, currConstitutionWidth, hh);
-			[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
-			[INT_headerCell drawWithFrame:constitutionFrame inView:self];
+			[cell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
+			[cell drawWithFrame:constitutionFrame inView:self];
 			
 			NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0, hh);
-			[INT_headerCell setStringValue:[currConstitution versionLabel]];
-			[INT_headerCell drawWithFrame:labelFrame inView:self];
-			
-			[INT_headerCell setTextColor:[NSColor headerTextColor]];
-			[INT_headerCell setTintColor:[NSColor clearColor]];
+			[cell setStringValue:[currConstitution versionLabel]];
+			[cell drawWithFrame:labelFrame inView:self];
 			
 			[currConstitutionLabelsImage unlockFocus];
 			
@@ -391,13 +389,14 @@
 			currMonthMinX += monthWidth;
 		}
 		
+		INTEntriesHeaderCell *cell = [INT_headerCell copy];
 		float entryWidth = currEntryMaxX - currEntryMinX;
 		NSRect entryCellFrame = NSMakeRect(currEntryMinX, hh * 2.0, entryWidth, hh);
-		[INT_headerCell setStringValue:[self dayAsString:[components day]]];
+		[cell setStringValue:[self dayAsString:[components day]]];
 		if ([currEntry isUnread])
 		{
 			NSString *unreadToolTip = NSLocalizedString(@"INTUnreadEntryToolTip", @"Unread entry tool tip");
-			[INT_headerCell setTintColor:[[NSColor keyboardFocusIndicatorColor] colorWithAlphaComponent:0.4]];
+			[cell setTintColor:[NSColor colorWithDeviceRed:0.53 green:0.71 blue:0.92 alpha:0.8]];
 			[INT_toolTipStrings addObject:unreadToolTip];
 			[self addToolTipRect:entryCellFrame
 						   owner:unreadToolTip
@@ -406,14 +405,13 @@
 		else if ([[currEntry note] length] > 0)
 		{
 			NSString *noteToolTip = [NSString stringWithFormat:NSLocalizedString(@"INTEntryNoteToolTip", @"Entry note tool tip"), [currEntry note]];
-			[INT_headerCell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.4]];
+			[cell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.4]];
 			[INT_toolTipStrings addObject:noteToolTip];
 			[self addToolTipRect:entryCellFrame
 						   owner:noteToolTip
 						userData:NULL];
 		}
-		[INT_headerCell drawWithFrame:entryCellFrame inView:self];
-		[INT_headerCell setTintColor:[NSColor clearColor]];
+		[cell drawWithFrame:entryCellFrame inView:self];
 	}
 	
 	if (currConstitutionLabelsImage)
