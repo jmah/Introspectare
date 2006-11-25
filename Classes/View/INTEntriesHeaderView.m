@@ -76,6 +76,7 @@
 						 forKeyPath:@"headerFont"];
 	
 	[INT_dateFormatter release], INT_dateFormatter = nil;
+	[INT_toolTipStrings release], INT_toolTipStrings = nil;
 	
 	[super dealloc];
 }
@@ -237,6 +238,9 @@
 {
 	float hh = [[self entriesView] headerHeight];
 	
+	[INT_toolTipStrings release];
+	INT_toolTipStrings = [[NSMutableArray alloc] init];
+	[self removeAllToolTips];
 	[[NSColor whiteColor] set];
 	NSRectFill(rect);
 	
@@ -391,9 +395,23 @@
 		NSRect entryCellFrame = NSMakeRect(currEntryMinX, hh * 2.0, entryWidth, hh);
 		[INT_headerCell setStringValue:[self dayAsString:[components day]]];
 		if ([currEntry isUnread])
+		{
+			NSString *unreadToolTip = NSLocalizedString(@"INTUnreadEntryToolTip", @"Unread entry tool tip");
 			[INT_headerCell setTintColor:[[NSColor keyboardFocusIndicatorColor] colorWithAlphaComponent:0.4]];
+			[INT_toolTipStrings addObject:unreadToolTip];
+			[self addToolTipRect:entryCellFrame
+						   owner:unreadToolTip
+						userData:NULL];
+		}
 		else if ([[currEntry note] length] > 0)
+		{
+			NSString *noteToolTip = [NSString stringWithFormat:NSLocalizedString(@"INTEntryNoteToolTip", @"Entry note tool tip"), [currEntry note]];
 			[INT_headerCell setTintColor:[[NSColor yellowColor] colorWithAlphaComponent:0.4]];
+			[INT_toolTipStrings addObject:noteToolTip];
+			[self addToolTipRect:entryCellFrame
+						   owner:noteToolTip
+						userData:NULL];
+		}
 		[INT_headerCell drawWithFrame:entryCellFrame inView:self];
 		[INT_headerCell setTintColor:[NSColor clearColor]];
 	}
@@ -487,6 +505,11 @@
 	[NSBezierPath clipRect:visRect];
 	[INT_headerCell drawWithFrame:realFrame inView:self];
 	[NSGraphicsContext restoreGraphicsState];
+	
+	[INT_toolTipStrings addObject:monthString];
+	[self addToolTipRect:NSIntersectionRect(visRect, realFrame)
+				   owner:monthString
+				userData:NULL];
 }
 
 

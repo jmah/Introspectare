@@ -20,6 +20,7 @@
 	NSDateFormatter *INT_dateFormatter;
 	
 	float INT_constitutionLabelExtraWidth;
+	NSMutableArray *INT_toolTipStrings;
 }
 
 
