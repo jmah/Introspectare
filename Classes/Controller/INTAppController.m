@@ -203,10 +203,9 @@ static INTAppController *sharedAppController = nil;
 	if (newValue == [NSNull null])
 		newValue = nil;
 	
+	NSKeyValueObservingOptions options = NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew;
 	if (object == [self library])
 	{
-		NSKeyValueObservingOptions options = NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew;
-		
 		if ([keyPath isEqualToString:@"entries"])
 		{
 			NSEnumerator *oldEntries = [oldValue objectEnumerator];
@@ -277,10 +276,23 @@ static INTAppController *sharedAppController = nil;
 	else
 	{
 		// Everything else is for undo management
-		if ([[change objectForKey:NSKeyValueChangeKindKey] intValue] == NSKeyValueChangeSetting)
-			[[[self undoManager] prepareWithInvocationTarget:self] changeKeyPath:keyPath ofObject:object toValue:oldValue];
-		else
-			[NSException raise:NSInvalidArgumentException format:@"Change kind not implemented"];
+		NSKeyValueChange changeKind = [[change objectForKey:NSKeyValueChangeKindKey] intValue];
+		id settingValue = newValue;
+		
+		if (changeKind != NSKeyValueChangeSetting)
+		{
+			NSIndexSet *indexes = [change objectForKey:NSKeyValueChangeIndexesKey];
+			settingValue = [[[object valueForKeyPath:keyPath] mutableCopy] autorelease];
+			if (changeKind == NSKeyValueChangeInsertion)
+				[settingValue removeObjectsAtIndexes:indexes];
+			else if (changeKind == NSKeyValueChangeRemoval)
+				[settingValue insertObjects:oldValue atIndexes:indexes];
+			else if (changeKind == NSKeyValueChangeReplacement)
+				[settingValue replaceObjectsAtIndexes:indexes withObjects:oldValue];
+		}
+		
+		[[[self undoManager] prepareWithInvocationTarget:self] changeKeyPath:keyPath ofObject:object toValue:settingValue];
+		
 		
 		// Set undo action name
 		if ([[self undoManager] isUndoing])
@@ -335,7 +347,27 @@ static INTAppController *sharedAppController = nil;
 			else if ([keyPath isEqualToString:@"note"])
 				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionNoteUndoAction", @"Change Constitution Note undo action")];
 			else if ([keyPath isEqualToString:@"principles"])
+			{
 				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionPrinciplesUndoAction", @"Change Constitution Principles undo action")];
+				
+				NSEnumerator *oldPrinciples = [oldValue objectEnumerator];
+				INTPrinciple *oldPrinciple;
+				while ((oldPrinciple = [oldPrinciples nextObject]))
+				{
+					[oldPrinciple removeObserver:self forKeyPath:@"label"];
+					[oldPrinciple removeObserver:self forKeyPath:@"explanation"];
+					[oldPrinciple removeObserver:self forKeyPath:@"note"];
+				}
+				
+				NSEnumerator *newPrinciples = [newValue objectEnumerator];
+				INTPrinciple *newPrinciple;
+				while ((newPrinciple = [newPrinciples nextObject]))
+				{
+					[newPrinciple addObserver:self forKeyPath:@"label" options:options context:NULL];
+					[newPrinciple addObserver:self forKeyPath:@"explanation" options:options context:NULL];
+					[newPrinciple addObserver:self forKeyPath:@"note" options:options context:NULL];
+				}
+			}
 		}
 		else if ([object isKindOfClass:[INTPrinciple class]])
 		{
