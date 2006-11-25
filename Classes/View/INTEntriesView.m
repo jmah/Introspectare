@@ -376,6 +376,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		INTEntry *entry;
 		while ((entry = [entries nextObject]))
 		{
+			[entry removeObserver:self forKeyPath:@"note"];
 			[entry removeObserver:self forKeyPath:@"unread"];
 			[entry removeObserver:self forKeyPath:@"annotatedPrinciples"];
 			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
