@@ -8,6 +8,7 @@
 
 #import "INTEntriesView.h"
 #import "INTEntriesView+INTProtectedMethods.h"
+#import "NSIndexSet+INTAdditions.h"
 #import "INTEntry.h"
 #import "INTConstitution.h"
 #import "INTPrinciple.h"
@@ -644,17 +645,62 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	}
 	else
 	{
+		BOOL shouldSelectRange = ([event modifierFlags] & NSShiftKeyMask) != 0;
+		
+		unsigned firstIndex = NSNotFound;
+		if (!shouldSelectRange && !([event modifierFlags] & NSCommandKeyMask))
+			[self setSelectionIndexes:[NSIndexSet indexSet]];
+		
 		[self setEventTrackingSelection:YES];
 		NSEvent *lastNonPeriodicEvent = event;
 		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
 		do
 		{
+			unsigned currIndex = NSNotFound;
 			NSIndexSet *newIndexes;
 			
 			if ([self entryAtPoint:point])
-				newIndexes = [NSIndexSet indexSetWithIndex:[[self sortedEntries] indexOfObject:[self entryAtPoint:point]]];
+				currIndex = [[self sortedEntries] indexOfObject:[self entryAtPoint:point]];
+			
+			if (firstIndex == NSNotFound)
+				firstIndex = currIndex;
+			
+			if (currIndex != NSNotFound)
+			{
+				if (shouldSelectRange)
+				{
+					if ([[self selectionIndexes] count] == 0)
+						newIndexes = [NSIndexSet indexSetWithIndex:currIndex];
+					else
+					{
+						unsigned first = MIN([[self selectionIndexes] firstIndex], currIndex);
+						unsigned last = MAX([[self selectionIndexes] lastIndex], currIndex);
+						newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(first, last - first + 1)];
+					}
+				}
+				else
+				{
+					unsigned first = MIN(firstIndex, currIndex);
+					unsigned last = MAX(firstIndex, currIndex);
+					newIndexes = [[self selectionIndexes] indexSetByAddingIndexesInRange:NSMakeRange(first, last - first + 1)];
+				}
+			}
 			else
-				newIndexes = [NSIndexSet indexSet];
+			{
+				if (shouldSelectRange)
+				{
+					if ([[self selectionIndexes] count] == 0)
+						newIndexes = [NSIndexSet indexSet];
+					else
+					{
+						unsigned first = [[self selectionIndexes] firstIndex];
+						unsigned last = [[self selectionIndexes] lastIndex];
+						newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(first, last - first + 1)];
+					}
+				}
+				else
+					newIndexes = [self selectionIndexes];
+			}
 			
 			// Tell the controller to adjust its selection indexes, if there is one
 			id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];

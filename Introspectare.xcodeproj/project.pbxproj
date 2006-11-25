@@ -29,6 +29,7 @@
 		28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28BFA0CE0A5AD4510075D416 /* Constitutions.nib */; };
 		28CEA7D50A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */; };
 		28D707F80B18A1B100727436 /* Unread.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 28D707F70B18A1B100727436 /* Unread.tiff */; };
+		28D7089F0B18B26500727436 /* NSIndexSet+INTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7089E0B18B26500727436 /* NSIndexSet+INTAdditions.m */; };
 		28DB60A50B15D4F200A3E81D /* INTEntriesCornerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */; };
 		28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28DB60AD0B15D56700A3E81D /* INTEntriesHeaderView.m */; };
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
@@ -80,6 +81,8 @@
 		28CEA7D30A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCalendarDate+INTAdditions.h"; sourceTree = "<group>"; };
 		28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCalendarDate+INTAdditions.m"; sourceTree = "<group>"; };
 		28D707F70B18A1B100727436 /* Unread.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Unread.tiff; sourceTree = "<group>"; };
+		28D7089D0B18B26500727436 /* NSIndexSet+INTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexSet+INTAdditions.h"; sourceTree = "<group>"; };
+		28D7089E0B18B26500727436 /* NSIndexSet+INTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexSet+INTAdditions.m"; sourceTree = "<group>"; };
 		28DB60A30B15D4F200A3E81D /* INTEntriesCornerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesCornerView.h; sourceTree = "<group>"; };
 		28DB60A40B15D4F200A3E81D /* INTEntriesCornerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesCornerView.m; sourceTree = "<group>"; };
 		28DB60AC0B15D56700A3E81D /* INTEntriesHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderView.h; sourceTree = "<group>"; };
@@ -213,6 +216,8 @@
 				280082BC0A5EB4DB00A5D67E /* INTShared.m */,
 				28CEA7D30A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.h */,
 				28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */,
+				28D7089D0B18B26500727436 /* NSIndexSet+INTAdditions.h */,
+				28D7089E0B18B26500727436 /* NSIndexSet+INTAdditions.m */,
 			);
 			path = "Other Sources";
 			sourceTree = "<group>";
@@ -366,6 +371,7 @@
 				28DB60A50B15D4F200A3E81D /* INTEntriesCornerView.m in Sources */,
 				28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */,
 				284819C30B17567000EEAD7A /* INTEntriesHeaderCell.m in Sources */,
+				28D7089F0B18B26500727436 /* NSIndexSet+INTAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
