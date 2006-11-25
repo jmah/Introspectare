@@ -710,8 +710,8 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			unsigned currIndex = NSNotFound;
 			NSIndexSet *newIndexes;
 			
-			if ([self entryAtPoint:point])
-				currIndex = [[self sortedEntries] indexOfObject:[self entryAtPoint:point]];
+			if ([self entryAtXLocation:point.x])
+				currIndex = [[self sortedEntries] indexOfObject:[self entryAtXLocation:point.x]];
 			
 			if (firstIndex == NSNotFound)
 				firstIndex = currIndex;

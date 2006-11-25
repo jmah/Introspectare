@@ -184,7 +184,7 @@
 			unsigned currIndex = NSNotFound;
 			NSIndexSet *newIndexes;
 			
-			if ((point.y > ([[self entriesView] headerHeight] * 2.0f)) && [ev entryAtXLocation:point.x])
+			if ([ev entryAtXLocation:point.x])
 				currIndex = [[ev sortedEntries] indexOfObject:[ev entryAtXLocation:point.x]];
 			
 			if (firstIndex == NSNotFound)
