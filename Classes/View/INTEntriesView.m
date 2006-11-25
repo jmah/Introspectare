@@ -31,6 +31,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 #pragma mark Managing the view hierarchy
 - (void)windowDidChangeKey:(NSNotification *)notification;
+- (void)applicationDidChangeActive:(NSNotification *)notification;
 
 #pragma mark Getting auxiliary views for enclosing an scroll view
 - (NSView *)headerView;
@@ -553,11 +554,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		NSLog(@"The INTEntriesView expects to be enclosed in an NSScrollView");
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeKey:)
+											 selector:@selector(applicationDidChangeActive:)
 												 name:NSApplicationDidBecomeActiveNotification
 											   object:NSApp];
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeKey:)
+											 selector:@selector(applicationDidChangeActive:)
 												 name:NSApplicationDidResignActiveNotification
 											   object:NSApp];
 }
@@ -588,6 +589,13 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)windowDidChangeKey:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
 {
 	[self setNeedsDisplay:YES];
+}
+
+
+- (void)applicationDidChangeActive:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
+{
+	if ([[self window] isKeyWindow])
+		[self setNeedsDisplay:YES];
 }
 
 
