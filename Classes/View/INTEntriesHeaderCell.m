@@ -126,9 +126,11 @@
 		[super drawWithFrame:frame inView:controlView];
 		[self setTextColor:textColor];
 	
+		// Don't tint the borders
 		[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositePlusDarker];
+		NSRect tintRect = NSMakeRect(NSMinX(frame), NSMinY(frame), NSWidth(frame) - 1.0f, NSHeight(frame) - 1.0f);
 		[[self tintColor] set];
-		[NSBezierPath fillRect:frame];
+		[NSBezierPath fillRect:tintRect];
 		
 		[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositeSourceOver];
 		NSRect textCellFrame = NSInsetRect(frame, 0.0f, 1.0f);
