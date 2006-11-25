@@ -114,6 +114,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		INT_dataCell = dataCell;
 		
 		INT_constitutionLabelExtraWidth = 0.0f;
+		INT_isEventTrackingSelection = NO;
 		
 		[self setFocusRingType:NSFocusRingTypeExterior];
 		
@@ -454,9 +455,8 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			oneEntryVisible = YES;
 	}
 	
-	// Don't scroll when event tracking. If the current mod e is nil, it could be that we are receiving periodic events on a separate thread, so just assume we're event tracking
-	BOOL shouldScrollToVisible = ([[NSRunLoop currentRunLoop] currentMode] && ![[[NSRunLoop currentRunLoop] currentMode] isEqualToString:NSEventTrackingRunLoopMode]);
-	if (shouldScrollToVisible && !oneEntryVisible && ([newIndexes count] > 0))
+	// Don't scroll when event tracking
+	if (![self isEventTrackingSelection] && !oneEntryVisible && ([newIndexes count] > 0))
 		// Scroll to make the first selected entry visible
 		[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]];
 	
@@ -635,9 +635,9 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	}
 	else
 	{
+		[self setEventTrackingSelection:YES];
 		NSEvent *lastNonPeriodicEvent = event;
 		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
-		NSIndexSet *initialSelectionIndexes = [[self selectionIndexes] copy];
 		do
 		{
 			NSIndexSet *newIndexes;
@@ -686,9 +686,9 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		} while ([event type] != NSLeftMouseUp);
 		[NSEvent stopPeriodicEvents];
 		
-		if (([[self selectionIndexes] count] > 0) && ![initialSelectionIndexes isEqual:[self selectionIndexes]])
-			[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[[self selectionIndexes] firstIndex]]];
-		[initialSelectionIndexes release];
+		[self setEventTrackingSelection:NO];
+		// Scroll selected entries to visible
+		[self setSelectionIndexes:[self selectionIndexes]];
 	}
 }
 
@@ -806,6 +806,19 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	rect = NSOffsetRect(rect, -(INT_constitutionLabelExtraWidth / 2.0f), 0.0f);
 	return [self scrollRectToVisible:rect];
 }
+
+
+- (BOOL)isEventTrackingSelection // INTEntriesView (INTProtectedMethods)
+{
+	return INT_isEventTrackingSelection;
+}
+
+
+- (void)setEventTrackingSelection:(BOOL)tracking // INTEntriesView (INTProtectedMethods)
+{
+	INT_isEventTrackingSelection = tracking;
+}
+
 
 
 

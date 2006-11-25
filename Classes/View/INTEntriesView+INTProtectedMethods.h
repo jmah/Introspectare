@@ -18,6 +18,10 @@
 #pragma mark Managing entries
 - (NSArray *)sortedEntries;
 
+#pragma mark Scrolling
+- (BOOL)isEventTrackingSelection;
+- (void)setEventTrackingSelection:(BOOL)tracking;
+
 #pragma mark Layout
 - (INTEntry *)entryAtXLocation:(float)x;
 - (float)widthForConstitution:(INTConstitution *)constitution;

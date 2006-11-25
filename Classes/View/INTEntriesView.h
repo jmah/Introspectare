@@ -34,6 +34,7 @@
 	NSIndexSet *INT_selectionIndexes;
 	INTAnnotatedPrinciple *INT_selectedAnnotatedPrinciple; // Weak reference
 	NSActionCell *INT_selectedDataCell; // Weak reference
+	BOOL INT_isEventTrackingSelection;
 	
 	float INT_constitutionLabelExtraWidth;
 	

@@ -153,13 +153,17 @@
 - (void)mouseDown:(NSEvent *)event // NSResponder
 {
 	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
-	if (point.y > ([[self entriesView] headerHeight] * 2.0f))
+	if ((point.x - NSMinX([self visibleRect])) < INT_constitutionLabelExtraWidth)
+		// Click is in the constitution label; do nothing
+		return;
+	else if (point.y > ([[self entriesView] headerHeight] * 2.0f))
 	{
+		INTEntriesView *ev = [self entriesView];
+		
 		// Track mouse while down
+		[ev setEventTrackingSelection:YES];
 		NSEvent *lastNonPeriodicEvent = event;
 		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
-		INTEntriesView *ev = [self entriesView];
-		NSIndexSet *initialSelectionIndexes = [[ev selectionIndexes] copy];
 		do
 		{
 			NSIndexSet *newIndexes;
@@ -207,9 +211,9 @@
 		} while ([event type] != NSLeftMouseUp);
 		[NSEvent stopPeriodicEvents];
 		
-		if (([[ev selectionIndexes] count] > 0) && ![initialSelectionIndexes isEqual:[ev selectionIndexes]])
-			[ev scrollEntryToVisible:[[ev sortedEntries] objectAtIndex:[[ev selectionIndexes] firstIndex]]];
-		[initialSelectionIndexes release];
+		[ev setEventTrackingSelection:NO];
+		// Scroll selected entries to visible
+		[ev setSelectionIndexes:[ev selectionIndexes]];
 	}
 }
 
