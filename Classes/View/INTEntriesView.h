@@ -35,6 +35,8 @@
 	INTAnnotatedPrinciple *INT_selectedAnnotatedPrinciple; // Weak reference
 	NSActionCell *INT_selectedDataCell; // Weak reference
 	
+	float INT_constitutionLabelExtraWidth;
+	
 	// Bindings
 	NSObject *INT_entriesContainer;
 	NSString *INT_entriesKeyPath;

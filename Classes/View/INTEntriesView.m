@@ -19,9 +19,6 @@
 
 @interface INTEntriesView (INTPrivateMethods)
 
-#pragma mark Event methods
-- (void)mouseDragTimerHit:(NSTimer *)timer;
-
 #pragma mark Action methods
 - (void)selectedAnnotatedPrincipleClicked:(id)sender;
 
@@ -112,6 +109,8 @@
 		[dataCell setAttributedTitle:[[[NSAttributedString alloc] initWithString:[NSString string]] autorelease]];
 		[dataCell setButtonType:NSSwitchButton];
 		INT_dataCell = dataCell;
+		
+		INT_constitutionLabelExtraWidth = 0.0;
 		
 		[self setFocusRingType:NSFocusRingTypeExterior];
 		
@@ -431,6 +430,10 @@
 		currIndex = [oldIndexes indexGreaterThanIndex:currIndex];
 	}
 	
+	NSRect visibleRectExcludingConstitutionLabelExtraWidth = [self visibleRect];
+	visibleRectExcludingConstitutionLabelExtraWidth = NSInsetRect(visibleRectExcludingConstitutionLabelExtraWidth, INT_constitutionLabelExtraWidth / 2.0, 0.0);
+	visibleRectExcludingConstitutionLabelExtraWidth = NSOffsetRect(visibleRectExcludingConstitutionLabelExtraWidth, INT_constitutionLabelExtraWidth / 2.0, 0.0);
+	
 	NSIndexSet *newIndexes = INT_selectionIndexes;
 	BOOL oneEntryVisible = NO;
 	currIndex = [newIndexes firstIndex];
@@ -438,12 +441,15 @@
 	{
 		NSRect entryRect = [self rectForEntry:[[self sortedEntries] objectAtIndex:currIndex]];
 		[self setNeedsDisplayInRect:entryRect];
-		if (NSContainsRect([self visibleRect], entryRect))
-			oneEntryVisible = YES;
 		currIndex = [newIndexes indexGreaterThanIndex:currIndex];
+		
+		if (NSContainsRect(visibleRectExcludingConstitutionLabelExtraWidth, entryRect))
+			oneEntryVisible = YES;
 	}
 	
-	if (!oneEntryVisible && ([newIndexes count] > 0) && ![[[NSRunLoop currentRunLoop] currentMode] isEqualToString:NSEventTrackingRunLoopMode])
+	// Don't scroll when event tracking. If the current mod e is nil, it could be that we are receiving periodic events on a separate thread, so just assume we're event tracking
+	BOOL shouldScrollToVisible = ([[NSRunLoop currentRunLoop] currentMode] && ![[[NSRunLoop currentRunLoop] currentMode] isEqualToString:NSEventTrackingRunLoopMode]);
+	if (shouldScrollToVisible && !oneEntryVisible && ([newIndexes count] > 0))
 		// Scroll to make the first selected entry visible
 		[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[newIndexes firstIndex]]];
 	
@@ -588,7 +594,10 @@
 	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
 	NSRect cellFrame;
 	NSActionCell *dataCell = [self dataCellAtPoint:point frame:&cellFrame];
-	if (dataCell)
+	if ((point.x - NSMinX([self visibleRect])) < INT_constitutionLabelExtraWidth)
+		// Click is in the constitution label; do nothing
+		return;
+	else if (dataCell)
 	{
 		[dataCell setTarget:self];
 		[dataCell setAction:@selector(selectedAnnotatedPrincipleClicked:)];
@@ -619,51 +628,61 @@
 	}
 	else
 	{
+		NSEvent *lastNonPeriodicEvent = event;
+		[NSEvent startPeriodicEventsAfterDelay:0.2 withPeriod:0.05];
 		NSIndexSet *initialSelectionIndexes = [[self selectionIndexes] copy];
 		do
 		{
-			NSTimer *mouseDragTimer = [NSTimer timerWithTimeInterval:0.04
-															  target:self
-															selector:@selector(mouseDragTimerHit:)
-															userInfo:event
-															 repeats:YES];
-			[mouseDragTimer fire];
-			[[NSRunLoop currentRunLoop] addTimer:mouseDragTimer forMode:NSEventTrackingRunLoopMode];
+			NSIndexSet *newIndexes;
 			
-			event = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)];
-			[mouseDragTimer invalidate];
-		} while ([event type] == NSLeftMouseDragged);
+			if ([self entryAtPoint:point])
+				newIndexes = [NSIndexSet indexSetWithIndex:[[self sortedEntries] indexOfObject:[self entryAtPoint:point]]];
+			else
+				newIndexes = [NSIndexSet indexSet];
+			
+			// Tell the controller to adjust its selection indexes, if there is one
+			id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+			if (observingObject)
+			{
+				if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
+					[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+			}
+			else
+				// Just do it ourselves
+				[self setSelectionIndexes:newIndexes];
+			
+			if ((point.x - NSMinX([self visibleRect])) < INT_constitutionLabelExtraWidth)
+			{
+				// Adjust location in window to take into account constitution label extra width for correct autoscrolling
+				NSPoint newLocation = NSMakePoint([lastNonPeriodicEvent locationInWindow].x - INT_constitutionLabelExtraWidth, [lastNonPeriodicEvent locationInWindow].y);
+				NSEvent *newEvent = [NSEvent mouseEventWithType:[lastNonPeriodicEvent type]
+													   location:newLocation
+												  modifierFlags:[lastNonPeriodicEvent modifierFlags]
+													  timestamp:[lastNonPeriodicEvent timestamp]
+												   windowNumber:[lastNonPeriodicEvent windowNumber]
+														context:[lastNonPeriodicEvent context]
+													eventNumber:[lastNonPeriodicEvent eventNumber]
+													 clickCount:[lastNonPeriodicEvent clickCount]
+													   pressure:[lastNonPeriodicEvent pressure]];
+				[self autoscroll:newEvent];
+			}
+			else
+				[self autoscroll:lastNonPeriodicEvent];
+			
+			event = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
+									   untilDate:[NSDate distantFuture]
+										  inMode:NSEventTrackingRunLoopMode
+										 dequeue:YES];
+			if ([event type] != NSPeriodic)
+				lastNonPeriodicEvent = event;
+			point = [self convertPoint:[lastNonPeriodicEvent locationInWindow] fromView:nil];
+		} while ([event type] != NSLeftMouseUp);
+		[NSEvent stopPeriodicEvents];
 		
 		if (([[self selectionIndexes] count] > 0) && ![initialSelectionIndexes isEqual:[self selectionIndexes]])
 			[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:[[self selectionIndexes] firstIndex]]];
 		[initialSelectionIndexes release];
 	}
-}
-
-
-- (void)mouseDragTimerHit:(NSTimer *)timer // INTEntriesView (INTPrivateMethods)
-{
-	NSEvent *event = (NSEvent *)[timer userInfo];
-	NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
-	NSIndexSet *newIndexes;
-	
-	if ([self entryAtPoint:point])
-		newIndexes = [NSIndexSet indexSetWithIndex:[[self sortedEntries] indexOfObject:[self entryAtPoint:point]]];
-	else
-		newIndexes = [NSIndexSet indexSet];
-	
-	// Tell the controller to adjust its selection indexes, if there is one
-	id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
-	if (observingObject)
-	{
-		if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
-			[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
-	}
-	else
-		// Just do it ourselves
-		[self setSelectionIndexes:newIndexes];
-	
-	[self autoscroll:event];
 }
 
 
@@ -775,18 +794,15 @@
 
 - (BOOL)scrollEntryToVisible:(INTEntry *)entry
 {
-	return [self scrollRectToVisible:[self rectForEntry:entry]];
+	NSRect rect = [self rectForEntry:entry];
+	rect = NSInsetRect(rect, -(INT_constitutionLabelExtraWidth / 2.0), 0.0);
+	rect = NSOffsetRect(rect, -(INT_constitutionLabelExtraWidth / 2.0), 0.0);
+	return [self scrollRectToVisible:rect];
 }
 
 
 
 #pragma mark Displaying
-
-- (BOOL)isOpaque // NSView
-{
-	return YES;
-}
-
 
 - (void)updateFrameSize // INTEntriesView (INTPrivateMethods)
 {
@@ -846,31 +862,40 @@
 	NSRectFill(rect);
 	
 	
-	// Draw entries and constitutions
+	// Draw entries
 	INTConstitution *currConstitution = nil;
 	NSImage *currConstitutionLabelsImage = nil;
+	float currConstitutionMinX = 0.0;
+	NSMutableArray *constitutionLabels = [[NSMutableArray alloc] init];
 	unsigned prevEntryIndex = 0;
 	float currEntryMaxX = -[self intercellSpacing].width;
 	NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
 	INTEntry *currEntry;
 	while ((currEntry = [entries nextObject]))
 	{
+		// Save constitution labels in images, but don't draw them on-screen yet
 		if ([currEntry constitution] != currConstitution)
 		{
+			if (currConstitutionLabelsImage)
+				[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+					[currConstitutionLabelsImage autorelease], @"image",
+					[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
+					[NSNumber numberWithFloat:(currEntryMaxX - [self columnWidth] - [currConstitutionLabelsImage size].width)], @"maxMinX",
+					nil]];
+			
 			currConstitution = [currEntry constitution];
-			float constitutionMinX = currEntryMaxX + [self intercellSpacing].width;
-			float constitutionWidth = [self widthForConstitution:currConstitution];
-			currEntryMaxX += constitutionWidth + [self intercellSpacing].width;
+			currConstitutionMinX = currEntryMaxX + [self intercellSpacing].width;
+			float currConstitutionWidth = [self widthForConstitution:currConstitution];
+			currEntryMaxX += currConstitutionWidth + [self intercellSpacing].width;
 			
 			// Cache current principle labels in image
-			[currConstitutionLabelsImage release];
-			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(constitutionWidth + [self intercellSpacing].width, NSHeight([self bounds]))];
+			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(currConstitutionWidth + [self intercellSpacing].width, NSHeight([self bounds]))];
 			[currConstitutionLabelsImage setFlipped:YES];
 			
 			[currConstitutionLabelsImage lockFocus];
 			
 			[[self backgroundColor] set];
-			NSRectFill(rect);
+			NSRectFill(NSMakeRect(0.0, 0.0, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
 			
 			float currPrincipleMaxY = -[self intercellSpacing].height;
 			NSEnumerator *principles = [[currConstitution principles] objectEnumerator];
@@ -884,32 +909,30 @@
 				if (currPrincipleMinY > NSMaxY(rect))
 					break;
 				
-				NSRect cellFrame = NSMakeRect(0.0, currPrincipleMinY, constitutionWidth, [self rowHeight]);
+				NSRect cellFrame = NSMakeRect(0.0, currPrincipleMinY, currConstitutionWidth, [self rowHeight]);
 				NSCell *cell = [self principleLabelCell];
 				[cell setStringValue:[currPrinciple label]];
 				[cell drawWithFrame:cellFrame inView:self];
 			}
 			
 			[[NSColor gridColor] set];
-			[NSBezierPath fillRect:NSMakeRect(constitutionWidth, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+			[NSBezierPath fillRect:NSMakeRect(currConstitutionWidth, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
+			for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self intercellSpacing].width)
+				[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self intercellSpacing].width)];
 			
 			[currConstitutionLabelsImage unlockFocus];
-			
-			if (((constitutionMinX + constitutionWidth) >= NSMinX(rect)) || (constitutionMinX <= NSMaxX(rect)))
-				[currConstitutionLabelsImage compositeToPoint:NSMakePoint(constitutionMinX, NSMaxY([self bounds]))
-													operation:NSCompositeSourceOver];
 		}
 		
 		float currEntryMinX = currEntryMaxX + [self intercellSpacing].width;
 		currEntryMaxX += [self columnWidth] + [self intercellSpacing].width;
 		prevEntryIndex++;
-		
-		[[NSColor gridColor] set];
-		[NSBezierPath fillRect:NSMakeRect(currEntryMaxX, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
 		if (currEntryMaxX < NSMinX(rect))
 			continue;
 		if (currEntryMinX > NSMaxX(rect))
-			break;
+			continue;
+		
+		[[NSColor gridColor] set];
+		[NSBezierPath fillRect:NSMakeRect(currEntryMaxX, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
 		
 		if ([[self selectionIndexes] containsIndex:(prevEntryIndex - 1)])
 		{
@@ -960,6 +983,36 @@
 			[cell drawWithFrame:cellFrame inView:self];
 		}
 	}
+	
+	if (currConstitutionLabelsImage)
+		[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+			[currConstitutionLabelsImage autorelease], @"image",
+			[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
+			[NSNumber numberWithFloat:(currEntryMaxX - [self columnWidth] - [self intercellSpacing].width - [currConstitutionLabelsImage size].width)], @"maxMinX",
+			nil]];
+	
+	
+	// Draw constitutions
+	INT_constitutionLabelExtraWidth = 0.0;
+	NSEnumerator *constitutionLabelsEnum = [constitutionLabels objectEnumerator];
+	NSDictionary *constitutionLabel;
+	while ((constitutionLabel = [constitutionLabelsEnum nextObject]))
+	{
+		float minMinX = [[constitutionLabel objectForKey:@"minMinX"] floatValue];
+		float maxMinX = [[constitutionLabel objectForKey:@"maxMinX"] floatValue];
+		float minX = NSMinX([self visibleRect]);
+		minX = MAX(minMinX, minX);
+		minX = MIN(maxMinX, minX);
+		
+		NSImage *image = [constitutionLabel objectForKey:@"image"];
+		[image compositeToPoint:NSMakePoint(minX, [image size].height)
+					  operation:NSCompositeSourceOver];
+		
+		if (minX == NSMinX([self visibleRect]))
+			INT_constitutionLabelExtraWidth = [image size].width;
+	}
+	
+	[constitutionLabels release];
 	
 	
 	// Draw grid
