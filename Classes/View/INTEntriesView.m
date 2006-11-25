@@ -703,11 +703,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			}
 			
 			// Tell the controller to adjust its selection indexes, if there is one
-			id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
-			if (observingObject)
+			id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+			if (observedObject)
 			{
-				if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
-					[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+				if (([newIndexes count] > 0) || ![observedObject avoidsEmptySelection])
+					[observedObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
 			}
 			else
 				// Just do it ourselves
@@ -786,11 +786,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	}
 	
 	// Tell the controller to adjust its selection indexes, if there is one
-	id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
-	if (observingObject)
+	id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+	if (observedObject)
 	{
-		if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
-			[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+		if (([newIndexes count] > 0) || ![observedObject avoidsEmptySelection])
+			[observedObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
 	}
 	else
 		// Just do it ourselves
@@ -833,11 +833,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	}
 	
 	// Tell the controller to adjust its selection indexes, if there is one
-	id observingObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
-	if (observingObject)
+	id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
+	if (observedObject)
 	{
-		if (([newIndexes count] > 0) || ![observingObject avoidsEmptySelection])
-			[observingObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
+		if (([newIndexes count] > 0) || ![observedObject avoidsEmptySelection])
+			[observedObject setValue:newIndexes forKeyPath:[[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedKeyPathKey]];
 	}
 	else
 		// Just do it ourselves
