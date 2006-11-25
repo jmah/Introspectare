@@ -198,6 +198,10 @@ static INTAppController *sharedAppController = nil;
 {
 	id oldValue = [change objectForKey:NSKeyValueChangeOldKey];
 	id newValue = [change objectForKey:NSKeyValueChangeNewKey];
+	if (oldValue == [NSNull null])
+		oldValue = nil;
+	if (newValue == [NSNull null])
+		newValue = nil;
 	
 	if (object == [self library])
 	{
@@ -332,6 +336,15 @@ static INTAppController *sharedAppController = nil;
 				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionNoteUndoAction", @"Change Constitution Note undo action")];
 			else if ([keyPath isEqualToString:@"principles"])
 				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionPrinciplesUndoAction", @"Change Constitution Principles undo action")];
+		}
+		else if ([object isKindOfClass:[INTPrinciple class]])
+		{
+			if ([keyPath isEqualToString:@"label"])
+				[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleLabelUndoAction", @"Change Principle Label undo action")];
+			else if ([keyPath isEqualToString:@"explanation"])
+				[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleExplanationUndoAction", @"Change Principle Explanation undo action")];
+			else if ([keyPath isEqualToString:@"note"])
+				[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleNoteUndoAction", @"Change Principle Note undo action")];
 		}
 	}
 }
