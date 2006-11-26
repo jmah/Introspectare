@@ -67,6 +67,7 @@
 		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
 		282E92FA0A5E5806008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
 		282E92FB0A5E5806008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
+		28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org.playhaus.Introspectare.quickpick; sourceTree = "<group>"; };
 		284818640B17451B00EEAD7A /* INTEntriesHeaderView+INTProtectedMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntriesHeaderView+INTProtectedMethods.h"; sourceTree = "<group>"; };
 		284819C10B17567000EEAD7A /* INTEntriesHeaderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderCell.h; sourceTree = "<group>"; };
 		284819C20B17567000EEAD7A /* INTEntriesHeaderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesHeaderCell.m; sourceTree = "<group>"; };
@@ -235,6 +236,7 @@
 				282DD9D20A7398CA009E2AFB /* Inspector.nib */,
 				287031410A61607000A7F5A7 /* Introspectare.icns */,
 				28D707F70B18A1B100727436 /* Unread.tiff */,
+				28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
