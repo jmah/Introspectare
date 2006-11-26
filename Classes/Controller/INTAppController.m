@@ -17,6 +17,7 @@
 #import "INTConstitution.h"
 #import "INTPrinciple.h"
 #import "INTAnnotatedPrinciple.h"
+#import "INTAppController+INTBackupQuickPick.h"
 
 
 static INTAppController *sharedAppController = nil;
@@ -698,6 +699,13 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
+	if (![[NSFileManager defaultManager] fileExistsAtPath:[self introspectareBackupQuickPickDestinationPath]])
+	{
+		BOOL success = [self installIntrospetareBackupQuickPick];
+		if (!success)
+			NSLog(@"Error while attempting to install Introspectare Backup QuickPick");
+	}
+	
 	[self showDays:self];
 }
 

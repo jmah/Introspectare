@@ -22,6 +22,8 @@
 		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
 		282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */; };
 		282E92FC0A5E5806008EDF1F /* INTPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E92FB0A5E5806008EDF1F /* INTPrinciple.m */; };
+		28469F490B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m in Sources */ = {isa = PBXBuildFile; fileRef = 28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */; };
+		28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */ = {isa = PBXBuildFile; fileRef = 28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */; };
 		284819C30B17567000EEAD7A /* INTEntriesHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 284819C20B17567000EEAD7A /* INTEntriesHeaderCell.m */; };
 		285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 285EE8610B11E795002F8B5A /* INTEntriesView.m */; };
 		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
@@ -68,6 +70,8 @@
 		282E92FA0A5E5806008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
 		282E92FB0A5E5806008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
 		28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org.playhaus.Introspectare.quickpick; sourceTree = "<group>"; };
+		28469F470B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTAppController+INTBackupQuickPick.h"; sourceTree = "<group>"; };
+		28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTAppController+INTBackupQuickPick.m"; sourceTree = "<group>"; };
 		284818640B17451B00EEAD7A /* INTEntriesHeaderView+INTProtectedMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntriesHeaderView+INTProtectedMethods.h"; sourceTree = "<group>"; };
 		284819C10B17567000EEAD7A /* INTEntriesHeaderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderCell.h; sourceTree = "<group>"; };
 		284819C20B17567000EEAD7A /* INTEntriesHeaderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesHeaderCell.m; sourceTree = "<group>"; };
@@ -167,6 +171,8 @@
 			children = (
 				28E65A2E0A5A926B00DE0C5A /* INTAppController.h */,
 				28E65A2F0A5A926B00DE0C5A /* INTAppController.m */,
+				28469F470B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.h */,
+				28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */,
 				2801827A0A5FBAC9007288D3 /* INTEntriesController.h */,
 				2801827B0A5FBAC9007288D3 /* INTEntriesController.m */,
 				282E91390A5C1002008EDF1F /* INTConstitutionsController.h */,
@@ -344,6 +350,7 @@
 				287031420A61607000A7F5A7 /* Introspectare.icns in Resources */,
 				282DD9D40A7398CA009E2AFB /* Inspector.nib in Resources */,
 				28D707F80B18A1B100727436 /* Unread.tiff in Resources */,
+				28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,6 +381,7 @@
 				28DB60AE0B15D56700A3E81D /* INTEntriesHeaderView.m in Sources */,
 				284819C30B17567000EEAD7A /* INTEntriesHeaderCell.m in Sources */,
 				28D7089F0B18B26500727436 /* NSIndexSet+INTAdditions.m in Sources */,
+				28469F490B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -464,7 +472,7 @@
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -474,7 +482,7 @@
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;
