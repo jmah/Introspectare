@@ -1376,17 +1376,18 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 - (float)widthForConstitution:(INTConstitution *)constitution // INTEntriesView (INTProtectedMethods)
 {
-	float width = [(INTEntriesHeaderView *)[self headerView] headerWidthForConstitution:constitution];
+	float maxCellWidth = 0.0;
 	NSCell *cell = [self principleLabelCell];
 	NSEnumerator *principles = [[constitution principles] objectEnumerator];
 	INTPrinciple *principle;
 	while ((principle = [principles nextObject]))
 	{
 		[cell setStringValue:[principle label]];
-		float cellWidth = [cell cellSize].width + 2.0f * INTPrincipleLabelXPadding;
-		width = fmaxf(width, cellWidth);
+		maxCellWidth = fmaxf(maxCellWidth, [cell cellSize].width);
 	}
-	return ceilf(width);
+	maxCellWidth += 2.0f * INTPrincipleLabelXPadding;
+	
+	return ceilf(MAX(maxCellWidth, [(INTEntriesHeaderView *)[self headerView] headerWidthForConstitution:constitution]));
 }
 
 
