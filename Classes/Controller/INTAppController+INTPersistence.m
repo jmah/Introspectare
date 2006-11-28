@@ -28,24 +28,23 @@
 
 
 // Attempts to create the data directory (if it does not already exist), and returns YES if creation succeeded and the data file is writable or createable.
-- (BOOL)ensureDataFileReadable:(NSError **)outError
+- (BOOL)ensureReadableFileAtPath:(NSString *)path error:(NSError **)outError
 {
 	BOOL success = NO;
 	
 	NSFileManager *fileManager = [NSFileManager defaultManager];
-	NSString *dataFolderPath = [self dataFolderPath];
-	NSString *dataFilePath = [dataFolderPath stringByAppendingPathComponent:[self dataFilename]];
+	NSString *folderPath = [path stringByDeletingLastPathComponent];
 	
 	// Check that the data folder exists
 	BOOL dataFolderIsDirectory = NO;
-	BOOL dataFolderExists = [fileManager fileExistsAtPath:dataFolderPath isDirectory:&dataFolderIsDirectory];
+	BOOL dataFolderExists = [fileManager fileExistsAtPath:folderPath isDirectory:&dataFolderIsDirectory];
 	if (!dataFolderExists)
-		dataFolderIsDirectory = [fileManager createDirectoryAtPath:dataFolderPath attributes:nil];
+		dataFolderIsDirectory = [fileManager createDirectoryAtPath:folderPath attributes:nil];
 	
 	if (!dataFolderIsDirectory)
 	{
 		NSString *errorDescription = NSLocalizedString(@"INTDataFolderCreationErrorDescription", @"Data folder creation error description");
-		NSString *recoverySuggestion = [NSString stringWithFormat:NSLocalizedString(@"INTDataFolderCreationErrorRecoverySuggestion", @"Data folder creation error recovery suggestion"), dataFolderPath];
+		NSString *recoverySuggestion = [NSString stringWithFormat:NSLocalizedString(@"INTDataFolderCreationErrorRecoverySuggestion", @"Data folder creation error recovery suggestion"), folderPath];
 		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
 			errorDescription, NSLocalizedDescriptionKey,
 			recoverySuggestion, NSLocalizedRecoverySuggestionErrorKey,
@@ -58,14 +57,14 @@
 	}
 	else
 	{
-		// There is a directory at dataFolderPath
+		// There is a directory at folderPath
 		BOOL dataFileIsDirectory = NO;
-		BOOL dataFileExists = [fileManager fileExistsAtPath:dataFilePath isDirectory:&dataFileIsDirectory];
+		BOOL dataFileExists = [fileManager fileExistsAtPath:path isDirectory:&dataFileIsDirectory];
 		if (dataFileExists && dataFileIsDirectory)
 		{
 			NSString *errorDescription = NSLocalizedString(@"INTDataFileIsDirectoryErrorDescription", @"Data file is directory error description");
 			NSString *failureReason = NSLocalizedString(@"INTDataFileIsDirectoryErrorFailureReason", @"Data file is directory error failure reason");
-			NSString *recoverySuggestion = [NSString stringWithFormat:NSLocalizedString(@"INTDataFileIsDirectoryErrorRecoverySuggestion", @"Data file is directory error recovery suggestion"), [self dataFilename], dataFilePath];
+			NSString *recoverySuggestion = [NSString stringWithFormat:NSLocalizedString(@"INTDataFileIsDirectoryErrorRecoverySuggestion", @"Data file is directory error recovery suggestion"), [path lastPathComponent], folderPath];
 			NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
 				errorDescription, NSLocalizedDescriptionKey,
 				failureReason, NSLocalizedFailureReasonErrorKey,
@@ -85,21 +84,20 @@
 }
 
 
-- (BOOL)loadData:(NSError **)outError
+- (BOOL)loadFromFile:(NSString *)path error:(NSError **)outError
 {
 	BOOL success = NO;
 	
-	BOOL dataFileIsReadable = [self ensureDataFileReadable:outError];
+	BOOL dataFileIsReadable = [self ensureReadableFileAtPath:path error:outError];
 	if (dataFileIsReadable)
 	{
-		NSString *dataFilePath = [[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]];
-		if ([[NSFileManager defaultManager] fileExistsAtPath:dataFilePath])
+		if ([[NSFileManager defaultManager] fileExistsAtPath:path])
 		{
 			INTLibrary *newLibrary = nil;
 			BOOL dataFileRaisedLoadError = NO;
 			@try
 			{
-				newLibrary = [[NSKeyedUnarchiver unarchiveObjectWithFile:dataFilePath] retain];
+				newLibrary = [[NSKeyedUnarchiver unarchiveObjectWithFile:path] retain];
 			}
 			@catch (NSException *e)
 			{
@@ -141,15 +139,14 @@
 }
 
 
-- (BOOL)saveData:(NSError **)outError
+- (BOOL)saveToFile:(NSString *)path error:(NSError **)outError
 {
 	BOOL success = NO;
 	
-	NSString *dataFilePath = [[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]];
-	BOOL dataFileIsReadable = [self ensureDataFileReadable:outError];
+	BOOL dataFileIsReadable = [self ensureReadableFileAtPath:path error:outError];
 	if (dataFileIsReadable)
 	{
-		if ([NSKeyedArchiver archiveRootObject:[self library] toFile:dataFilePath])
+		if ([NSKeyedArchiver archiveRootObject:[self library] toFile:path])
 			success = YES;
 		else
 		{

@@ -15,8 +15,8 @@
 #pragma mark Persistence
 - (NSString *)dataFolderPath;
 - (NSString *)dataFilename;
-- (BOOL)ensureDataFileReadable:(NSError **)outError;
-- (BOOL)loadData:(NSError **)outError;
-- (BOOL)saveData:(NSError **)outError;
+- (BOOL)ensureReadableFileAtPath:(NSString *)path error:(NSError **)outError;
+- (BOOL)loadFromFile:(NSString *)path error:(NSError **)outError;
+- (BOOL)saveToFile:(NSString *)path error:(NSError **)outError;
 
 @end

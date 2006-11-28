@@ -72,7 +72,8 @@ static INTAppController *sharedAppController = nil;
 - (void)awakeFromNib
 {
 	NSError *error = nil;
-	if (![self loadData:&error])
+	if (![self loadFromFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
+					  error:&error])
 		[NSApp presentError:error];
 }
 
@@ -455,7 +456,8 @@ static INTAppController *sharedAppController = nil;
 	if ([self commitEditing])
 	{
 		NSError *error = nil;
-		if (![self saveData:&error])
+		if (![self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
+						error:&error])
 			[NSApp presentError:error];
 	}
 }
@@ -465,7 +467,8 @@ static INTAppController *sharedAppController = nil;
 {
 	[self discardEditing];
 	NSError *error = nil;
-	if (![self loadData:&error])
+	if (![self loadFromFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
+					  error:&error])
 		[NSApp presentError:error];
 }
 
@@ -552,7 +555,8 @@ static INTAppController *sharedAppController = nil;
 	{
 		// Perform a save
 		NSError *saveError = nil;
-		BOOL didSave = [self saveData:&saveError];
+		BOOL didSave = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
+								  error:&saveError];
 		
 		if (didSave)
 			reply = NSTerminateNow;
