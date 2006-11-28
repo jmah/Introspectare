@@ -1122,8 +1122,6 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			
 			[[NSColor gridColor] set];
 			[NSBezierPath fillRect:NSMakeRect(currConstitutionWidth, NSMinY([self bounds]), [self intercellSpacing].height, NSHeight([self bounds]))];
-			for (float y = [self rowHeight]; y < NSHeight([self bounds]); y += [self rowHeight] + [self intercellSpacing].width)
-				[NSBezierPath fillRect:NSMakeRect(NSMinX([self bounds]), y, NSWidth([self bounds]), [self intercellSpacing].width)];
 			
 			[currConstitutionLabelsImage unlockFocus];
 		}
