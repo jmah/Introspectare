@@ -25,6 +25,11 @@
 		28469F490B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m in Sources */ = {isa = PBXBuildFile; fileRef = 28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */; };
 		28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */ = {isa = PBXBuildFile; fileRef = 28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */; };
 		284819C30B17567000EEAD7A /* INTEntriesHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 284819C20B17567000EEAD7A /* INTEntriesHeaderCell.m */; };
+		28574ADE0B1C636C0045FCF4 /* Schema.plist in Resources */ = {isa = PBXBuildFile; fileRef = 28574AD50B1C63510045FCF4 /* Schema.plist */; };
+		28574ADF0B1C636C0045FCF4 /* Schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28574AD20B1C63510045FCF4 /* Schema.strings */; };
+		28574AE40B1C63850045FCF4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
+		28574AF00B1C639C0045FCF4 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
+		28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */ = {isa = PBXBuildFile; fileRef = 28574ACB0B1C62F80045FCF4 /* Introspectare.syncschema */; };
 		285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 285EE8610B11E795002F8B5A /* INTEntriesView.m */; };
 		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */; };
@@ -40,6 +45,16 @@
 		28E65AA90A5A975500DE0C5A /* INTAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A2F0A5A926B00DE0C5A /* INTAppController.m */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		28574AFB0B1C63D90045FCF4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 28574ACA0B1C62F80045FCF4 /* Sync Schema */;
+			remoteInfo = "Sync Schema";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -75,6 +90,10 @@
 		284818640B17451B00EEAD7A /* INTEntriesHeaderView+INTProtectedMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntriesHeaderView+INTProtectedMethods.h"; sourceTree = "<group>"; };
 		284819C10B17567000EEAD7A /* INTEntriesHeaderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderCell.h; sourceTree = "<group>"; };
 		284819C20B17567000EEAD7A /* INTEntriesHeaderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesHeaderCell.m; sourceTree = "<group>"; };
+		28574ACB0B1C62F80045FCF4 /* Introspectare.syncschema */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Introspectare.syncschema; sourceTree = BUILT_PRODUCTS_DIR; };
+		28574AD30B1C63510045FCF4 /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Schema.strings; sourceTree = "<group>"; };
+		28574AD40B1C63510045FCF4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
+		28574AD50B1C63510045FCF4 /* Schema.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Schema.plist; sourceTree = "<group>"; };
 		285EE8600B11E795002F8B5A /* INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesView.h; sourceTree = "<group>"; };
 		285EE8610B11E795002F8B5A /* INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesView.m; sourceTree = "<group>"; };
 		287031410A61607000A7F5A7 /* Introspectare.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Introspectare.icns; sourceTree = "<group>"; };
@@ -120,6 +139,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		28574AC90B1C62F80045FCF4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28574AE40B1C63850045FCF4 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8D11072E0486CEB800E47090 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -135,8 +162,27 @@
 			isa = PBXGroup;
 			children = (
 				8D1107320486CEB800E47090 /* Introspectare.app */,
+				28574ACB0B1C62F80045FCF4 /* Introspectare.syncschema */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		28574AD00B1C63510045FCF4 /* Sync Schema */ = {
+			isa = PBXGroup;
+			children = (
+				28574AD10B1C63510045FCF4 /* Resources */,
+			);
+			path = "Sync Schema";
+			sourceTree = "<group>";
+		};
+		28574AD10B1C63510045FCF4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				28574AD40B1C63510045FCF4 /* Info.plist */,
+				28574AD50B1C63510045FCF4 /* Schema.plist */,
+				28574AD20B1C63510045FCF4 /* Schema.strings */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		28DB60DD0B15D85F00A3E81D /* Entries View */ = {
@@ -276,6 +322,7 @@
 				28E65A340A5A926B00DE0C5A /* Other Sources */,
 				28E65A370A5A926B00DE0C5A /* Resources */,
 				287031490A616EC500A7F5A7 /* Icons */,
+				28574AD00B1C63510045FCF4 /* Sync Schema */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -296,6 +343,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		28574ACA0B1C62F80045FCF4 /* Sync Schema */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 28574ACD0B1C62F80045FCF4 /* Build configuration list for PBXNativeTarget "Sync Schema" */;
+			buildPhases = (
+				28574AC70B1C62F80045FCF4 /* Resources */,
+				28574AC80B1C62F80045FCF4 /* Sources */,
+				28574AC90B1C62F80045FCF4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Sync Schema";
+			productName = "Sync Schema";
+			productReference = 28574ACB0B1C62F80045FCF4 /* Introspectare.syncschema */;
+			productType = "com.apple.product-type.bundle";
+		};
 		8D1107260486CEB800E47090 /* Introspectare */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 26FC0A840875C7B200E6366F /* Build configuration list for PBXNativeTarget "Introspectare" */;
@@ -307,6 +371,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				28574AFC0B1C63D90045FCF4 /* PBXTargetDependency */,
 			);
 			name = Introspectare;
 			productInstallPath = "$(HOME)/Applications";
@@ -332,11 +397,22 @@
 			projectDirPath = "";
 			targets = (
 				8D1107260486CEB800E47090 /* Introspectare */,
+				28574ACA0B1C62F80045FCF4 /* Sync Schema */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		28574AC70B1C62F80045FCF4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28574ADE0B1C636C0045FCF4 /* Schema.plist in Resources */,
+				28574ADF0B1C636C0045FCF4 /* Schema.strings in Resources */,
+				28574AF00B1C639C0045FCF4 /* Introspectare.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8D1107290486CEB800E47090 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -351,12 +427,20 @@
 				282DD9D40A7398CA009E2AFB /* Inspector.nib in Resources */,
 				28D707F80B18A1B100727436 /* Unread.tiff in Resources */,
 				28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */,
+				28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		28574AC80B1C62F80045FCF4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8D11072C0486CEB800E47090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -386,6 +470,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		28574AFC0B1C63D90045FCF4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 28574ACA0B1C62F80045FCF4 /* Sync Schema */;
+			targetProxy = 28574AFB0B1C63D90045FCF4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		280182480A5FB656007288D3 /* Entries.nib */ = {
@@ -418,6 +510,14 @@
 				282E91E30A5C1A93008EDF1F /* en */,
 			);
 			name = PrincipleLibrary.nib;
+			sourceTree = "<group>";
+		};
+		28574AD20B1C63510045FCF4 /* Schema.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				28574AD30B1C63510045FCF4 /* en */,
+			);
+			name = Schema.strings;
 			sourceTree = "<group>";
 		};
 		28BFA0CE0A5AD4510075D416 /* Constitutions.nib */ = {
@@ -487,6 +587,24 @@
 			};
 			name = Release;
 		};
+		28574ACE0B1C62F80045FCF4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Sync Schema/Resources/Info.plist";
+				PRODUCT_NAME = Introspectare;
+				WRAPPER_EXTENSION = syncschema;
+			};
+			name = Debug;
+		};
+		28574ACF0B1C62F80045FCF4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Sync Schema/Resources/Info.plist";
+				PRODUCT_NAME = Introspectare;
+				WRAPPER_EXTENSION = syncschema;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -504,6 +622,15 @@
 			buildConfigurations = (
 				26FC0A890875C7B200E6366F /* Debug */,
 				26FC0A8A0875C7B200E6366F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		28574ACD0B1C62F80045FCF4 /* Build configuration list for PBXNativeTarget "Sync Schema" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				28574ACE0B1C62F80045FCF4 /* Debug */,
+				28574ACF0B1C62F80045FCF4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
