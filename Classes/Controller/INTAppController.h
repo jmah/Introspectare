@@ -36,6 +36,7 @@
 
 #pragma mark Accessing Introspectare data
 - (INTLibrary *)library;
+- (void)setLibrary:(INTLibrary *)library;
 
 #pragma mark Managing undo and redo
 - (NSUndoManager *)undoManager;

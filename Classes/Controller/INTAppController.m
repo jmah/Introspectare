@@ -25,9 +25,6 @@ static INTAppController *sharedAppController = nil;
 
 @interface INTAppController (INTPrivateMethods)
 
-#pragma mark Accessing Introspectare data
-- (void)setLibrary:(INTLibrary *)library;
-
 #pragma mark Managing undo and redo
 - (void)changeKeyPath:(NSString *)keyPath ofObject:(id)object toValue:(id)newValue;
 
@@ -107,7 +104,7 @@ static INTAppController *sharedAppController = nil;
 }
 
 
-- (void)setLibrary:(INTLibrary *)library // INTAppController (INTPrivateMethods)
+- (void)setLibrary:(INTLibrary *)library
 {
 	INTLibrary *oldLibrary = INT_library;
 	
