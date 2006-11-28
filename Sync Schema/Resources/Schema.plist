@@ -74,6 +74,15 @@
 					</array>
 					<key>DeleteRule</key>
 					<string>nullify</string>
+					<key>InverseRelationships</key>
+					<array>
+						<dict>
+							<key>EntityName</key>
+							<string>org.playhaus.Introspectare.AnnotatedPrinciple</string>
+							<key>RelationshipName</key>
+							<string>entry</string>
+						</dict>
+					</array>
 				</dict>
 			</array>
 			<key>IdentityProperties</key>
