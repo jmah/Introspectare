@@ -45,12 +45,6 @@
 - (BOOL)commitEditing;
 - (void)discardEditing;
 
-#pragma mark Persistence
-- (NSString *)dataFolderPath;
-- (NSString *)dataFilename;
-- (BOOL)loadData:(NSError **)outError;
-- (BOOL)saveData:(NSError **)outError;
-
 #pragma mark Menu items
 - (NSString *)showHideInspectorMenuItemTitle;
 

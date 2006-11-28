@@ -30,6 +30,7 @@
 		28574AE40B1C63850045FCF4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 		28574AF00B1C639C0045FCF4 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */ = {isa = PBXBuildFile; fileRef = 28574ACB0B1C62F80045FCF4 /* Introspectare.syncschema */; };
+		28574B540B1C6C330045FCF4 /* INTAppController+INTPersistence.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574B530B1C6C330045FCF4 /* INTAppController+INTPersistence.m */; };
 		285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 285EE8610B11E795002F8B5A /* INTEntriesView.m */; };
 		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */; };
@@ -94,6 +95,8 @@
 		28574AD30B1C63510045FCF4 /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Schema.strings; sourceTree = "<group>"; };
 		28574AD40B1C63510045FCF4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
 		28574AD50B1C63510045FCF4 /* Schema.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Schema.plist; sourceTree = "<group>"; };
+		28574B520B1C6C330045FCF4 /* INTAppController+INTPersistence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTAppController+INTPersistence.h"; sourceTree = "<group>"; };
+		28574B530B1C6C330045FCF4 /* INTAppController+INTPersistence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTAppController+INTPersistence.m"; sourceTree = "<group>"; };
 		285EE8600B11E795002F8B5A /* INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesView.h; sourceTree = "<group>"; };
 		285EE8610B11E795002F8B5A /* INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesView.m; sourceTree = "<group>"; };
 		287031410A61607000A7F5A7 /* Introspectare.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Introspectare.icns; sourceTree = "<group>"; };
@@ -217,6 +220,8 @@
 			children = (
 				28E65A2E0A5A926B00DE0C5A /* INTAppController.h */,
 				28E65A2F0A5A926B00DE0C5A /* INTAppController.m */,
+				28574B520B1C6C330045FCF4 /* INTAppController+INTPersistence.h */,
+				28574B530B1C6C330045FCF4 /* INTAppController+INTPersistence.m */,
 				28469F470B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.h */,
 				28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */,
 				2801827A0A5FBAC9007288D3 /* INTEntriesController.h */,
@@ -466,6 +471,7 @@
 				284819C30B17567000EEAD7A /* INTEntriesHeaderCell.m in Sources */,
 				28D7089F0B18B26500727436 /* NSIndexSet+INTAdditions.m in Sources */,
 				28469F490B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m in Sources */,
+				28574B540B1C6C330045FCF4 /* INTAppController+INTPersistence.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
