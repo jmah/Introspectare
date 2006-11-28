@@ -539,7 +539,7 @@ static INTAppController *sharedAppController = nil;
 	{
 		BOOL success = [self installIntrospetareBackupQuickPick];
 		if (!success)
-			NSLog(@"Error while attempting to install Introspectare Backup QuickPick");
+			NSLog(@"Failed to install Introspectare Backup QuickPick");
 	}
 	
 	[self showDays:self];
