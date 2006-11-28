@@ -274,7 +274,7 @@ static INTAppController *sharedAppController = nil;
 	{
 		// Everything else is for undo management
 		NSKeyValueChange changeKind = [[change objectForKey:NSKeyValueChangeKindKey] intValue];
-		id settingValue = newValue;
+		id settingValue = oldValue;
 		
 		if (changeKind != NSKeyValueChangeSetting)
 		{
