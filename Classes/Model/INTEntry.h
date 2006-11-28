@@ -14,6 +14,7 @@
 @interface INTEntry : NSObject <NSCoding>
 {
 	@private
+	NSString *INT_uuid;
 	int INT_dayOfCommonEra;
 	NSDate *INT_cachedDate;
 	NSString *INT_note;
@@ -25,6 +26,9 @@
 
 #pragma mark Creating entries
 - (id)initWithDayOfCommonEra:(int)dayOfCommonEra constitution:(INTConstitution *)constitution; // Designated initializer
+
+#pragma mark Accessing the entry's unique identifier
+- (NSString *)uuid;
 
 #pragma mark Accessing the day
 - (int)dayOfCommonEra;

@@ -7,6 +7,7 @@
 //
 
 #import "INTPrinciple.h"
+#import "INTShared.h"
 
 
 @interface INTPrinciple (INTPrivateMethods)
@@ -25,6 +26,7 @@
 {
 	if ((self = [super init]))
 	{
+		INT_uuid = [INTGenerateUUID() retain];
 		[self setCreationDate:[NSDate date]];
 		[self setLabel:[NSString string]];
 		[self setExplanation:[NSString string]];
@@ -36,6 +38,7 @@
 
 - (void)dealloc
 {
+	[INT_uuid release], INT_uuid = nil;
 	[INT_creationDate release], INT_creationDate = nil;
 	[INT_label release], INT_label = nil;
 	[INT_explanation release], INT_explanation = nil;
@@ -54,6 +57,9 @@
 	{
 		if ((self = [super init]))
 		{
+			INT_uuid = [[decoder decodeObjectForKey:@"uuid"] retain];
+			if (!INT_uuid)
+				INT_uuid = [INTGenerateUUID() retain];
 			[self setCreationDate:[decoder decodeObjectForKey:@"creationDate"]];
 			[self setLabel:[decoder decodeObjectForKey:@"label"]];
 			[self setExplanation:[decoder decodeObjectForKey:@"explanation"]];
@@ -73,6 +79,7 @@
 {
 	if ([encoder allowsKeyedCoding])
 	{
+		[encoder encodeObject:[self uuid] forKey:@"uuid"];
 		[encoder encodeObject:[self creationDate] forKey:@"creationDate"];
 		[encoder encodeObject:[self label] forKey:@"label"];
 		[encoder encodeObject:[self explanation] forKey:@"explanation"];
@@ -90,6 +97,7 @@
 {
 	BOOL equal = NO;
 	if ([otherObject isMemberOfClass:[self class]] &&
+		[[otherObject uuid] isEqual:[self uuid]] &&
 		[[otherObject creationDate] isEqual:[self creationDate]] &&
 		[[otherObject label] isEqual:[self label]] &&
 		[[otherObject explanation] isEqual:[self explanation]] &&
@@ -102,6 +110,15 @@
 - (unsigned)hash
 {
 	return ([[self creationDate] hash] ^ [[self label] hash]);
+}
+
+
+
+#pragma mark Accessing the principles's unique identifier
+
+- (NSString *)uuid
+{
+	return INT_uuid;
 }
 
 

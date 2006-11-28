@@ -14,6 +14,7 @@
 @interface INTAnnotatedPrinciple : NSObject <NSCoding>
 {
 	@private
+	NSString *INT_uuid;
 	INTPrinciple *INT_principle;
 	BOOL INT_upheld;
 }
@@ -21,6 +22,9 @@
 
 #pragma mark Creating annotated principles
 - (id)initWithPrinciple:(INTPrinciple *)principle; // Designated initializer
+
+#pragma mark Accessing the annotated principles's unique identifier
+- (NSString *)uuid;
 
 #pragma mark Accessing the principle
 - (INTPrinciple *)principle;

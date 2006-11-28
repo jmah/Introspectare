@@ -18,3 +18,17 @@ NSString *INTErrorDomain = @"INTErrorDomain";
 #pragma mark Patseboard types
 
 NSString *INTPrincipleArrayDataType = @"INTPrincipleArrayDataType";
+
+
+#pragma mark Functions
+
+NSString *INTGenerateUUID()
+{
+	CFUUIDRef uuidRef = CFUUIDCreate(NULL);
+	CFStringRef uuidCFString = CFUUIDCreateString(NULL, uuidRef);
+	NSString *uuidString = [NSString stringWithString:(NSString *)uuidCFString];
+	CFRelease(uuidRef);
+	CFRelease(uuidCFString);
+	
+	return uuidString;
+}

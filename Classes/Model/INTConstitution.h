@@ -12,6 +12,7 @@
 @interface INTConstitution : NSObject <NSCoding>
 {
 	@private
+	NSString *INT_uuid;
 	NSDate *INT_creationDate;
 	NSString *INT_versionLabel;
 	NSString *INT_note;
@@ -21,6 +22,9 @@
 
 #pragma mark Creating constitutions
 - (id)init; // Designated initializer
+
+#pragma mark Accessing the constitution's unique identifier
+- (NSString *)uuid;
 
 #pragma mark Accessing attributes
 - (NSDate *)creationDate;

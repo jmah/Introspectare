@@ -7,6 +7,7 @@
 //
 
 #import "INTEntry.h"
+#import "INTShared.h"
 #import "INTConstitution.h"
 #import "INTPrinciple.h"
 #import "INTAnnotatedPrinciple.h"
@@ -20,6 +21,7 @@
 {
 	if ((self = [super init]))
 	{
+		INT_uuid = [INTGenerateUUID() retain];
 		INT_dayOfCommonEra = dayOfCommonEra;
 		INT_constitution = [constitution retain];
 		INT_note = [[NSString string] retain];
@@ -46,6 +48,7 @@
 
 - (void)dealloc
 {
+	[INT_uuid release], INT_uuid = nil;
 	[INT_note release], INT_note = nil;
 	[INT_constitution release], INT_constitution = nil;
 	[INT_annotatedPrinciples release], INT_annotatedPrinciples = nil;
@@ -65,6 +68,9 @@
 	{
 		if ((self = [super init]))
 		{
+			INT_uuid = [[decoder decodeObjectForKey:@"uuid"] retain];
+			if (!INT_uuid)
+				INT_uuid = [INTGenerateUUID() retain];
 			INT_dayOfCommonEra = [decoder decodeIntForKey:@"dayOfCommonEra"];
 			INT_note = [[decoder decodeObjectForKey:@"note"] retain];
 			INT_constitution = [[decoder decodeObjectForKey:@"constitution"] retain];
@@ -85,6 +91,7 @@
 {
 	if ([encoder allowsKeyedCoding])
 	{
+		[encoder encodeObject:[self uuid] forKey:@"uuid"];
 		[encoder encodeInt:[self dayOfCommonEra] forKey:@"dayOfCommonEra"];
 		[encoder encodeObject:[self note] forKey:@"note"];
 		[encoder encodeObject:[self constitution] forKey:@"constitution"];
@@ -104,6 +111,7 @@
 	BOOL equal = NO;
 	if ([otherObject isMemberOfClass:[self class]] &&
 		([otherObject dayOfCommonEra] == [self dayOfCommonEra]) &&
+		[[otherObject uuid] isEqual:[self uuid]] &&
 		[[otherObject note] isEqual:[self note]] &&
 		[[otherObject constitution] isEqual:[self constitution]] &&
 		[[otherObject annotatedPrinciples] isEqual:[self annotatedPrinciples]])
@@ -115,6 +123,15 @@
 - (unsigned)hash
 {
 	return ((unsigned)[self dayOfCommonEra] * 23);
+}
+
+
+
+#pragma mark Accessing the entry's unique identifier
+
+- (NSString *)uuid
+{
+	return INT_uuid;
 }
 
 

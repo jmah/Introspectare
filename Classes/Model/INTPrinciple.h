@@ -12,6 +12,7 @@
 @interface INTPrinciple : NSObject <NSCoding>
 {
 	@private
+	NSString *INT_uuid;
 	NSDate *INT_creationDate;
 	NSString *INT_label;
 	NSString *INT_explanation;
@@ -21,6 +22,9 @@
 
 #pragma mark Creating principles
 - (id)init; // Designated initializer
+
+#pragma mark Accessing the principles's unique identifier
+- (NSString *)uuid;
 
 #pragma mark Accessing attributes
 - (NSDate *)creationDate;

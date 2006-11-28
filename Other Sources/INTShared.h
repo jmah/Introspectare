@@ -26,3 +26,8 @@ enum {
 #pragma mark Pasteboard types
 
 extern NSString *INTPrincipleArrayDataType;
+
+
+#pragma mark Functions
+
+NSString *INTGenerateUUID(void);

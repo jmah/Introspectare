@@ -7,6 +7,7 @@
 //
 
 #import "INTConstitution.h"
+#import "INTShared.h"
 
 
 @interface INTConstitution (INTPrivateMethods)
@@ -25,6 +26,7 @@
 {
 	if ((self = [super init]))
 	{
+		INT_uuid = [INTGenerateUUID() retain];
 		[self setCreationDate:[NSDate date]];
 		[self setVersionLabel:[NSString string]];
 		[self setNote:[NSString string]];
@@ -36,6 +38,7 @@
 
 - (void)dealloc
 {
+	[INT_uuid release], INT_uuid = nil;
 	[INT_creationDate release], INT_creationDate = nil;
 	[INT_versionLabel release], INT_versionLabel = nil;
 	[INT_note release], INT_note = nil;
@@ -54,6 +57,9 @@
 	{
 		if ((self = [super init]))
 		{
+			INT_uuid = [[decoder decodeObjectForKey:@"uuid"] retain];
+			if (!INT_uuid)
+				INT_uuid = [INTGenerateUUID() retain];
 			[self setCreationDate:[decoder decodeObjectForKey:@"creationDate"]];
 			[self setVersionLabel:[decoder decodeObjectForKey:@"versionLabel"]];
 			[self setNote:[decoder decodeObjectForKey:@"note"]];
@@ -73,6 +79,7 @@
 {
 	if ([encoder allowsKeyedCoding])
 	{
+		[encoder encodeObject:[self uuid] forKey:@"uuid"];
 		[encoder encodeObject:[self creationDate] forKey:@"creationDate"];
 		[encoder encodeObject:[self versionLabel] forKey:@"versionLabel"];
 		[encoder encodeObject:[self note] forKey:@"note"];
@@ -90,6 +97,7 @@
 {
 	BOOL equal = NO;
 	if ([otherObject isMemberOfClass:[self class]] &&
+		[[otherObject uuid] isEqual:[self uuid]] &&
 		[[otherObject creationDate] isEqual:[self creationDate]] &&
 		[[otherObject versionLabel] isEqual:[self versionLabel]] &&
 		[[otherObject note] isEqual:[self note]] &&
@@ -102,6 +110,15 @@
 - (unsigned)hash
 {
 	return ([[self creationDate] hash] ^ [[self versionLabel] hash]);
+}
+
+
+
+#pragma mark Accessing the constitution's unique identifier
+
+- (NSString *)uuid
+{
+	return INT_uuid;
 }
 
 

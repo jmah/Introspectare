@@ -7,6 +7,7 @@
 //
 
 #import "INTAnnotatedPrinciple.h"
+#import "INTShared.h"
 #import "INTPrinciple.h"
 
 
@@ -18,6 +19,7 @@
 {
 	if ((self = [super init]))
 	{
+		INT_uuid = [INTGenerateUUID() retain];
 		INT_principle = [principle retain];
 		[self setUpheld:YES];
 	}
@@ -27,6 +29,7 @@
 
 - (void)dealloc
 {
+	[INT_uuid release], INT_uuid = nil;
 	[INT_principle release], INT_principle = nil;
 	
 	[super dealloc];
@@ -42,6 +45,9 @@
 	{
 		if ((self = [super init]))
 		{
+			INT_uuid = [[decoder decodeObjectForKey:@"uuid"] retain];
+			if (!INT_uuid)
+				INT_uuid = [INTGenerateUUID() retain];
 			INT_principle = [decoder decodeObjectForKey:@"principle"];
 			[self setUpheld:[decoder decodeBoolForKey:@"upheld"]];
 		}
@@ -59,6 +65,7 @@
 {
 	if ([encoder allowsKeyedCoding])
 	{
+		[encoder encodeObject:[self uuid] forKey:@"uuid"];
 		[encoder encodeObject:[self principle] forKey:@"principle"];
 		[encoder encodeBool:[self isUpheld] forKey:@"upheld"];
 	}
@@ -74,6 +81,7 @@
 {
 	BOOL equal = NO;
 	if ([otherObject isMemberOfClass:[self class]] &&
+		[[otherObject uuid] isEqual:[self uuid]] &&
 		[[otherObject principle] isEqual:[self principle]] &&
 		([otherObject isUpheld] == [self isUpheld]))
 		equal = YES;
@@ -87,6 +95,15 @@
 	if ([self isUpheld])
 		xorMask = 7;
 	return ([[self principle] hash] ^ xorMask);
+}
+
+
+
+#pragma mark Accessing the annotated principles's unique identifier
+
+- (NSString *)uuid
+{
+	return INT_uuid;
 }
 
 
