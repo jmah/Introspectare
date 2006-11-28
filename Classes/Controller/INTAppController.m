@@ -400,7 +400,7 @@ static INTAppController *sharedAppController = nil;
 
 - (BOOL)commitEditing
 {
-	return ((INT_entriesControler ?  [INT_entriesControler commitEditing] : YES) &&
+	return ((INT_entriesControler ? [INT_entriesControler commitEditing] : YES) &&
 			(INT_constitutionsController ? [INT_constitutionsController commitEditing] : YES) &&
 			(INT_principleLibraryController ? [INT_principleLibraryController commitEditing] : YES));
 }
