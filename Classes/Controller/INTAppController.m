@@ -431,7 +431,7 @@ static INTAppController *sharedAppController = nil;
 }
 
 
-- (NSString *)dataFileName
+- (NSString *)dataFilename
 {
 	return [NSUserName() stringByAppendingPathExtension:@"intspec"];
 }
@@ -447,7 +447,7 @@ static INTAppController *sharedAppController = nil;
 	
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSString *dataFolderPath = [self dataFolderPath];
-	NSString *dataFilePath = [dataFolderPath stringByAppendingPathComponent:[self dataFileName]];
+	NSString *dataFilePath = [dataFolderPath stringByAppendingPathComponent:[self dataFilename]];
 	
 	// Check that the data folder exists
 	BOOL dataFolderIsDirectory = NO;
@@ -478,7 +478,7 @@ static INTAppController *sharedAppController = nil;
 		{
 			NSString *errorDescription = NSLocalizedString(@"INTDataFileIsDirectoryErrorDescription", @"Data file is directory error description");
 			NSString *failureReason = NSLocalizedString(@"INTDataFileIsDirectoryErrorFailureReason", @"Data file is directory error failure reason");
-			NSString *recoverySuggestion = [NSString stringWithFormat:NSLocalizedString(@"INTDataFileIsDirectoryErrorRecoverySuggestion", @"Data file is directory error recovery suggestion"), [self dataFileName], dataFilePath];
+			NSString *recoverySuggestion = [NSString stringWithFormat:NSLocalizedString(@"INTDataFileIsDirectoryErrorRecoverySuggestion", @"Data file is directory error recovery suggestion"), [self dataFilename], dataFilePath];
 			NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
 				errorDescription, NSLocalizedDescriptionKey,
 				failureReason, NSLocalizedFailureReasonErrorKey,
@@ -505,7 +505,7 @@ static INTAppController *sharedAppController = nil;
 	BOOL dataFileIsReadable = [self ensureDataFileReadable:outError];
 	if (dataFileIsReadable)
 	{
-		NSString *dataFilePath = [[self dataFolderPath] stringByAppendingPathComponent:[self dataFileName]];
+		NSString *dataFilePath = [[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]];
 		if ([[NSFileManager defaultManager] fileExistsAtPath:dataFilePath])
 		{
 			INTLibrary *newLibrary = nil;
@@ -558,7 +558,7 @@ static INTAppController *sharedAppController = nil;
 {
 	BOOL success = NO;
 	
-	NSString *dataFilePath = [[self dataFolderPath] stringByAppendingPathComponent:[self dataFileName]];
+	NSString *dataFilePath = [[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]];
 	BOOL dataFileIsReadable = [self ensureDataFileReadable:outError];
 	if (dataFileIsReadable)
 	{
