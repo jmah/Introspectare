@@ -72,9 +72,9 @@
 			if (!INT_uuid)
 				INT_uuid = [INTGenerateUUID() retain];
 			INT_dayOfCommonEra = [decoder decodeIntForKey:@"dayOfCommonEra"];
-			INT_note = [[decoder decodeObjectForKey:@"note"] retain];
+			[self setNote:[decoder decodeObjectForKey:@"note"]];
 			INT_constitution = [[decoder decodeObjectForKey:@"constitution"] retain];
-			INT_unread = [decoder decodeBoolForKey:@"unread"];
+			[self setUnread:[decoder decodeBoolForKey:@"unread"]];
 			INT_annotatedPrinciples = [[decoder decodeObjectForKey:@"annotatedPrinciples"] retain];
 		}
 	}
@@ -163,6 +163,8 @@
 
 - (void)setNote:(NSString *)note
 {
+	if (!note)
+		note = [NSString string];
 	id oldValue = INT_note;
 	INT_note = [note copy];
 	[oldValue release];

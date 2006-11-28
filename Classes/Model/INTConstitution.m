@@ -147,6 +147,8 @@
 
 - (void)setVersionLabel:(NSString *)versionLabel
 {
+	if (!versionLabel)
+		versionLabel = [NSString string];
 	id oldValue = INT_versionLabel;
 	INT_versionLabel = [versionLabel copy];
 	[oldValue release];
@@ -161,6 +163,8 @@
 
 - (void)setNote:(NSString *)note
 {
+	if (!note)
+		note = [NSString string];
 	id oldValue = INT_note;
 	INT_note = [note copy];
 	[oldValue release];
@@ -175,6 +179,8 @@
 
 - (void)setPrinciples:(NSArray *)principles
 {
+	if (!principles)
+		principles = [NSArray array];
 	id oldValue = INT_principles;
 	INT_principles = [principles mutableCopy];
 	[oldValue release];

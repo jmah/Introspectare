@@ -147,6 +147,8 @@
 
 - (void)setLabel:(NSString *)label
 {
+	if (!label)
+		label = [NSString string];
 	id oldValue = INT_label;
 	INT_label = [label copy];
 	[oldValue release];
@@ -161,6 +163,8 @@
 
 - (void)setExplanation:(NSString *)explanation
 {
+	if (!explanation)
+		explanation = [NSString string];
 	id oldValue = INT_explanation;
 	INT_explanation = [explanation copy];
 	[oldValue release];
@@ -175,6 +179,8 @@
 
 - (void)setNote:(NSString *)note
 {
+	if (!note)
+		note = [NSString string];
 	id oldValue = INT_note;
 	INT_note = [note copy];
 	[oldValue release];

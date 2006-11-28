@@ -91,6 +91,8 @@
 
 - (void)setConstitutions:(NSArray *)constitutions
 {
+	if (!constitutions)
+		constitutions = [NSArray array];
 	id oldValue = INT_constitutions;
 	INT_constitutions = [constitutions copy];
 	[oldValue release];
@@ -128,6 +130,8 @@
 
 - (void)setPrinciples:(NSArray *)principles
 {
+	if (!principles)
+		principles = [NSArray array];
 	id oldValue = INT_principles;
 	INT_principles = [principles copy];
 	[oldValue release];
