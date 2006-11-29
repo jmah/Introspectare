@@ -17,7 +17,7 @@
 - (BOOL)registerSyncSchema;
 - (ISyncClient *)syncClient;
 - (void)registerForSyncNotifications;
-- (void)syncClient:(ISyncClient *)client mightWantToSynEntityNames:(NSArray *)entityNames;
+- (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames;
 - (NSDate *)lastSyncDate;
 - (void)sync;
 - (void)syncBeforeApplicationTerminates;

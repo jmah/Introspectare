@@ -68,11 +68,11 @@
 	ISyncClient *client = [self syncClient];
 	[client setShouldSynchronize:YES withClientsOfType:ISyncClientTypeApplication];
 	[client setShouldSynchronize:YES withClientsOfType:ISyncClientTypeServer];
-	[client setSyncAlertHandler:self selector:@selector(syncClient:mightWantToSynEntityNames:)];
+	[client setSyncAlertHandler:self selector:@selector(syncClient:mightWantToSyncEntityNames:)];
 }
 
 
-- (void)syncClient:(ISyncClient *)client mightWantToSynEntityNames:(NSArray *)entityNames
+- (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames
 {
 	if (![[self lastSyncDate] isEqual:[NSDate distantPast]])
 		[self sync];
