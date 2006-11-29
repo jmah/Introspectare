@@ -20,6 +20,9 @@
 #import "INTAnnotatedPrinciple+INTSyncServices.h"
 
 
+// NSUserDefaults keys
+NSString *INTSyncEnabledKey = @"INTSyncServices_SyncEnabled";
+
 static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 
@@ -192,6 +195,13 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	{
 		if (NSDebugEnabled)
 			NSLog(@"Not syncing because the sync schema was not registered");
+		return;
+	}
+	
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:INTSyncEnabledKey])
+	{
+		if (NSDebugEnabled)
+			NSLog(@"Not syncing because sync is not enabled in NSUserDefaults");
 		return;
 	}
 	

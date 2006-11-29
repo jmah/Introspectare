@@ -699,6 +699,9 @@ static INTAppController *sharedAppController = nil;
 	else
 		NSLog(@"Failed to register sync schema");
 	
+#warning Make this a user option, and ask when the data file doesn't exist
+	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:INTSyncEnabledKey];
+	
 	NSError *error = nil;
 	if (![self loadFromFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
 					  error:&error])

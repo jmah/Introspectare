@@ -11,6 +11,10 @@
 #import "INTAppController.h"
 
 
+// NSUserDefaults keys
+extern NSString *INTSyncEnabledKey; // Boolean value
+
+
 @interface INTAppController (INTSyncServices)
 
 #pragma mark Registering for sync
