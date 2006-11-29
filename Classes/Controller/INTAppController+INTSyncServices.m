@@ -370,8 +370,15 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	
 	// Prepare to pull
-	BOOL canPull = [session prepareToPullChangesForEntityNames:[INTEntityNameToClassNameMapping allKeys]
-													beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
+	BOOL canPull = NO;
+	@try
+	{
+		canPull = [session prepareToPullChangesForEntityNames:[INTEntityNameToClassNameMapping allKeys]
+												   beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
+	}
+	@catch (id e)
+	{
+	}
 	if ([session isCancelled])
 	{
 		NSLog(@"Sync session cancelled while waiting to pull changes");
@@ -507,7 +514,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	NSEnumerator *entityNamesEnumerator = [entityNames objectEnumerator];
 	NSString *entityName;
 	while ((entityName = [entityNamesEnumerator nextObject]))
-		[objects setObject:[self objectsForEntityName:entityName] forKey:entityName];
+		[objects setObject:[[[self objectsForEntityName:entityName] mutableCopy] autorelease] forKey:entityName];
 	return objects;
 }
 
