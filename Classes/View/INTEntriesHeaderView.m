@@ -301,7 +301,6 @@
 - (void)drawRect:(NSRect)rect // NSView
 {
 	float hh = [[self entriesView] headerHeight];
-	INT_constitutionLabelExtraWidth = 0.0f;
 	
 	[INT_toolTipStrings removeAllObjects];
 	[self removeAllToolTips];
@@ -328,6 +327,62 @@
 	float currMonthMinX = 0.0f;
 	
 	
+	// Run through once to find the constituion label extra width
+	{
+		INT_constitutionLabelExtraWidth = 0.0f;
+		
+		float currConstitutionMinX = 0.0f;
+		float currEntryMaxX = 0.0f;
+		float currEntryMinX = currEntryMaxX;
+		float prevConstitutionWidth = 0.0f;
+		float currConstitutionWidth = 0.0f;
+		INTConstitution *currConstitution = nil;
+		NSEnumerator *entries = [[[self entriesView] sortedEntries] objectEnumerator];
+		INTEntry *currEntry;
+		while ((currEntry = [entries nextObject]))
+		{
+			if ([currEntry constitution] != currConstitution)
+			{
+				BOOL hadPrevConstitution = (currConstitution != nil);
+				float prevConstitutionMinMinX = currConstitutionMinX;
+				float prevConstitutionMaxMinX = currEntryMaxX - [[self entriesView] columnWidth] - prevConstitutionWidth;
+				
+				currConstitution = [currEntry constitution];
+				currConstitutionMinX = currEntryMaxX;
+				currConstitutionWidth = [[self entriesView] widthForConstitution:currConstitution] + [[self entriesView] intercellSpacing].width;
+				currEntryMaxX += currConstitutionWidth;
+				
+				if (hadPrevConstitution)
+				{
+					float prevDisplayMinX = NSMinX([self visibleRect]);
+					prevDisplayMinX = MAX(prevConstitutionMinMinX, prevDisplayMinX);
+					prevDisplayMinX = MIN(prevConstitutionMaxMinX, prevDisplayMinX);
+					
+					if (prevDisplayMinX == NSMinX([self visibleRect]))
+					{
+						INT_constitutionLabelExtraWidth = prevConstitutionWidth;
+						break;
+					}
+				}
+				
+				prevConstitutionWidth = currConstitutionWidth;
+			}
+			currEntryMinX = currEntryMaxX;
+			currEntryMaxX += [[self entriesView] columnWidth] + [[self entriesView] intercellSpacing].width;
+		}
+		if (currConstitution && (INT_constitutionLabelExtraWidth == 0.0f))
+		{
+			float currDisplayMinX = NSMinX([self visibleRect]);
+			currDisplayMinX = MAX(currConstitutionMinX, currDisplayMinX);
+			currDisplayMinX = MIN(currEntryMaxX - [[self entriesView] columnWidth] - currConstitutionWidth, currDisplayMinX);
+			
+			if (currDisplayMinX == NSMinX([self visibleRect]))
+				INT_constitutionLabelExtraWidth = currConstitutionWidth;
+		}
+	}
+	
+	
+	// Now do the actual drawing
 	INTConstitution *currConstitution = nil;
 	NSImage *currConstitutionLabelsImage = nil;
 	float currConstitutionMinX = 0.0f;
@@ -366,7 +421,6 @@
 			[[NSColor whiteColor] set];
 			NSRectFill(NSMakeRect(0.0f, 0.0f, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
 			
-			// Constitution is on-screen
 			INTEntriesHeaderCell *cell = [INT_headerCell copy];
 			[cell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6f]];
 			[cell setTextColor:[NSColor whiteColor]];
@@ -502,9 +556,6 @@
 		NSImage *image = [constitutionLabel objectForKey:@"image"];
 		[image compositeToPoint:NSMakePoint(minX, NSMaxY([self bounds]))
 					  operation:NSCompositeSourceOver];
-		
-		if (minX == NSMinX([self visibleRect]))
-			INT_constitutionLabelExtraWidth = [image size].width;
 	}
 	
 	[constitutionLabels release];
