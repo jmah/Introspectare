@@ -334,6 +334,9 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		[self beginObservingEntries:entries];
 		[INT_observedEntries release], INT_observedEntries = [entries copy];
 		
+		[self updateFrameSize], INT_needsToUpdateFrameSize = NO;
+		[self setNeedsDisplay:YES];
+		
 		if ([observableController isKindOfClass:[NSArrayController class]])
 		{
 			NSArrayController *ac = (NSArrayController *)observableController;
@@ -343,9 +346,6 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			if (![self infoForBinding:@"selectionIndexes"])
 				[self bind:@"selectionIndexes" toObject:ac withKeyPath:@"selectionIndexes" options:nil];
 		}
-		
-		INT_needsToUpdateFrameSize = YES;
-		[self setNeedsDisplay:YES];
 	}
 	else
 		[super bind:binding toObject:observableController withKeyPath:keyPath options:options];
