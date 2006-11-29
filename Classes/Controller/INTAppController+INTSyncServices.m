@@ -18,6 +18,9 @@
 #import "INTAnnotatedPrinciple+INTSyncServices.h"
 
 
+static NSDictionary *INTEntityNameToClassNameMapping = nil;
+
+
 @interface INTAppController (INTSyncServicesPrivateMethods)
 
 #pragma mark Accessing sync status
@@ -35,17 +38,32 @@
 
 #pragma mark Sync helper methods
 - (NSArray *)objectsForEntityName:(NSString *)entityName;
+- (NSDictionary *)objectsForEntityNames:(NSArray *)entityNames;
 - (void)removeAllObjectsForEntityName:(NSString *)entityName;
 - (NSDictionary *)recordForObject:(id)object entityName:(NSString *)entityName;
 - (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName;
-- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName unresolvedRelationships:(NSArray *)unresolvedRelationships;
 - (BOOL)handleSyncChange:(ISyncChange *)change forEntityName:(NSString *)entityName newRecordIdentifier:(NSString **)outRecordIdentifier unresolvedRelationships:(NSArray **)outUnresolvedRelationships;
-- (BOOL)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping;
+- (void)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping;
 
 @end
 
 
 @implementation INTAppController (INTSyncServices)
+
+#pragma mark Initialization
+
++ (void)initialize
+{
+	if (!INTEntityNameToClassNameMapping)
+		INTEntityNameToClassNameMapping = [[NSDictionary alloc] initWithObjectsAndKeys:
+			@"INTEntry", @"org.playhaus.Introspectare.Entry",
+			@"INTConstitution", @"org.playhaus.Introspectare.Constitution",
+			@"INTPrinciple", @"org.playhaus.Introspectare.Principle",
+			@"INTAnnotatedPrinciple", @"org.playhaus.Introspectare.AnnotatedPrinciple",
+			nil];
+}
+
+
 
 #pragma mark Registering for sync
 
@@ -156,30 +174,21 @@
 {
 	INT_isSyncing = YES;
 	[[self undoManager] disableUndoRegistration];
+	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Syncing"]];
 	
 	// Display progress window
-	NSWindow *sheet = nil;
 	NSModalSession modalSession = NULL;
 	if (displayProgress)
 	{
 		[syncProgressIndicator setIndeterminate:YES];
-		if (([[NSApp orderedWindows] count] > 0) && [[[NSApp orderedWindows] objectAtIndex:0] isVisible])
-		{
-			sheet = syncProgressPanel;
-			[NSApp beginSheet:syncProgressPanel
-			   modalForWindow:[[NSApp orderedWindows] objectAtIndex:0]
-				modalDelegate:nil
-			   didEndSelector:NULL
-				  contextInfo:NULL];
-		}
-		else
-		{
-			modalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
-			[NSApp runModalSession:modalSession];
-		}
-		[syncProgressPanel display];
+		modalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
+		[syncProgressPanel makeKeyAndOrderFront:nil];
+		[NSApp runModalSession:modalSession];
 		[syncProgressIndicator startAnimation:nil];
 	}
+	
+	// Store all objects that might be synced
+	INT_syncObjectsByEntities = [self objectsForEntityNames:[INTEntityNameToClassNameMapping allKeys]];
 		
 	// Sync!
 	@try
@@ -188,20 +197,21 @@
 	}
 	@catch (id e)
 	{
-		NSLog(@"Caught exception %@", e);
+		NSLog(@"Exception while syncing: %@", e);
 	}
+	
+	INT_syncObjectsByEntities = nil;
 	
 	// Close progress window
 	if (displayProgress)
 	{
 		[syncProgressIndicator stopAnimation:nil];
-		if (sheet)
-			[NSApp endSheet:sheet];
-		else
-			[NSApp endModalSession:modalSession];
+		[NSApp endModalSession:modalSession];
 		[syncProgressPanel orderOut:nil];
 	}
 	
+	// Have to change icon back on next run loop cycle
+	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Introspectare"]];
 	[[self undoManager] enableUndoRegistration];
 	INT_isSyncing = NO;
 }
@@ -215,12 +225,15 @@
 	BOOL didSave = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:backupFilename] error:NULL];
 	if (!didSave)
 	{
-		NSLog(@"Not synching because data was could not be saved");
+		NSLog(@"Not synching because data backup could not be saved");
 		return;
 	}
 	
 	if (![[ISyncManager sharedManager] isEnabled])
+	{
+		NSLog(@"Not synching because sync server is unavailable");
 		return;
+	}
 	
 	ISyncClient *client = [self syncClient];
 	if (!client)
@@ -230,21 +243,13 @@
 	}
 	
 	
+	// Refresh sync if the data file doesn't extyist
 	BOOL shouldRefreshSync = NO;
-	
-	// Refresh sync if the data file doesn't exist
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]])
 		shouldRefreshSync = YES;
 	
-	
-	NSDictionary *entityNameToClassNameMapping = [NSDictionary dictionaryWithObjectsAndKeys:
-		@"INTEntry", @"org.playhaus.Introspectare.Entry",
-		@"INTConstitution", @"org.playhaus.Introspectare.Constitution",
-		@"INTPrinciple", @"org.playhaus.Introspectare.Principle",
-		@"INTAnnotatedPrinciple", @"org.playhaus.Introspectare.AnnotatedPrinciple",
-		nil];
 	ISyncSession *session = [ISyncSession beginSessionWithClient:client 
-													 entityNames:[entityNameToClassNameMapping allKeys]
+													 entityNames:[INTEntityNameToClassNameMapping allKeys]
 													  beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
 	if (!session)
 	{
@@ -253,17 +258,17 @@
 	}
 	
 	if (shouldRefreshSync)
-		[session clientDidResetEntityNames:[entityNameToClassNameMapping allKeys]];
+		[session clientDidResetEntityNames:[INTEntityNameToClassNameMapping allKeys]];
 	else if ([[self lastSyncDate] isEqual:[NSDate distantPast]])
 		// Never synced before
-		[session clientWantsToPushAllRecordsForEntityNames:[entityNameToClassNameMapping allKeys]];
+		[session clientWantsToPushAllRecordsForEntityNames:[INTEntityNameToClassNameMapping allKeys]];
 	
 	
 	// Push the truth
 	{
 		// Count the number of records we are pushing to give an accurate progress count
 		unsigned totalRecords = 0;
-		NSEnumerator *preflightEntityNamesEnumerator = [[entityNameToClassNameMapping allKeys] objectEnumerator];
+		NSEnumerator *preflightEntityNamesEnumerator = [[INTEntityNameToClassNameMapping allKeys] objectEnumerator];
 		NSString *preflightEntityName;
 		while ((preflightEntityName = [preflightEntityNamesEnumerator nextObject]))
 		{
@@ -275,7 +280,7 @@
 				else
 				{
 					// Fast sync
-					NSString *targetClassName = [entityNameToClassNameMapping objectForKey:preflightEntityName];
+					NSString *targetClassName = [INTEntityNameToClassNameMapping objectForKey:preflightEntityName];
 					totalRecords += [[INT_objectsChangedSinceLastSync objectForKey:targetClassName] count];
 					totalRecords += [[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] count];
 				}
@@ -285,11 +290,11 @@
 		[syncProgressIndicator setMaxValue:totalRecords];
 		[syncProgressIndicator setDoubleValue:0.0];
 		[syncProgressIndicator setIndeterminate:NO];
-		
+		[syncProgressIndicator display];
 		
 		
 		// Actually push the records
-		NSEnumerator *entityNamesEnumerator = [[entityNameToClassNameMapping allKeys] objectEnumerator];
+		NSEnumerator *entityNamesEnumerator = [[INTEntityNameToClassNameMapping allKeys] objectEnumerator];
 		NSString *entityName;
 		while ((entityName = [entityNamesEnumerator nextObject]))
 		{
@@ -303,8 +308,7 @@
 					while ((localObject = [localObjects nextObject]))
 					{
 						NSDictionary *record = [self recordForObject:localObject entityName:entityName];
-						[session pushChangesFromRecord:record
-										withIdentifier:[localObject uuid]];
+						[session pushChangesFromRecord:record withIdentifier:[localObject uuid]];
 						[syncProgressIndicator incrementBy:1.0];
 						[syncProgressIndicator display];
 					}
@@ -312,15 +316,14 @@
 				else
 				{
 					// Fast sync
-					NSString *targetClassName = [entityNameToClassNameMapping objectForKey:entityName];
+					NSString *targetClassName = [INTEntityNameToClassNameMapping objectForKey:entityName];
 					
 					NSEnumerator *changedObjects = [[INT_objectsChangedSinceLastSync objectForKey:targetClassName] objectEnumerator];
 					id object;
 					while ((object = [changedObjects nextObject]))
 					{
 						NSDictionary *record = [self recordForObject:object entityName:entityName];
-						[session pushChangesFromRecord:record
-										withIdentifier:[object uuid]];
+						[session pushChangesFromRecord:record withIdentifier:[object uuid]];
 						[syncProgressIndicator incrementBy:1.0];
 						[syncProgressIndicator display];
 					}
@@ -345,6 +348,7 @@
 	
 	// Push complete
 	[syncProgressIndicator setIndeterminate:YES];
+	[syncProgressIndicator display];
 	[syncProgressIndicator startAnimation:nil];
 	[self setLastSyncDate:[NSDate date]];
 	
@@ -356,7 +360,7 @@
 	
 	
 	// Prepare to pull
-	BOOL canPull = [session prepareToPullChangesForEntityNames:[entityNameToClassNameMapping allKeys]
+	BOOL canPull = [session prepareToPullChangesForEntityNames:[INTEntityNameToClassNameMapping allKeys]
 													beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
 	if ([session isCancelled])
 	{
@@ -372,18 +376,11 @@
 	
 	
 	// Pull the truth
-	/*
-	 * Hold unresolved principles in an array. Other unresolved objects will
-	 * reside in the unresolvedRelationships array of dictionaries, but
-	 * principles have no relationships. Thus there needs to be another way to
-	 * obtain a reference to one of these principles.
-	 */
-	INT_unresolvedPrinciples = [[NSMutableArray alloc] init];
-	NSMutableArray *allUnresolvedRelationships = [[NSMutableArray alloc] init];
-	NSMutableDictionary *recordIdentifierMapping = [[NSMutableDictionary alloc] init];
+	NSMutableArray *allUnresolvedRelationships = [NSMutableArray array];
+	NSMutableDictionary *recordIdentifierMapping = [NSMutableDictionary dictionary];
 	{
 		unsigned changeCount = 0;
-		NSEnumerator *entityNamesEnumerator = [[entityNameToClassNameMapping allKeys] objectEnumerator];
+		NSEnumerator *entityNamesEnumerator = [[INTEntityNameToClassNameMapping allKeys] objectEnumerator];
 		NSString *entityName;
 		while ((entityName = [entityNamesEnumerator nextObject]))
 		{
@@ -411,11 +408,11 @@
 				{
 					if (unresolvedRelationships)
 						[allUnresolvedRelationships addObjectsFromArray:unresolvedRelationships];
+					[recordIdentifierMapping setObject:newRecordIdentifier
+												forKey:recordIdentifier];
 					[session clientAcceptedChangesForRecordWithIdentifier:recordIdentifier
 														  formattedRecord:nil
 													  newRecordIdentifier:newRecordIdentifier];
-					[recordIdentifierMapping setObject:newRecordIdentifier
-												forKey:recordIdentifier];
 				}
 				else
 					[session clientRefusedChangesForRecordWithIdentifier:recordIdentifier];
@@ -424,26 +421,38 @@
 		NSLog(@"Pulled %d changes. %d unresolved relationships, %d identifier mappings", changeCount, [allUnresolvedRelationships count], [recordIdentifierMapping count]);
 	}
 	
-	BOOL didResolveAllRelationships = [self resolveRelationships:allUnresolvedRelationships
-									 withRecordIdentifierMapping:recordIdentifierMapping];
-	if (!didResolveAllRelationships)
-		NSLog(@"Unable to resolve all relationships!");
-	
-	[allUnresolvedRelationships release];
-	[recordIdentifierMapping release];
-	[INT_unresolvedPrinciples release], INT_unresolvedPrinciples = nil;
-	
-	BOOL didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
-									 error:NULL];
-	if (didSaveChanges)
+	BOOL didResolveAllRelationships = NO;
+	@try
 	{
-		[session clientCommittedAcceptedChanges];
-		[session finishSyncing];
+		[self resolveRelationships:allUnresolvedRelationships withRecordIdentifierMapping:recordIdentifierMapping];
+		didResolveAllRelationships = YES;
+	}
+	@catch (id e)
+	{
+		NSLog(@"Exception while resolving relationships: %@", e);
+	}
+	
+	BOOL didSaveChanges = NO;
+	if (didResolveAllRelationships)
+	{
+		didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
+									error:NULL];
+		if (didSaveChanges)
+		{
+			[session clientCommittedAcceptedChanges];
+			[session finishSyncing];
+		}
+		else
+		{
+			NSLog(@"Could not save synchronized changes");
+			[session cancelSyncing];
+		}
 	}
 	else
 	{
-		NSLog(@"Could not save synchronized changes");
+		NSLog(@"Failed to resolve all relationships. Reverting to backup of data before sync");
 		[session cancelSyncing];
+		[self loadFromFile:backupFilename error:NULL];
 	}
 }
 
@@ -453,34 +462,43 @@
 
 - (NSArray *)objectsForEntityName:(NSString *)entityName // INTAppController (INTSyncServicesPrivateMethods)
 {
-	if ([entityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
-		return [[[self library] entries] allObjects];
+	NSArray *objects = nil;
+	
+	if (INT_syncObjectsByEntities)
+		objects = [INT_syncObjectsByEntities objectForKey:entityName];
+	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
+		objects = [[[self library] entries] allObjects];
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Constitution"])
-		return [[self library] constitutions];
+		objects = [[self library] constitutions];
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Principle"])
-	{
-		NSArray *constitutionPrinciples = [[[self library] valueForKeyPath:@"constitutions.principles"] flattenedArray];
-		if (INT_unresolvedPrinciples)
-			return [INT_unresolvedPrinciples arrayByAddingObjectsFromArray:constitutionPrinciples];
-		else
-			return constitutionPrinciples;
-	}
+		objects = [[[self library] valueForKeyPath:@"constitutions.principles"] flattenedArray];
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.AnnotatedPrinciple"])
-		return [[[self library] valueForKeyPath:@"entries.annotatedPrinciples"] flattenedArray];
+		objects = [[[self library] valueForKeyPath:@"entries.annotatedPrinciples"] flattenedArray];
 	else
-	{
-		NSLog(@"-[INTAppController objectsForEntityName:] Unknown entity name: \"%@\"", entityName);
-		return [NSArray array];
-	}
+		[NSException raise:NSInvalidArgumentException
+					format:@"-[INTAppController objectsForEntityName:] Unknown entity name: \"%@\"", entityName];
+	return objects;
+}
+
+
+- (NSDictionary *)objectsForEntityNames:(NSArray *)entityNames // INTAppController (INTSyncServicesPrivateMethods)
+{
+	NSMutableDictionary *objects = [NSMutableDictionary dictionaryWithCapacity:[entityNames count]];
+	NSEnumerator *entityNamesEnumerator = [entityNames objectEnumerator];
+	NSString *entityName;
+	while ((entityName = [entityNamesEnumerator nextObject]))
+		[objects setObject:[self objectsForEntityName:entityName] forKey:entityName];
+	return objects;
 }
 
 
 - (void)removeAllObjectsForEntityName:(NSString *)entityName // INTAppController (INTSyncServicesPrivateMethods)
 {
+	if (INT_syncObjectsByEntities)
+		[[INT_syncObjectsByEntities objectForKey:entityName] removeAllObjects];
+	
 	if ([entityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
-	{
 		[[self library] setEntries:[NSSet set]];
-	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Constitution"])
 	{
 		[[self library] setConstitutions:[NSArray array]];
@@ -491,30 +509,14 @@
 	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Principle"])
 	{
-		NSEnumerator *constitutions = [[[self library] constitutions] objectEnumerator];
-		INTConstitution *constitution;
-		while ((constitution = [constitutions nextObject]))
-			[constitution setPrinciples:[NSArray array]];
-		
-		NSEnumerator *entries = [[[self library] entries] objectEnumerator];
-		INTEntry *entry;
-		while ((entry = [entries nextObject]))
-		{
-			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
-			INTAnnotatedPrinciple *annotatedPrinciple;
-			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
-				[annotatedPrinciple setPrinciple:nil];
-		}
+		[[[self library] constitutions] makeObjectsPerformSelector:@selector(setPrinciples:) withObject:[NSArray array]];
+		[[[[self library] valueForKeyPath:@"entries.annotatedPrinciples"] flattenedArray] makeObjectsPerformSelector:@selector(setPrinciple:) withObject:nil];
 	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.AnnotatedPrinciple"])
-	{
-		NSEnumerator *entries = [[[self library] entries] objectEnumerator];
-		INTEntry *entry;
-		while ((entry = [entries nextObject]))
-			[entry setAnnotatedPrinciples:[NSArray array]];
-	}
+		[[[self library] entries] makeObjectsPerformSelector:@selector(setAnnotatedPrinciples:) withObject:[NSArray array]];
 	else
-		NSLog(@"-[INTAppController removeAllObjectsForEntityName:] Unknown entity name: \"%@\"", entityName);
+		[NSException raise:NSInvalidArgumentException
+					format:@"-[INTAppController removeAllObjectsForEntityName:] Unknown entity name: \"%@\"", entityName];
 }
 
 
@@ -524,11 +526,7 @@
 	
 	if ([entityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
 	{
-		NSArray *keys = [NSArray arrayWithObjects:
-			@"dayOfCommonEra",
-			@"unread",
-			@"note",
-			nil];
+		NSArray *keys = [NSArray arrayWithObjects:@"dayOfCommonEra", @"unread", @"note", nil];
 		[record addEntriesFromDictionary:[object dictionaryWithValuesForKeys:keys]];
 		[record setObject:[NSArray arrayWithObject:[[object constitution] uuid]]
 				   forKey:@"constitution"];
@@ -537,30 +535,19 @@
 	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Constitution"])
 	{
-		NSArray *keys = [NSArray arrayWithObjects:
-			@"versionLabel",
-			@"creationDate",
-			@"note",
-			nil];
+		NSArray *keys = [NSArray arrayWithObjects:@"versionLabel", @"creationDate", @"note", nil];
 		[record addEntriesFromDictionary:[object dictionaryWithValuesForKeys:keys]];
 		[record setObject:[object valueForKeyPath:@"principles.uuid"] 
 				   forKey:@"principles"];
 	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Principle"])
 	{
-		NSArray *keys = [NSArray arrayWithObjects:
-			@"label",
-			@"explanation",
-			@"creationDate",
-			@"note",
-			nil];
+		NSArray *keys = [NSArray arrayWithObjects:@"label", @"explanation", @"creationDate", @"note", nil];
 		[record addEntriesFromDictionary:[object dictionaryWithValuesForKeys:keys]];
 	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.AnnotatedPrinciple"])
 	{
-		NSArray *keys = [NSArray arrayWithObjects:
-			@"upheld",
-			nil];
+		NSArray *keys = [NSArray arrayWithObjects:@"upheld", nil];
 		[record addEntriesFromDictionary:[object dictionaryWithValuesForKeys:keys]];
 		[record setObject:[NSArray arrayWithObject:[[object principle] uuid]]
 				   forKey:@"principle"];
@@ -575,16 +562,11 @@
 			[record setObject:[NSArray arrayWithObject:[entry uuid]]
 					   forKey:@"entry"];
 		else
-		{
-			NSLog(@"Could not find entry for annotated principle");
-			record = nil;
-		}
+			[NSException raise:NSInternalInconsistencyException format:@"Could not find entry containing annotated principle"];
 	}
 	else
-	{
-		NSLog(@"-[INTAppController syncRecordForObject:entityName:] Unknown entity name: \"%@\"", entityName);
-		record = nil;
-	}
+		[NSException raise:NSInvalidArgumentException
+					format:@"-[INTAppController syncRecordForObject:entityName:] Unknown entity name: \"%@\"", entityName];
 	
 	return record;
 }
@@ -602,24 +584,6 @@
 }
 
 
-- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName unresolvedRelationships:(NSArray *)unresolvedRelationships // INTAppController (INTSyncServicesPrivateMethods)
-{
-	id object = [self objectWithRecordIdentifier:identifier entityName:entityName];
-	if (!object)
-	{
-		NSEnumerator *unresolvedRelationshipsEnumerator = [unresolvedRelationships objectEnumerator];
-		NSDictionary *unresolvedRelationship;
-		while (!object && (unresolvedRelationship = [unresolvedRelationshipsEnumerator nextObject]))
-		{
-			if ([[unresolvedRelationship objectForKey:@"entityName"] isEqual:entityName] &&
-				[[[unresolvedRelationship objectForKey:@"object"] uuid] isEqual:identifier])
-				object = [unresolvedRelationship objectForKey:@"object"];
-		}
-	}
-	return object;
-}
-
-
 - (BOOL)handleSyncChange:(ISyncChange *)change forEntityName:(NSString *)entityName newRecordIdentifier:(NSString **)outRecordIdentifier unresolvedRelationships:(NSArray **)outUnresolvedRelationships // INTAppController (INTSyncServicesPrivateMethods)
 {
 	BOOL success = NO;
@@ -633,54 +597,58 @@
 		{
 			// Find day of common era
 			int dayOfCommonEra = [[[change record] objectForKey:@"dayOfCommonEra"] intValue];
-			entry = [[INTEntry alloc] initWithDayOfCommonEra:dayOfCommonEra];
+			entry = [[[INTEntry alloc] initWithDayOfCommonEra:dayOfCommonEra] autorelease];
 			[[self library] addEntriesObject:entry];
+			[[INT_syncObjectsByEntities objectForKey:entityName] addObject:entry];
 		}
 		else
 			entry = [self objectWithRecordIdentifier:[change recordIdentifier] entityName:entityName];
 		
-		if (!entry)
-			NSLog(@"Couldn't get entry for change");
+		NSAssert(entry != nil, @"Couldn't get entry for change");
+		
+		if ([change type] == ISyncChangeTypeDelete)
+		{
+			if (outRecordIdentifier)
+				*outRecordIdentifier = nil;
+			[[self library] removeEntriesObject:entry];
+			[[INT_syncObjectsByEntities objectForKey:entityName] removeObject:entry];
+		}
 		else
 		{
 			if (outRecordIdentifier)
 				*outRecordIdentifier = [entry uuid];
 			
-			if ([change type] == ISyncChangeTypeDelete)
-				[[self library] removeEntriesObject:entry];
-			else
+			// Process changes
+			NSEnumerator *changes = [[change changes] objectEnumerator];
+			NSDictionary *currChange;
+			while ((currChange = [changes nextObject]))
 			{
-				// Process changes
-				NSEnumerator *changes = [[change changes] objectEnumerator];
-				NSDictionary *currChange;
-				while ((currChange = [changes nextObject]))
+				NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
+				id value = [currChange objectForKey:ISyncChangePropertyValueKey];
+				
+				if ([key isEqual:@"dayOfCommonEra"] && !([value isEqual:[entry valueForKey:key]] && [[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet]))
 				{
-					NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
-					id value = [currChange objectForKey:ISyncChangePropertyValueKey];
-					
-					if ([key isEqual:@"dayOfCommonEra"] && !([value isEqual:[entry valueForKey:key]] && [[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet]))
-					{
-						NSLog(@"Attempted to change day of common era of entry %@ from %d to %d, ignoring this changeset", entry, [entry dayOfCommonEra], [value intValue]);
-						return NO;
-					}
-					
-					if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
-					{
-						if ([key isEqual:@"unread"] || [key isEqual:@"note"])
-							[entry setValue:value forKey:key];
-						else if ([key isEqual:@"constitution"] || [key isEqual:@"annotatedPrinciples"])
-							[unresolved addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-								entry, @"object",
-								entityName, @"entityName",
-								key, @"key",
-								value, @"valueIdentifiers",
-								nil]];
-						else if (![key isEqual:@"dayOfCommonEra"] && ![key isEqual:@"com.apple.syncservices.RecordEntityName"])
-							NSLog(@"Unhandled key for %@: %@", entry, key);
-					}
-					else
-						[entry setValue:nil forKey:key];
+					NSLog(@"Attempted to change day of common era of entry %@ from %d to %d, ignoring this changeset", entry, [entry dayOfCommonEra], [value intValue]);
+					return NO;
 				}
+				
+				if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
+				{
+					if ([key isEqual:@"unread"] || [key isEqual:@"note"])
+						[entry setValue:value forKey:key];
+					else if ([key isEqual:@"constitution"] || [key isEqual:@"annotatedPrinciples"])
+						[unresolved addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							entry, @"object",
+							entityName, @"entityName",
+							key, @"key",
+							value, @"valueIdentifiers",
+							nil]];
+					else if (![key isEqual:@"dayOfCommonEra"] && ![key isEqual:@"com.apple.syncservices.RecordEntityName"])
+						[NSException raise:NSGenericException
+									format:@"Unhandled key for %@: %@", entry, key];
+				}
+				else
+					[entry setValue:nil forKey:key];
 			}
 			
 			success = YES;
@@ -694,50 +662,54 @@
 		{
 			constitution = [[[INTConstitution alloc] init] autorelease];
 			[[[self library] mutableArrayValueForKey:@"constitutions"] addObject:constitution];
+			[[INT_syncObjectsByEntities objectForKey:entityName] addObject:constitution];
 		}
 		else
 			constitution = [self objectWithRecordIdentifier:[change recordIdentifier] entityName:entityName];
 		
-		if (!constitution)
-			NSLog(@"Couldn't get constitution for change");
+		NSAssert(constitution != nil, @"Couldn't get constitution for change");
+		
+		if ([change type] == ISyncChangeTypeDelete)
+		{
+			if (outRecordIdentifier)
+				*outRecordIdentifier = nil;
+			[[[self library] mutableArrayValueForKey:@"constitutions"] removeObject:constitution];
+			[[INT_syncObjectsByEntities objectForKey:entityName] removeObject:constitution];
+		}
 		else
 		{
 			if (outRecordIdentifier)
 				*outRecordIdentifier = [constitution uuid];
 			
-			if ([change type] == ISyncChangeTypeDelete)
-				[[[self library] mutableArrayValueForKey:@"constitutions"] removeObject:constitution];
-			else
+			// Process changes
+			NSEnumerator *changes = [[change changes] objectEnumerator];
+			NSDictionary *currChange;
+			while ((currChange = [changes nextObject]))
 			{
-				// Process changes
-				NSEnumerator *changes = [[change changes] objectEnumerator];
-				NSDictionary *currChange;
-				while ((currChange = [changes nextObject]))
+				NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
+				if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
 				{
-					NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
-					if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
-					{
-						id value = [currChange objectForKey:ISyncChangePropertyValueKey];
-						
-						if ([key isEqual:@"versionLabel"] || [key isEqual:@"creationDate"] || [key isEqual:@"note"])
-							[constitution setValue:value forKey:key];
-						else if ([key isEqual:@"principles"])
-							[unresolved addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-								constitution, @"object",
-								entityName, @"entityName",
-								key, @"key",
-								value, @"valueIdentifiers",
-								nil]];
-						else if (![key isEqual:@"com.apple.syncservices.RecordEntityName"])
-							NSLog(@"Unhandled key for %@: %@", constitution, key);
-					}
-					else
-						[constitution setValue:nil forKey:key];
+					id value = [currChange objectForKey:ISyncChangePropertyValueKey];
+					
+					if ([key isEqual:@"versionLabel"] || [key isEqual:@"creationDate"] || [key isEqual:@"note"])
+						[constitution setValue:value forKey:key];
+					else if ([key isEqual:@"principles"])
+						[unresolved addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							constitution, @"object",
+							entityName, @"entityName",
+							key, @"key",
+							value, @"valueIdentifiers",
+							nil]];
+					else if (![key isEqual:@"com.apple.syncservices.RecordEntityName"])
+						[NSException raise:NSGenericException
+									format:@"Unhandled key for %@: %@", constitution, key];
 				}
+				else
+					[constitution setValue:nil forKey:key];
 			}
-			
-			success = YES;
 		}
+		
+		success = YES;
 	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Principle"])
 	{
@@ -746,111 +718,109 @@
 		if ([change type] == ISyncChangeTypeAdd)
 		{
 			principle = [[[INTPrinciple alloc] init] autorelease];
-			[INT_unresolvedPrinciples addObject:principle];
+			[[INT_syncObjectsByEntities objectForKey:entityName] addObject:principle];
 		}
 		else
 			principle = [self objectWithRecordIdentifier:[change recordIdentifier] entityName:entityName];
 		
-		if (!principle)
-			NSLog(@"Couldn't get principle for change");
+		NSAssert(principle != nil, @"Couldn't get principle for change");
+		
+		if ([change type] == ISyncChangeTypeDelete)
+		{
+			if (outRecordIdentifier)
+				*outRecordIdentifier = nil;
+			[[[self library] mutableArrayValueForKey:@"principles"] removeObject:principle];
+			[[INT_syncObjectsByEntities objectForKey:entityName] removeObject:principle];
+		}
 		else
 		{
 			if (outRecordIdentifier)
 				*outRecordIdentifier = [principle uuid];
 			
-			if ([change type] == ISyncChangeTypeDelete)
-				[[[self library] mutableArrayValueForKey:@"principles"] removeObject:principle];
-			else
+			// Process changes
+			NSEnumerator *changes = [[change changes] objectEnumerator];
+			NSDictionary *currChange;
+			while ((currChange = [changes nextObject]))
 			{
-				// Process changes
-				NSEnumerator *changes = [[change changes] objectEnumerator];
-				NSDictionary *currChange;
-				while ((currChange = [changes nextObject]))
+				NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
+				if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
 				{
-					NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
-					if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
-					{
-						id value = [currChange objectForKey:ISyncChangePropertyValueKey];
-						
-						if ([key isEqual:@"label"] || [key isEqual:@"explanation"] || [key isEqual:@"creationDate"] || [key isEqual:@"note"])
-							[principle setValue:value forKey:key];
-						else if (![key isEqual:@"com.apple.syncservices.RecordEntityName"])
-							NSLog(@"Unhandled key for %@: %@", principle, key);
-					}
-					else
-						[principle setValue:nil forKey:key];
+					id value = [currChange objectForKey:ISyncChangePropertyValueKey];
+					
+					if ([key isEqual:@"label"] || [key isEqual:@"explanation"] || [key isEqual:@"creationDate"] || [key isEqual:@"note"])
+						[principle setValue:value forKey:key];
+					else if (![key isEqual:@"com.apple.syncservices.RecordEntityName"])
+						[NSException raise:NSGenericException
+									format:@"Unhandled key for %@: %@", principle, key];
 				}
+				else
+					[principle setValue:nil forKey:key];
 			}
-			
-			success = YES;
 		}
+		
+		success = YES;
 	}
 	else if ([entityName isEqualToString:@"org.playhaus.Introspectare.AnnotatedPrinciple"])
 	{
 		// Find or create the annotated principle
 		INTAnnotatedPrinciple *annotatedPrinciple = nil;
-		INTEntry *entry = nil;
 		if ([change type] == ISyncChangeTypeAdd)
-			annotatedPrinciple = [[[INTAnnotatedPrinciple alloc] initWithPrinciple:nil] autorelease];
-		else
 		{
-			// Find entry uuid
-			NSString *entryIdentifier = [[[change record] objectForKey:@"entry"] lastObject];
-			entry = [self objectWithRecordIdentifier:entryIdentifier entityName:@"org.playhaus.Introspectare.Entry"];
-			
-			// Don't use -objectWithRecordIdentifier:entityName: because it will search _all_ annotated principles. This is much faster
-			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
-			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
-				if ([[annotatedPrinciple uuid] isEqual:[change recordIdentifier]])
-					break;
-			
-			if (!annotatedPrinciple)
-				annotatedPrinciple = [self objectWithRecordIdentifier:entryIdentifier entityName:entityName];
+			annotatedPrinciple = [[[INTAnnotatedPrinciple alloc] initWithPrinciple:nil] autorelease];
+			[[INT_syncObjectsByEntities objectForKey:entityName] addObject:annotatedPrinciple];
 		}
+		else
+			annotatedPrinciple = [self objectWithRecordIdentifier:[change recordIdentifier] entityName:entityName];
 		
-		if (!annotatedPrinciple)
-			NSLog(@"Couldn't get annotatedPrinciples for change");
+		NSAssert(annotatedPrinciple != nil, @"Couldn't get annotatedPrinciples for change");
+		
+		if ([change type] == ISyncChangeTypeDelete)
+		{
+			if (outRecordIdentifier)
+				*outRecordIdentifier = nil;
+			NSString *entryIdentifier = [[[change record] objectForKey:@"entry"] lastObject];
+			INTEntry *entry = [self objectWithRecordIdentifier:entryIdentifier entityName:@"org.playhaus.Introspectare.Entry"];
+			[[entry mutableArrayValueForKey:@"annotatedPrinciples"] removeObject:annotatedPrinciple];
+			[[INT_syncObjectsByEntities objectForKey:entityName] removeObject:annotatedPrinciple];
+		}
 		else
 		{
 			if (outRecordIdentifier)
 				*outRecordIdentifier = [annotatedPrinciple uuid];
 			
-			if ([change type] == ISyncChangeTypeDelete)
-				[[entry mutableArrayValueForKey:@"annotatedPrinciples"] removeObject:annotatedPrinciple];
-			else
+			// Process changes
+			NSEnumerator *changes = [[change changes] objectEnumerator];
+			NSDictionary *currChange;
+			while ((currChange = [changes nextObject]))
 			{
-				// Process changes
-				NSEnumerator *changes = [[change changes] objectEnumerator];
-				NSDictionary *currChange;
-				while ((currChange = [changes nextObject]))
+				NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
+				if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
 				{
-					NSString *key = [currChange objectForKey:ISyncChangePropertyNameKey];
-					if ([[currChange objectForKey:ISyncChangePropertyActionKey] isEqual:ISyncChangePropertySet])
-					{
-						id value = [currChange objectForKey:ISyncChangePropertyValueKey];
-						
-						if ([key isEqual:@"upheld"])
-							[annotatedPrinciple setValue:value forKey:key];
-						else if ([key isEqual:@"principle"] || [key isEqual:@"entry"])
-							[unresolved addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-								annotatedPrinciple, @"object",
-								entityName, @"entityName",
-								key, @"key",
-								value, @"valueIdentifiers",
-								nil]];
-						else if (![key isEqual:@"com.apple.syncservices.RecordEntityName"])
-							NSLog(@"Unhandled key for %@: %@", annotatedPrinciple, key);
-					}
-					else
-						[annotatedPrinciple setValue:nil forKey:key];
+					id value = [currChange objectForKey:ISyncChangePropertyValueKey];
+					
+					if ([key isEqual:@"upheld"])
+						[annotatedPrinciple setValue:value forKey:key];
+					else if ([key isEqual:@"principle"] || [key isEqual:@"entry"])
+						[unresolved addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							annotatedPrinciple, @"object",
+							entityName, @"entityName",
+							key, @"key",
+							value, @"valueIdentifiers",
+							nil]];
+					else if (![key isEqual:@"com.apple.syncservices.RecordEntityName"])
+						[NSException raise:NSGenericException
+									format:@"Unhandled key for %@: %@", annotatedPrinciple, key];
 				}
+				else
+					[annotatedPrinciple setValue:nil forKey:key];
 			}
-			
-			success = YES;
 		}
+		
+		success = YES;
 	}
 	else
-		NSLog(@"-[INTAppController handleSyncChange:forEntityName:newRecordIdentifier:] Unknown entity name: \"%@\"", entityName);
+		[NSException raise:NSInvalidArgumentException
+					format:@"-[INTAppController handleSyncChange:forEntityName:newRecordIdentifier:] Unknown entity name: \"%@\"", entityName];
 	
 	if (outUnresolvedRelationships)
 		*outUnresolvedRelationships = unresolved;
@@ -859,9 +829,8 @@
 }
 
 
-- (BOOL)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping // INTAppController (INTSyncServicesPrivateMethods)
+- (void)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping // INTAppController (INTSyncServicesPrivateMethods)
 {
-	BOOL success = YES;
 	NSEnumerator *unresolvedRelationshipsEnumerator = [unresolvedRelationships objectEnumerator];
 	NSDictionary *unresolvedRelationship;
 	while ((unresolvedRelationship = [unresolvedRelationshipsEnumerator nextObject]))
@@ -903,16 +872,9 @@
 				NSString *annotatedPrincipleIdentifier;
 				while ((annotatedPrincipleIdentifier = [annotatedPrincipleIdentifiers nextObject]))
 				{
-					// The annotated principle is not yet connected, so it is probably (definitely?) among the unresolved relationships
 					INTAnnotatedPrinciple *annotatedPrinciple = [self objectWithRecordIdentifier:annotatedPrincipleIdentifier
-																					  entityName:@"org.playhaus.Introspectare.AnnotatedPrinciple"
-																		 unresolvedRelationships:unresolvedRelationships];
-					if (!annotatedPrinciple)
-					{
-						NSLog(@"Couldn't locate annotated principle");
-						success = NO;
-						continue;
-					}
+																					  entityName:@"org.playhaus.Introspectare.AnnotatedPrinciple"];
+					NSAssert(annotatedPrinciple != nil, @"Couldn't locate annotated principle");
 					
 					[annotatedPrinciples addObject:annotatedPrinciple];
 				}
@@ -920,7 +882,8 @@
 				[annotatedPrinciples release];
 			}
 			else
-				NSLog(@"Got an unknown unresolved relationship: %@", unresolvedRelationship);
+				[NSException raise:NSGenericException
+							format:@"Got an unknown unresolved relationship: %@", unresolvedRelationship];
 		}
 		else if ([entityName isEqualToString:@"org.playhaus.Introspectare.Constitution"])
 		{
@@ -932,16 +895,9 @@
 				NSString *principleIdentifier;
 				while ((principleIdentifier = [principleIdentifiers nextObject]))
 				{
-					// The principle is not yet connected, so it is probably (definitely?) among the unresolved relationships
 					INTPrinciple *principle = [self objectWithRecordIdentifier:principleIdentifier
-																	entityName:@"org.playhaus.Introspectare.Principle"
-													   unresolvedRelationships:unresolvedRelationships];
-					if (!principle)
-					{
-						NSLog(@"Couldn't locate principle");
-						success = NO;
-						continue;
-					}
+																	entityName:@"org.playhaus.Introspectare.Principle"];
+					NSAssert(principle != nil, @"Couldn't locate principle");
 					
 					[principles addObject:principle];
 				}
@@ -949,7 +905,8 @@
 				[principles release];
 			}
 			else
-				NSLog(@"Got an unknown unresolved relationship: %@", unresolvedRelationship);
+				[NSException raise:NSGenericException
+							format:@"Got an unknown unresolved relationship: %@", unresolvedRelationship];
 		}
 		else if ([entityName isEqualToString:@"org.playhaus.Introspectare.AnnotatedPrinciple"])
 		{
@@ -961,27 +918,20 @@
 			else if ([key isEqual:@"principle"])
 			{
 				NSString *principleIdentifier = [valueIdentifiers lastObject];
-				
-				// The principle may or may not be connected, so it may be among the unresolved relationships, or in the library
 				INTPrinciple *principle = [self objectWithRecordIdentifier:principleIdentifier
-																entityName:@"org.playhaus.Introspectare.Principle"
-												   unresolvedRelationships:unresolvedRelationships];
-				if (principle)
-					[annotatedPrinciple setPrinciple:principle];
-				else
-				{
-					NSLog(@"Couldn't locate principle");
-					success = NO;
-				}
+																entityName:@"org.playhaus.Introspectare.Principle"];
+				NSAssert(principle != nil, @"Couldn't locate principle");
+				
+				[annotatedPrinciple setPrinciple:principle];
 			}
 			else
-				NSLog(@"Got an unknown unresolved relationship: %@", unresolvedRelationship);
+				[NSException raise:NSGenericException
+							format:@"Got an unknown unresolved relationship: %@", unresolvedRelationship];
 		}
 		else
-			NSLog(@"-[INTAppController resolveRelationships:] Unknown entity name: \"%@\"", entityName);
+			[NSException raise:NSGenericException
+						format:@"-[INTAppController resolveRelationships:] Unknown entity name: \"%@\"", entityName];
 	}
-	
-	return success;
 }
 
 

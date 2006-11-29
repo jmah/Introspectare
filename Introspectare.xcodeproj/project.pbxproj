@@ -36,7 +36,6 @@
 		28574E260B1CC1120045FCF4 /* INTEntry+INTSyncServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574E250B1CC1120045FCF4 /* INTEntry+INTSyncServices.m */; };
 		28574E8F0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574E8E0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m */; };
 		28574ECE0B1CCF9B0045FCF4 /* INTFlattening.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574ECD0B1CCF9B0045FCF4 /* INTFlattening.m */; };
-		2857534E0B1D19110045FCF4 /* Sync Services.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2857534D0B1D19110045FCF4 /* Sync Services.icns */; };
 		285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 285EE8610B11E795002F8B5A /* INTEntriesView.m */; };
 		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */; };
@@ -49,6 +48,7 @@
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
 		28E65A400A5A926B00DE0C5A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A380A5A926B00DE0C5A /* InfoPlist.strings */; };
 		28E65A5E0A5A931E00DE0C5A /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A3A0A5A926B00DE0C5A /* MainMenu.nib */; };
+		28FDC16C0B1DCB17001EA54B /* Syncing.icns in Resources */ = {isa = PBXBuildFile; fileRef = 28FDC16B0B1DCB17001EA54B /* Syncing.icns */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -148,6 +148,7 @@
 		28E65A590A5A930500DE0C5A /* Metadata Importer Shared.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Metadata Importer Shared.xcconfig"; sourceTree = "<group>"; };
 		28E65A5A0A5A930500DE0C5A /* Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		28E65A5B0A5A930500DE0C5A /* SIMBL Plug-in Shared.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SIMBL Plug-in Shared.xcconfig"; sourceTree = "<group>"; };
+		28FDC16B0B1DCB17001EA54B /* Syncing.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Syncing.icns; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		77C82804067257F0000B614F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
@@ -312,6 +313,7 @@
 				282DD9D20A7398CA009E2AFB /* Inspector.nib */,
 				287031410A61607000A7F5A7 /* Introspectare.icns */,
 				2857534D0B1D19110045FCF4 /* Sync Services.icns */,
+				28FDC16B0B1DCB17001EA54B /* Syncing.icns */,
 				28D707F70B18A1B100727436 /* Unread.tiff */,
 				28574C240B1C84590045FCF4 /* ClientDescription.plist */,
 				28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */,
@@ -455,7 +457,7 @@
 				28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */,
 				28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */,
 				28574C250B1C84590045FCF4 /* ClientDescription.plist in Resources */,
-				2857534E0B1D19110045FCF4 /* Sync Services.icns in Resources */,
+				28FDC16C0B1DCB17001EA54B /* Syncing.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

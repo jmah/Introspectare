@@ -39,7 +39,7 @@
 	// INTSyncServices
 	BOOL INT_isSyncing;
 	NSDate *INT_lastSyncDate;
-	NSMutableArray *INT_unresolvedPrinciples;
+	NSDictionary *INT_syncObjectsByEntities;
 }
 
 
