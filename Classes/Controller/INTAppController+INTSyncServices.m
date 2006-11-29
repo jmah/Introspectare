@@ -121,13 +121,13 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 - (void)sync
 {
-	[self syncWithTimeout:2.0 pullChanges:YES forceSlowSync:NO displayProgressPanel:YES];
+	[self syncWithTimeout:10.0 pullChanges:YES forceSlowSync:NO displayProgressPanel:YES];
 }
 
 
 - (void)slowSync
 {
-	[self syncWithTimeout:2.0 pullChanges:YES forceSlowSync:YES displayProgressPanel:YES];
+	[self syncWithTimeout:10.0 pullChanges:YES forceSlowSync:YES displayProgressPanel:YES];
 }
 
 
