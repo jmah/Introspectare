@@ -31,7 +31,7 @@
 
 #pragma mark Performing sync operations
 - (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges displayProgressPanel:(BOOL)displayProgress;
-- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges;
+- (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges;
 
 #pragma mark Sync helper methods
 - (NSArray *)objectsForEntityName:(NSString *)entityName;
@@ -184,7 +184,7 @@
 	// Sync!
 	@try
 	{
-		[self syncWithTimeout:2.0 pullChanges:YES];
+		[self _syncWithTimeout:2.0 pullChanges:YES];
 	}
 	@catch (id e)
 	{
@@ -207,7 +207,7 @@
 }
 
 
-- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges // INTAppController (INTSyncServicesPrivateMethods)
+- (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges // INTAppController (INTSyncServicesPrivateMethods)
 {
 	// Save backup file
 	NSString *extension = [[self dataFilename] pathExtension];
