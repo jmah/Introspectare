@@ -12,7 +12,6 @@
 @class INTLibrary;
 @class INTEntriesController;
 @class INTConstitutionsController;
-@class INTPrincipleLibraryController;
 @class INTInspectorController;
 
 
@@ -24,10 +23,16 @@
 	
 	INTEntriesController *INT_entriesControler;
 	INTConstitutionsController *INT_constitutionsController;
-	INTPrincipleLibraryController *INT_principleLibraryController;
 	INTInspectorController *INT_inspectorController;
 	
 	NSString *INT_showHideInspectorMenuItemTitle;
+	
+	BOOL INT_isSyncing;
+	NSDate *INT_lastSyncDate;
+	BOOL INT_syncSchemaRegistered;
+	NSMutableArray *INT_unresolvedPrinciples;
+	NSMutableDictionary *INT_objectsChangedSinceLastSync;
+	NSMutableDictionary *INT_objectIdentifiersDeletedSinceLastSync;
 }
 
 
@@ -53,8 +58,8 @@
 - (IBAction)revert:(id)sender;
 - (IBAction)showDays:(id)sender;
 - (IBAction)showConstitutions:(id)sender;
-- (IBAction)showPrinciples:(id)sender;
 - (IBAction)showHideInspector:(id)sender;
 - (IBAction)showInspector:(id)sender;
+- (IBAction)synchronize:(id)sender;
 
 @end

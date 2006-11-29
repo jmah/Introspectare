@@ -19,8 +19,6 @@
 		282DDA2D0A73A79D009E2AFB /* INTActiveControlEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 282DDA2C0A73A79D009E2AFB /* INTActiveControlEnumerator.m */; };
 		282E913B0A5C1002008EDF1F /* INTConstitutionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */; };
 		282E91810A5C169F008EDF1F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 282E917F0A5C169F008EDF1F /* Localizable.strings */; };
-		282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */; };
-		282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */; };
 		282E92FC0A5E5806008EDF1F /* INTPrinciple.m in Sources */ = {isa = PBXBuildFile; fileRef = 282E92FB0A5E5806008EDF1F /* INTPrinciple.m */; };
 		28469F490B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m in Sources */ = {isa = PBXBuildFile; fileRef = 28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */; };
 		28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */ = {isa = PBXBuildFile; fileRef = 28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */; };
@@ -31,6 +29,13 @@
 		28574AF00B1C639C0045FCF4 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */ = {isa = PBXBuildFile; fileRef = 28574ACB0B1C62F80045FCF4 /* Introspectare.syncschema */; };
 		28574B540B1C6C330045FCF4 /* INTAppController+INTPersistence.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574B530B1C6C330045FCF4 /* INTAppController+INTPersistence.m */; };
+		28574B870B1C73070045FCF4 /* INTAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A2F0A5A926B00DE0C5A /* INTAppController.m */; };
+		28574C250B1C84590045FCF4 /* ClientDescription.plist in Resources */ = {isa = PBXBuildFile; fileRef = 28574C240B1C84590045FCF4 /* ClientDescription.plist */; };
+		28574CD30B1C99490045FCF4 /* INTAppController+INTSyncServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574B390B1C69160045FCF4 /* INTAppController+INTSyncServices.m */; };
+		28574D3E0B1CA4940045FCF4 /* SyncServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28574D3D0B1CA4940045FCF4 /* SyncServices.framework */; };
+		28574E260B1CC1120045FCF4 /* INTEntry+INTSyncServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574E250B1CC1120045FCF4 /* INTEntry+INTSyncServices.m */; };
+		28574E8F0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574E8E0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m */; };
+		28574ECE0B1CCF9B0045FCF4 /* INTFlattening.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574ECD0B1CCF9B0045FCF4 /* INTFlattening.m */; };
 		285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 285EE8610B11E795002F8B5A /* INTEntriesView.m */; };
 		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */; };
@@ -43,7 +48,6 @@
 		28E65A3F0A5A926B00DE0C5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A360A5A926B00DE0C5A /* main.m */; };
 		28E65A400A5A926B00DE0C5A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A380A5A926B00DE0C5A /* InfoPlist.strings */; };
 		28E65A5E0A5A931E00DE0C5A /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 28E65A3A0A5A926B00DE0C5A /* MainMenu.nib */; };
-		28E65AA90A5A975500DE0C5A /* INTAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28E65A2F0A5A926B00DE0C5A /* INTAppController.m */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -80,9 +84,6 @@
 		282E91390A5C1002008EDF1F /* INTConstitutionsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTConstitutionsController.h; sourceTree = "<group>"; };
 		282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTConstitutionsController.m; sourceTree = "<group>"; };
 		282E91800A5C169F008EDF1F /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		282E91E30A5C1A93008EDF1F /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = en.lproj/PrincipleLibrary.nib; sourceTree = "<group>"; };
-		282E91E50A5C1ABD008EDF1F /* INTPrincipleLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrincipleLibraryController.h; sourceTree = "<group>"; };
-		282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrincipleLibraryController.m; sourceTree = "<group>"; };
 		282E92FA0A5E5806008EDF1F /* INTPrinciple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTPrinciple.h; sourceTree = "<group>"; };
 		282E92FB0A5E5806008EDF1F /* INTPrinciple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTPrinciple.m; sourceTree = "<group>"; };
 		28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org.playhaus.Introspectare.quickpick; sourceTree = "<group>"; };
@@ -95,8 +96,18 @@
 		28574AD30B1C63510045FCF4 /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Schema.strings; sourceTree = "<group>"; };
 		28574AD40B1C63510045FCF4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
 		28574AD50B1C63510045FCF4 /* Schema.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Schema.plist; sourceTree = "<group>"; };
+		28574B380B1C69160045FCF4 /* INTAppController+INTSyncServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTAppController+INTSyncServices.h"; sourceTree = "<group>"; };
+		28574B390B1C69160045FCF4 /* INTAppController+INTSyncServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTAppController+INTSyncServices.m"; sourceTree = "<group>"; };
 		28574B520B1C6C330045FCF4 /* INTAppController+INTPersistence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTAppController+INTPersistence.h"; sourceTree = "<group>"; };
 		28574B530B1C6C330045FCF4 /* INTAppController+INTPersistence.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTAppController+INTPersistence.m"; sourceTree = "<group>"; };
+		28574C240B1C84590045FCF4 /* ClientDescription.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ClientDescription.plist; sourceTree = "<group>"; };
+		28574D3D0B1CA4940045FCF4 /* SyncServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SyncServices.framework; path = /System/Library/Frameworks/SyncServices.framework; sourceTree = "<absolute>"; };
+		28574E240B1CC1120045FCF4 /* INTEntry+INTSyncServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntry+INTSyncServices.h"; sourceTree = "<group>"; };
+		28574E250B1CC1120045FCF4 /* INTEntry+INTSyncServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTEntry+INTSyncServices.m"; sourceTree = "<group>"; };
+		28574E8D0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTAnnotatedPrinciple+INTSyncServices.h"; sourceTree = "<group>"; };
+		28574E8E0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTAnnotatedPrinciple+INTSyncServices.m"; sourceTree = "<group>"; };
+		28574ECC0B1CCF9B0045FCF4 /* INTFlattening.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTFlattening.h; sourceTree = "<group>"; };
+		28574ECD0B1CCF9B0045FCF4 /* INTFlattening.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTFlattening.m; sourceTree = "<group>"; };
 		285EE8600B11E795002F8B5A /* INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesView.h; sourceTree = "<group>"; };
 		285EE8610B11E795002F8B5A /* INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesView.m; sourceTree = "<group>"; };
 		287031410A61607000A7F5A7 /* Introspectare.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Introspectare.icns; sourceTree = "<group>"; };
@@ -155,6 +166,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
+				28574D3E0B1CA4940045FCF4 /* SyncServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,12 +236,12 @@
 				28574B530B1C6C330045FCF4 /* INTAppController+INTPersistence.m */,
 				28469F470B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.h */,
 				28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */,
+				28574B380B1C69160045FCF4 /* INTAppController+INTSyncServices.h */,
+				28574B390B1C69160045FCF4 /* INTAppController+INTSyncServices.m */,
 				2801827A0A5FBAC9007288D3 /* INTEntriesController.h */,
 				2801827B0A5FBAC9007288D3 /* INTEntriesController.m */,
 				282E91390A5C1002008EDF1F /* INTConstitutionsController.h */,
 				282E913A0A5C1002008EDF1F /* INTConstitutionsController.m */,
-				282E91E50A5C1ABD008EDF1F /* INTPrincipleLibraryController.h */,
-				282E91E60A5C1ABD008EDF1F /* INTPrincipleLibraryController.m */,
 				282DD9B70A7397D3009E2AFB /* INTInspectorController.h */,
 				282DD9B80A7397D3009E2AFB /* INTInspectorController.m */,
 			);
@@ -243,10 +255,14 @@
 				280082160A5E9ADF00A5D67E /* INTLibrary.m */,
 				2800823F0A5EA11F00A5D67E /* INTEntry.h */,
 				280082400A5EA11F00A5D67E /* INTEntry.m */,
+				28574E240B1CC1120045FCF4 /* INTEntry+INTSyncServices.h */,
+				28574E250B1CC1120045FCF4 /* INTEntry+INTSyncServices.m */,
 				282E92FA0A5E5806008EDF1F /* INTPrinciple.h */,
 				282E92FB0A5E5806008EDF1F /* INTPrinciple.m */,
 				280083A40A5ECA1300A5D67E /* INTAnnotatedPrinciple.h */,
 				280083A50A5ECA1300A5D67E /* INTAnnotatedPrinciple.m */,
+				28574E8D0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.h */,
+				28574E8E0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m */,
 				280081F70A5E948800A5D67E /* INTConstitution.h */,
 				280081F80A5E948800A5D67E /* INTConstitution.m */,
 				282DDA2B0A73A79D009E2AFB /* INTActiveControlEnumerator.h */,
@@ -276,6 +292,8 @@
 				28CEA7D40A5FCFBE0085ADA2 /* NSCalendarDate+INTAdditions.m */,
 				28D7089D0B18B26500727436 /* NSIndexSet+INTAdditions.h */,
 				28D7089E0B18B26500727436 /* NSIndexSet+INTAdditions.m */,
+				28574ECC0B1CCF9B0045FCF4 /* INTFlattening.h */,
+				28574ECD0B1CCF9B0045FCF4 /* INTFlattening.m */,
 			);
 			path = "Other Sources";
 			sourceTree = "<group>";
@@ -289,10 +307,10 @@
 				28E65A3A0A5A926B00DE0C5A /* MainMenu.nib */,
 				280182480A5FB656007288D3 /* Entries.nib */,
 				28BFA0CE0A5AD4510075D416 /* Constitutions.nib */,
-				282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */,
 				282DD9D20A7398CA009E2AFB /* Inspector.nib */,
 				287031410A61607000A7F5A7 /* Introspectare.icns */,
 				28D707F70B18A1B100727436 /* Unread.tiff */,
+				28574C240B1C84590045FCF4 /* ClientDescription.plist */,
 				28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */,
 			);
 			path = Resources;
@@ -341,6 +359,7 @@
 				77C82804067257F0000B614F /* CoreData.framework */,
 				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
 				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
+				28574D3D0B1CA4940045FCF4 /* SyncServices.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -426,13 +445,13 @@
 				28E65A5E0A5A931E00DE0C5A /* MainMenu.nib in Resources */,
 				28BFA0D00A5AD4510075D416 /* Constitutions.nib in Resources */,
 				282E91810A5C169F008EDF1F /* Localizable.strings in Resources */,
-				282E91E40A5C1A93008EDF1F /* PrincipleLibrary.nib in Resources */,
 				2801824A0A5FB656007288D3 /* Entries.nib in Resources */,
 				287031420A61607000A7F5A7 /* Introspectare.icns in Resources */,
 				282DD9D40A7398CA009E2AFB /* Inspector.nib in Resources */,
 				28D707F80B18A1B100727436 /* Unread.tiff in Resources */,
 				28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */,
 				28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */,
+				28574C250B1C84590045FCF4 /* ClientDescription.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,9 +470,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				28E65A3F0A5A926B00DE0C5A /* main.m in Sources */,
-				28E65AA90A5A975500DE0C5A /* INTAppController.m in Sources */,
 				282E913B0A5C1002008EDF1F /* INTConstitutionsController.m in Sources */,
-				282E91E70A5C1ABD008EDF1F /* INTPrincipleLibraryController.m in Sources */,
 				282E92FC0A5E5806008EDF1F /* INTPrinciple.m in Sources */,
 				280081F90A5E948800A5D67E /* INTConstitution.m in Sources */,
 				280082170A5E9ADF00A5D67E /* INTLibrary.m in Sources */,
@@ -472,6 +489,11 @@
 				28D7089F0B18B26500727436 /* NSIndexSet+INTAdditions.m in Sources */,
 				28469F490B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m in Sources */,
 				28574B540B1C6C330045FCF4 /* INTAppController+INTPersistence.m in Sources */,
+				28574B870B1C73070045FCF4 /* INTAppController.m in Sources */,
+				28574CD30B1C99490045FCF4 /* INTAppController+INTSyncServices.m in Sources */,
+				28574E260B1CC1120045FCF4 /* INTEntry+INTSyncServices.m in Sources */,
+				28574E8F0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m in Sources */,
+				28574ECE0B1CCF9B0045FCF4 /* INTFlattening.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,14 +530,6 @@
 				282E91800A5C169F008EDF1F /* en */,
 			);
 			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-		282E91E20A5C1A93008EDF1F /* PrincipleLibrary.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				282E91E30A5C1A93008EDF1F /* en */,
-			);
-			name = PrincipleLibrary.nib;
 			sourceTree = "<group>";
 		};
 		28574AD20B1C63510045FCF4 /* Schema.strings */ = {
@@ -577,8 +591,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
-				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_MARKETING_VERSION = 1.6;
+				CURRENT_PROJECT_VERSION = 13;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -587,8 +601,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
-				CURRENT_MARKETING_VERSION = 1.5;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_MARKETING_VERSION = 1.6;
+				CURRENT_PROJECT_VERSION = 13;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;

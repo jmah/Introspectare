@@ -9,10 +9,10 @@
 #import "INTAppController.h"
 #import "INTAppController+INTPersistence.h"
 #import "INTAppController+INTBackupQuickPick.h"
+#import "INTAppController+INTSyncServices.h"
 #import "INTShared.h"
 #import "INTEntriesController.h"
 #import "INTConstitutionsController.h"
-#import "INTPrincipleLibraryController.h"
 #import "INTInspectorController.h"
 #import "INTLibrary.h"
 #import "INTEntry.h"
@@ -28,6 +28,10 @@ static INTAppController *sharedAppController = nil;
 
 #pragma mark Managing undo and redo
 - (void)changeKeyPath:(NSString *)keyPath ofObject:(id)object toValue:(id)newValue;
+
+#pragma mark Tracking changed objects
+- (void)objectChanged:(id)object;
+- (void)objectDeleted:(id)object;
 
 #pragma mark Managing the inspector
 - (void)setShowHideInspectorMenuItemTitle:(NSString *)title;
@@ -61,6 +65,23 @@ static INTAppController *sharedAppController = nil;
 	{
 		[self setLibrary:[[[INTLibrary alloc] init] autorelease]];
 		INT_undoManager = [[NSUndoManager alloc] init];
+		INT_isSyncing = NO;
+		INT_lastSyncDate = [[NSDate distantPast] copy];
+		INT_syncSchemaRegistered = NO;
+		
+		INT_objectsChangedSinceLastSync = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+			[NSMutableSet set], @"INTEntry",
+			[NSMutableSet set], @"INTConstitution",
+			[NSMutableSet set], @"INTPrinciple",
+			[NSMutableSet set], @"INTAnnotatedPrinciple",
+			nil];
+		INT_objectIdentifiersDeletedSinceLastSync = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+			[NSMutableSet set], @"INTEntry",
+			[NSMutableSet set], @"INTConstitution",
+			[NSMutableSet set], @"INTPrinciple",
+			[NSMutableSet set], @"INTAnnotatedPrinciple",
+			nil];
+		
 		[self setShowHideInspectorMenuItemTitle:NSLocalizedString(@"INTShowInspectorMenuTitle", @"Show Inspector menu item")];
 		
 		sharedAppController = self;
@@ -87,8 +108,10 @@ static INTAppController *sharedAppController = nil;
 	[INT_showHideInspectorMenuItemTitle release], INT_showHideInspectorMenuItemTitle = nil;
 	[INT_entriesControler release], INT_entriesControler = nil;
 	[INT_constitutionsController release], INT_constitutionsController = nil;
-	[INT_principleLibraryController release], INT_principleLibraryController = nil;
 	[INT_inspectorController release], INT_inspectorController = nil;
+	[INT_lastSyncDate release], INT_lastSyncDate = nil;
+	[INT_objectsChangedSinceLastSync release], INT_objectsChangedSinceLastSync = nil;
+	[INT_objectIdentifiersDeletedSinceLastSync release], INT_objectIdentifiersDeletedSinceLastSync = nil;
 	
 	[super dealloc];
 }
@@ -119,6 +142,8 @@ static INTAppController *sharedAppController = nil;
 		{
 			[entry removeObserver:self forKeyPath:@"note"];
 			[entry removeObserver:self forKeyPath:@"unread"];
+			[entry removeObserver:self forKeyPath:@"annotatedPrinciples"];
+			
 			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
 			INTAnnotatedPrinciple *annotatedPrinciple;
 			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
@@ -132,17 +157,26 @@ static INTAppController *sharedAppController = nil;
 			[constitution removeObserver:self forKeyPath:@"versionLabel"];
 			[constitution removeObserver:self forKeyPath:@"note"];
 			[constitution removeObserver:self forKeyPath:@"principles"];
-		}
-		
-		NSEnumerator *principles = [[oldLibrary principles] objectEnumerator];
-		INTPrinciple *principle;
-		while ((principle = [principles nextObject]))
-		{
-			[principle removeObserver:self forKeyPath:@"label"];
-			[principle removeObserver:self forKeyPath:@"explanation"];
-			[principle removeObserver:self forKeyPath:@"note"];
+			
+			NSEnumerator *principles = [[constitution principles] objectEnumerator];
+			INTPrinciple *principle;
+			while ((principle = [principles nextObject]))
+			{
+				[principle removeObserver:self forKeyPath:@"label"];
+				[principle removeObserver:self forKeyPath:@"explanation"];
+				[principle removeObserver:self forKeyPath:@"note"];
+			}
 		}
 	}
+	
+	NSEnumerator *modifiedObjectClasses = [INT_objectsChangedSinceLastSync objectEnumerator];
+	NSMutableSet *modifiedObjects;
+	while ((modifiedObjects = [modifiedObjectClasses nextObject]))
+		[modifiedObjects removeAllObjects];
+	NSEnumerator *deletedObjectClasses = [INT_objectIdentifiersDeletedSinceLastSync objectEnumerator];
+	NSMutableSet *deletedObjects;
+	while ((deletedObjects = [deletedObjectClasses nextObject]))
+		[deletedObjects removeAllObjects];
 	
 	INT_library = [library retain];
 	[oldLibrary release];
@@ -161,6 +195,8 @@ static INTAppController *sharedAppController = nil;
 		{
 			[entry addObserver:self forKeyPath:@"note" options:options context:NULL];
 			[entry addObserver:self forKeyPath:@"unread" options:options context:NULL];
+			[entry addObserver:self forKeyPath:@"annotatedPrinciples" options:options context:NULL];
+			
 			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
 			INTAnnotatedPrinciple *annotatedPrinciple;
 			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
@@ -174,15 +210,15 @@ static INTAppController *sharedAppController = nil;
 			[constitution addObserver:self forKeyPath:@"versionLabel" options:options context:NULL];
 			[constitution addObserver:self forKeyPath:@"note" options:options context:NULL];
 			[constitution addObserver:self forKeyPath:@"principles" options:options context:NULL];
-		}
-		
-		NSEnumerator *principles = [[library principles] objectEnumerator];
-		INTPrinciple *principle;
-		while ((principle = [principles nextObject]))
-		{
-			[principle addObserver:self forKeyPath:@"label" options:options context:NULL];
-			[principle addObserver:self forKeyPath:@"explanation" options:options context:NULL];
-			[principle addObserver:self forKeyPath:@"note" options:options context:NULL];
+			
+			NSEnumerator *principles = [[constitution principles] objectEnumerator];
+			INTPrinciple *principle;
+			while ((principle = [principles nextObject]))
+			{
+				[principle addObserver:self forKeyPath:@"label" options:options context:NULL];
+				[principle addObserver:self forKeyPath:@"explanation" options:options context:NULL];
+				[principle addObserver:self forKeyPath:@"note" options:options context:NULL];
+			}
 		}
 	}
 }
@@ -200,6 +236,9 @@ static INTAppController *sharedAppController = nil;
 	if (newValue == [NSNull null])
 		newValue = nil;
 	
+	if (object != [self library])
+		[self objectChanged:object];
+	
 	NSKeyValueObservingOptions options = NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew;
 	if (object == [self library])
 	{
@@ -211,10 +250,16 @@ static INTAppController *sharedAppController = nil;
 			{
 				[oldEntry removeObserver:self forKeyPath:@"note"];
 				[oldEntry removeObserver:self forKeyPath:@"unread"];
+				[oldEntry removeObserver:self forKeyPath:@"annotatedPrinciples"];
+				[self objectDeleted:oldEntry];
+				
 				NSEnumerator *annotatedPrinciples = [[oldEntry annotatedPrinciples] objectEnumerator];
 				INTAnnotatedPrinciple *annotatedPrinciple;
 				while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+				{
 					[annotatedPrinciple removeObserver:self forKeyPath:@"upheld"];
+					[self objectDeleted:annotatedPrinciple];
+				}
 			}
 			
 			NSEnumerator *newEntries = [newValue objectEnumerator];
@@ -223,10 +268,16 @@ static INTAppController *sharedAppController = nil;
 			{
 				[newEntry addObserver:self forKeyPath:@"note" options:options context:NULL];
 				[newEntry addObserver:self forKeyPath:@"unread" options:options context:NULL];
+				[newEntry addObserver:self forKeyPath:@"annotatedPrinciples" options:options context:NULL];
+				[self objectChanged:newEntry];
+				
 				NSEnumerator *annotatedPrinciples = [[newEntry annotatedPrinciples] objectEnumerator];
 				INTAnnotatedPrinciple *annotatedPrinciple;
 				while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+				{
 					[annotatedPrinciple addObserver:self forKeyPath:@"upheld" options:options context:NULL];
+					[self objectChanged:annotatedPrinciple];
+				}
 			}
 		}
 		else if ([keyPath isEqualToString:@"constitutions"])
@@ -238,6 +289,17 @@ static INTAppController *sharedAppController = nil;
 				[oldConstitution removeObserver:self forKeyPath:@"versionLabel"];
 				[oldConstitution removeObserver:self forKeyPath:@"note"];
 				[oldConstitution removeObserver:self forKeyPath:@"principles"];
+				[self objectDeleted:oldConstitution];
+				
+				NSEnumerator *principles = [[oldConstitution principles] objectEnumerator];
+				INTPrinciple *principle;
+				while ((principle = [principles nextObject]))
+				{
+					[principle removeObserver:self forKeyPath:@"label"];
+					[principle removeObserver:self forKeyPath:@"explanation"];
+					[principle removeObserver:self forKeyPath:@"note"];
+					[self objectDeleted:principle];
+				}
 			}
 			
 			NSEnumerator *newConstitutions = [newValue objectEnumerator];
@@ -247,134 +309,158 @@ static INTAppController *sharedAppController = nil;
 				[newConstitution addObserver:self forKeyPath:@"versionLabel" options:options context:NULL];
 				[newConstitution addObserver:self forKeyPath:@"note" options:options context:NULL];
 				[newConstitution addObserver:self forKeyPath:@"principles" options:options context:NULL];
-			}
-		}
-		else if ([keyPath isEqualToString:@"principles"])
-		{
-			NSEnumerator *oldPrinciples = [oldValue objectEnumerator];
-			INTPrinciple *oldPrinciple;
-			while ((oldPrinciple = [oldPrinciples nextObject]))
-			{
-				[oldPrinciple removeObserver:self forKeyPath:@"label"];
-				[oldPrinciple removeObserver:self forKeyPath:@"explanation"];
-				[oldPrinciple removeObserver:self forKeyPath:@"note"];
-			}
-			
-			NSEnumerator *newPrinciples = [newValue objectEnumerator];
-			INTPrinciple *newPrinciple;
-			while ((newPrinciple = [newPrinciples nextObject]))
-			{
-				[newPrinciple addObserver:self forKeyPath:@"label" options:options context:NULL];
-				[newPrinciple addObserver:self forKeyPath:@"explanation" options:options context:NULL];
-				[newPrinciple addObserver:self forKeyPath:@"note" options:options context:NULL];
+				[self objectChanged:newConstitution];
+				
+				NSEnumerator *principles = [[newConstitution principles] objectEnumerator];
+				INTPrinciple *principle;
+				while ((principle = [principles nextObject]))
+				{
+					[principle addObserver:self forKeyPath:@"label" options:options context:NULL];
+					[principle addObserver:self forKeyPath:@"explanation" options:options context:NULL];
+					[principle addObserver:self forKeyPath:@"note" options:options context:NULL];
+					[self objectChanged:principle];
+				}
 			}
 		}
 	}
-	else
+	else if ([object isKindOfClass:[INTConstitution class]] && [keyPath isEqualToString:@"principles"])
 	{
-		// Everything else is for undo management
-		NSKeyValueChange changeKind = [[change objectForKey:NSKeyValueChangeKindKey] intValue];
-		id settingValue = oldValue;
-		
-		if (changeKind != NSKeyValueChangeSetting)
+		NSEnumerator *oldPrinciples = [oldValue objectEnumerator];
+		INTPrinciple *oldPrinciple;
+		while ((oldPrinciple = [oldPrinciples nextObject]))
 		{
-			NSIndexSet *indexes = [change objectForKey:NSKeyValueChangeIndexesKey];
-			settingValue = [[[object valueForKeyPath:keyPath] mutableCopy] autorelease];
-			if (changeKind == NSKeyValueChangeInsertion)
+			[oldPrinciple removeObserver:self forKeyPath:@"label"];
+			[oldPrinciple removeObserver:self forKeyPath:@"explanation"];
+			[oldPrinciple removeObserver:self forKeyPath:@"note"];
+			[self objectDeleted:oldPrinciple];
+		}
+		
+		NSEnumerator *newPrinciples = [newValue objectEnumerator];
+		INTPrinciple *newPrinciple;
+		while ((newPrinciple = [newPrinciples nextObject]))
+		{
+			[newPrinciple addObserver:self forKeyPath:@"label" options:options context:NULL];
+			[newPrinciple addObserver:self forKeyPath:@"explanation" options:options context:NULL];
+			[newPrinciple addObserver:self forKeyPath:@"note" options:options context:NULL];
+			[self objectChanged:newPrinciple];
+		}
+	}
+	else if ([object isKindOfClass:[INTEntry class]] && [keyPath isEqualToString:@"annotatedPrinciples"])
+	{
+		NSEnumerator *oldAnnotatedPrinciples = [oldValue objectEnumerator];
+		INTAnnotatedPrinciple *oldAnnotatedPrinciple;
+		while ((oldAnnotatedPrinciple = [oldAnnotatedPrinciples nextObject]))
+		{
+			[oldAnnotatedPrinciple removeObserver:self forKeyPath:@"upheld"];
+			[self objectDeleted:oldAnnotatedPrinciple];
+		}
+		
+		NSEnumerator *newAnnotatedPrinciples = [newValue objectEnumerator];
+		INTAnnotatedPrinciple *newAnnotatedPrinciple;
+		while ((newAnnotatedPrinciple = [newAnnotatedPrinciples nextObject]))
+		{
+			[newAnnotatedPrinciple addObserver:self forKeyPath:@"upheld" options:options context:NULL];
+			[self objectChanged:newAnnotatedPrinciple];
+		}
+	}
+	
+	
+	// Undo management
+	if (![[self undoManager] isUndoRegistrationEnabled])
+		return;
+	
+	NSKeyValueChange changeKind = [[change objectForKey:NSKeyValueChangeKindKey] intValue];
+	id settingValue = oldValue;
+	
+	if (changeKind != NSKeyValueChangeSetting)
+	{
+		NSIndexSet *indexes = [change objectForKey:NSKeyValueChangeIndexesKey];
+		settingValue = [[[object valueForKeyPath:keyPath] mutableCopy] autorelease];
+		if (changeKind == NSKeyValueChangeInsertion)
+		{
+			if (indexes)
 				[settingValue removeObjectsAtIndexes:indexes];
-			else if (changeKind == NSKeyValueChangeRemoval)
+			else
+				[settingValue minusSet:newValue];
+		}
+		else if (changeKind == NSKeyValueChangeRemoval)
+		{
+			if (indexes)
 				[settingValue insertObjects:oldValue atIndexes:indexes];
-			else if (changeKind == NSKeyValueChangeReplacement)
-				[settingValue replaceObjectsAtIndexes:indexes withObjects:oldValue];
+			else
+				[settingValue unionSet:oldValue];
 		}
-		
-		[[[self undoManager] prepareWithInvocationTarget:self] changeKeyPath:keyPath ofObject:object toValue:settingValue];
-		
-		
-		// Set undo action name
-		if ([[self undoManager] isUndoing])
+		else if (changeKind == NSKeyValueChangeReplacement)
+			[settingValue replaceObjectsAtIndexes:indexes withObjects:oldValue];
+	}
+	
+	[[[self undoManager] prepareWithInvocationTarget:self] changeKeyPath:keyPath ofObject:object toValue:settingValue];
+	
+	
+	// Set undo action name
+	if ([[self undoManager] isUndoing])
+	{
+		// Swap old and new if undoing
+		id temp = oldValue;
+		oldValue = newValue;
+		newValue = temp;
+	}
+	
+	if ([object isKindOfClass:[INTEntry class]])
+	{
+		// Assume changing of unread status is secondary; only set a name if there is not already one
+		if ([keyPath isEqualToString:@"unread"] && ![[self undoManager] undoActionName])
 		{
-			// Swap old and new if undoing
-			id temp = oldValue;
-			oldValue = newValue;
-			newValue = temp;
+			if ([newValue boolValue] == YES)
+				[[self undoManager] setActionName:NSLocalizedString(@"INTMarkAsUnreadUndoAction", @"Mark as Unread undo action")];
+			else
+				[[self undoManager] setActionName:NSLocalizedString(@"INTMarkAsReadUndoAction", @"Mark as Read undo action")];
 		}
-		
-		if ([object isKindOfClass:[INTEntry class]])
+		else if ([keyPath isEqualToString:@"note"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangeEntryNoteUndoAction", @"Change Entry Note undo action")];
+	}
+	else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+	{
+		if (![[self undoManager] isUndoing] && ![[self undoManager] isRedoing])
 		{
-			// Assume changing of unread status is secondary; only set a name if there is not already one
-			if ([keyPath isEqualToString:@"unread"] && ![[self undoManager] undoActionName])
+			// Mark entry as read
+			BOOL foundEntry = NO;
+			NSEnumerator *entries = [[[self library] entries] objectEnumerator];
+			INTEntry *entry;
+			while (!foundEntry && (entry = [entries nextObject]))
 			{
-				if ([newValue boolValue] == YES)
-					[[self undoManager] setActionName:NSLocalizedString(@"INTMarkAsUnreadUndoAction", @"Mark as Unread undo action")];
-				else
-					[[self undoManager] setActionName:NSLocalizedString(@"INTMarkAsReadUndoAction", @"Mark as Read undo action")];
-			}
-			else if ([keyPath isEqualToString:@"note"])
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeEntryNoteUndoAction", @"Change Entry Note undo action")];
-		}
-		else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
-		{
-			if (![[self undoManager] isUndoing] && ![[self undoManager] isRedoing])
-			{
-				// Mark entry as read
-				BOOL foundEntry = NO;
-				NSEnumerator *entries = [[[self library] entries] objectEnumerator];
-				INTEntry *entry;
-				while (!foundEntry && (entry = [entries nextObject]))
-				{
-					NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
-					INTAnnotatedPrinciple *annotatedPrinciple;
-					while (!foundEntry && (annotatedPrinciple = [annotatedPrinciples nextObject]))
-						if (annotatedPrinciple == object)
-							foundEntry = YES;
-					if (foundEntry)
-						if ([entry isUnread])
-							[entry setUnread:NO];
-				}
-			}
-			
-			if ([keyPath isEqualToString:@"upheld"])
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeAnnotatedPrincipleUpheldUndoAction", @"Change annotated principle upheld undo action")];
-		}
-		else if ([object isKindOfClass:[INTConstitution class]])
-		{
-			if ([keyPath isEqualToString:@"versionLabel"])
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionVersionLabelUndoAction", @"Change Constitution Version Label undo action")];
-			else if ([keyPath isEqualToString:@"note"])
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionNoteUndoAction", @"Change Constitution Note undo action")];
-			else if ([keyPath isEqualToString:@"principles"])
-			{
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionPrinciplesUndoAction", @"Change Constitution Principles undo action")];
-				
-				NSEnumerator *oldPrinciples = [oldValue objectEnumerator];
-				INTPrinciple *oldPrinciple;
-				while ((oldPrinciple = [oldPrinciples nextObject]))
-				{
-					[oldPrinciple removeObserver:self forKeyPath:@"label"];
-					[oldPrinciple removeObserver:self forKeyPath:@"explanation"];
-					[oldPrinciple removeObserver:self forKeyPath:@"note"];
-				}
-				
-				NSEnumerator *newPrinciples = [newValue objectEnumerator];
-				INTPrinciple *newPrinciple;
-				while ((newPrinciple = [newPrinciples nextObject]))
-				{
-					[newPrinciple addObserver:self forKeyPath:@"label" options:options context:NULL];
-					[newPrinciple addObserver:self forKeyPath:@"explanation" options:options context:NULL];
-					[newPrinciple addObserver:self forKeyPath:@"note" options:options context:NULL];
-				}
+				NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
+				INTAnnotatedPrinciple *annotatedPrinciple;
+				while (!foundEntry && (annotatedPrinciple = [annotatedPrinciples nextObject]))
+					if (annotatedPrinciple == object)
+						foundEntry = YES;
+				if (foundEntry)
+					if ([entry isUnread])
+						[entry setUnread:NO];
 			}
 		}
-		else if ([object isKindOfClass:[INTPrinciple class]])
-		{
-			if ([keyPath isEqualToString:@"label"])
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleLabelUndoAction", @"Change Principle Label undo action")];
-			else if ([keyPath isEqualToString:@"explanation"])
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleExplanationUndoAction", @"Change Principle Explanation undo action")];
-			else if ([keyPath isEqualToString:@"note"])
-				[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleNoteUndoAction", @"Change Principle Note undo action")];
-		}
+		
+		if ([keyPath isEqualToString:@"upheld"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangeAnnotatedPrincipleUpheldUndoAction", @"Change annotated principle upheld undo action")];
+	}
+	else if ([object isKindOfClass:[INTConstitution class]])
+	{
+		if ([keyPath isEqualToString:@"versionLabel"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionVersionLabelUndoAction", @"Change Constitution Version Label undo action")];
+		else if ([keyPath isEqualToString:@"note"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionNoteUndoAction", @"Change Constitution Note undo action")];
+		else if ([keyPath isEqualToString:@"principles"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangeConstitutionPrinciplesUndoAction", @"Change Constitution Principles undo action")];
+
+	}
+	else if ([object isKindOfClass:[INTPrinciple class]])
+	{
+		if ([keyPath isEqualToString:@"label"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleLabelUndoAction", @"Change Principle Label undo action")];
+		else if ([keyPath isEqualToString:@"explanation"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleExplanationUndoAction", @"Change Principle Explanation undo action")];
+		else if ([keyPath isEqualToString:@"note"])
+			[[self undoManager] setActionName:NSLocalizedString(@"INTChangePrincipleNoteUndoAction", @"Change Principle Note undo action")];
 	}
 }
 
@@ -395,13 +481,62 @@ static INTAppController *sharedAppController = nil;
 
 
 
+#pragma mark Tracking changed objects
+
+- (void)objectChanged:(id)object // INTAppController (INTPrivateMethods)
+{
+	if (![self isSynchronizing])
+	{
+		NSString *className = nil;
+		if ([object isKindOfClass:[INTEntry class]])
+			className = @"INTEntry";
+		else if ([object isKindOfClass:[INTConstitution class]])
+			className = @"INTConstitution";
+		else if ([object isKindOfClass:[INTPrinciple class]])
+			className = @"INTPrinciple";
+		else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+			className = @"INTAnnotatedPrinciple";
+		else
+			NSLog(@"-[INTAppController objectChanged:] Unknown class: %@", className);
+		
+		if (className)
+			[[INT_objectsChangedSinceLastSync objectForKey:className] addObject:object];
+	}
+}
+
+
+- (void)objectDeleted:(id)object // INTAppController (INTPrivateMethods)
+{
+	if (![self isSynchronizing])
+	{
+		NSString *className = nil;
+		if ([object isKindOfClass:[INTEntry class]])
+			className = @"INTEntry";
+		else if ([object isKindOfClass:[INTConstitution class]])
+			className = @"INTConstitution";
+		else if ([object isKindOfClass:[INTPrinciple class]])
+			className = @"INTPrinciple";
+		else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+			className = @"INTAnnotatedPrinciple";
+		else
+			NSLog(@"-[INTAppController objectDeleted:] Unknown class: %@", className);
+		
+		if (className)
+		{
+			[[INT_objectsChangedSinceLastSync objectForKey:className] removeObject:object];
+			[[INT_objectIdentifiersDeletedSinceLastSync objectForKey:className] addObject:[object uuid]];
+		}
+	}
+}
+
+
+
 #pragma mark Managing editing
 
 - (BOOL)commitEditing
 {
 	return ((INT_entriesControler ? [INT_entriesControler commitEditing] : YES) &&
-			(INT_constitutionsController ? [INT_constitutionsController commitEditing] : YES) &&
-			(INT_principleLibraryController ? [INT_principleLibraryController commitEditing] : YES));
+			(INT_constitutionsController ? [INT_constitutionsController commitEditing] : YES));
 }
 
 
@@ -411,8 +546,6 @@ static INTAppController *sharedAppController = nil;
 		[INT_entriesControler discardEditing];
 	if (INT_constitutionsController)
 		[INT_constitutionsController discardEditing];
-	if (INT_principleLibraryController)
-		[INT_principleLibraryController discardEditing];
 }
 
 
@@ -489,14 +622,6 @@ static INTAppController *sharedAppController = nil;
 }
 
 
-- (IBAction)showPrinciples:(id)sender
-{
-	if (!INT_principleLibraryController)
-		INT_principleLibraryController = [[INTPrincipleLibraryController alloc] initWithWindowNibName:@"PrincipleLibrary"];
-	[INT_principleLibraryController showWindow:self];
-}
-
-
 - (IBAction)showHideInspector:(id)sender
 {
 	if (!INT_inspectorController)
@@ -530,6 +655,16 @@ static INTAppController *sharedAppController = nil;
 }
 
 
+- (IBAction)synchronize:(id)sender
+{
+	NSLog(@"Sync starting");
+	[[self undoManager] disableUndoRegistration];
+	[self sync];
+	[[self undoManager] enableUndoRegistration];
+	NSLog(@"Sync done");
+}
+
+
 
 #pragma mark NSApplication delegate methods
 
@@ -541,6 +676,12 @@ static INTAppController *sharedAppController = nil;
 		if (!success)
 			NSLog(@"Failed to install Introspectare Backup QuickPick");
 	}
+	
+	INT_syncSchemaRegistered = [self registerSyncSchema];
+	if (INT_syncSchemaRegistered)
+		[self registerForSyncNotifications];
+	else
+		NSLog(@"Failed to register sync schema");
 	
 	[self showDays:self];
 }
@@ -587,7 +728,6 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationWillTerminate:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	[INT_principleLibraryController close];
 	[INT_constitutionsController close];
 	[INT_entriesControler close];
 }

@@ -24,7 +24,6 @@
 		INT_entries = [[NSMutableDictionary alloc] init];
 		
 		[self setConstitutions:[NSArray array]];
-		[self setPrinciples:[NSArray array]];
 		[self setEntries:[NSSet set]];
 	}
 	return self;
@@ -34,7 +33,6 @@
 - (void)dealloc
 {
 	[INT_constitutions release], INT_constitutions = nil;
-	[INT_principles release], INT_principles = nil;
 	[INT_entries release], INT_entries = nil;
 	
 	[super dealloc];
@@ -53,7 +51,6 @@
 			INT_entries = [[NSMutableDictionary alloc] init];
 			
 			[self setConstitutions:[decoder decodeObjectForKey:@"constitutions"]];
-			[self setPrinciples:[decoder decodeObjectForKey:@"principles"]];
 			[self setEntries:[decoder decodeObjectForKey:@"entries"]];
 		}
 	}
@@ -71,7 +68,6 @@
 	if ([encoder allowsKeyedCoding])
 	{
 		[encoder encodeObject:[self constitutions] forKey:@"constitutions"];
-		[encoder encodeObject:[self principles] forKey:@"principles"];
 		[encoder encodeObject:[self entries] forKey:@"entries"];
 	}
 	else
@@ -116,25 +112,6 @@
 	
 	[dateDescending release];
 	return foundConstitution;
-}
-
-
-
-#pragma mark Accessing principles
-
-- (NSArray *)principles // NSArray of INTPrinciple objects
-{
-	return INT_principles;
-}
-
-
-- (void)setPrinciples:(NSArray *)principles
-{
-	if (!principles)
-		principles = [NSArray array];
-	id oldValue = INT_principles;
-	INT_principles = [principles copy];
-	[oldValue release];
 }
 
 

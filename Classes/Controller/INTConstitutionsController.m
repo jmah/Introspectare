@@ -10,6 +10,7 @@
 #import "INTShared.h"
 #import "INTAppController.h"
 #import "INTLibrary.h"
+#import "INTConstitution.h"
 #import "INTActiveControlEnumerator.h"
 
 

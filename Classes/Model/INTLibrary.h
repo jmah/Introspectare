@@ -22,7 +22,6 @@
 {
 	@private
 	NSArray *INT_constitutions;
-	NSArray *INT_principles;
 	NSMutableDictionary *INT_entries;
 }
 
@@ -34,10 +33,6 @@
 - (NSArray *)constitutions; // NSArray of INTConstitution objects
 - (void)setConstitutions:(NSArray *)constitutions;
 - (INTConstitution *)constitutionForDate:(NSDate *)date;
-
-#pragma mark Accessing principles
-- (NSArray *)principles; // NSArray of INTPrinciple objects
-- (void)setPrinciples:(NSArray *)principles;
 
 #pragma mark Accessing entries
 - (NSSet *)entries; // NSArray of INTEntry objects

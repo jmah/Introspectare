@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DisplayName</key>
+	<string>Introspectare</string>
+	<key>ImagePath</key>
+	<string>Introspectare.icns</string>
+	<key>Entities</key>
+	<dict>
+		<key>org.playhaus.Introspectare.Entry</key>
+		<array>
+            <string>com.apple.syncservices.RecordEntityName</string>
+			<string>dayOfCommonEra</string>
+			<string>unread</string>
+			<string>note</string>
+			<string>constitution</string>
+			<string>annotatedPrinciples</string>
+		</array>
+		<key>org.playhaus.Introspectare.Constitution</key>
+		<array>
+            <string>com.apple.syncservices.RecordEntityName</string>
+			<string>versionLabel</string>
+			<string>creationDate</string>
+			<string>note</string>
+			<string>principles</string>
+		</array>
+		<key>org.playhaus.Introspectare.Principle</key>
+		<array>
+            <string>com.apple.syncservices.RecordEntityName</string>
+			<string>label</string>
+			<string>explanation</string>
+			<string>creationDate</string>
+			<string>note</string>
+		</array>
+		<key>org.playhaus.Introspectare.AnnotatedPrinciple</key>
+		<array>
+            <string>com.apple.syncservices.RecordEntityName</string>
+			<string>upheld</string>
+			<string>principle</string>
+			<string>entry</string>
+		</array>
+	</dict>
+</dict>
+</plist>

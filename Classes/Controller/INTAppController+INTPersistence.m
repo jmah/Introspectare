@@ -93,11 +93,11 @@
 	{
 		if ([[NSFileManager defaultManager] fileExistsAtPath:path])
 		{
-			INTLibrary *newLibrary = nil;
+			NSDictionary *savedData = nil;
 			BOOL dataFileRaisedLoadError = NO;
 			@try
 			{
-				newLibrary = [[NSKeyedUnarchiver unarchiveObjectWithFile:path] retain];
+				savedData = [[NSKeyedUnarchiver unarchiveObjectWithFile:path] retain];
 			}
 			@catch (NSException *e)
 			{
@@ -121,7 +121,10 @@
 			}
 			else
 			{
-				[self setLibrary:newLibrary];
+				[self setLibrary:[savedData objectForKey:@"library"]];
+				[INT_objectsChangedSinceLastSync setDictionary:[savedData objectForKey:@"objectsChangedSinceLastSync"]];
+				[INT_objectIdentifiersDeletedSinceLastSync setDictionary:[savedData objectForKey:@"objectIdentifiersDeletedSinceLastSync"]];
+				[self setValue:[savedData objectForKey:@"lastSyncDate"] forKey:@"lastSyncDate"];
 				success = YES;
 			}
 		}
@@ -146,7 +149,14 @@
 	BOOL dataFileIsReadable = [self ensureReadableFileAtPath:path error:outError];
 	if (dataFileIsReadable)
 	{
-		if ([NSKeyedArchiver archiveRootObject:[self library] toFile:path])
+		NSDictionary *savedData = [NSDictionary dictionaryWithObjectsAndKeys:
+			[self library], @"library",
+			INT_objectsChangedSinceLastSync, @"objectsChangedSinceLastSync",
+			INT_objectIdentifiersDeletedSinceLastSync, @"objectIdentifiersDeletedSinceLastSync",
+			INT_lastSyncDate, @"lastSyncDate",
+			nil];
+		
+		if ([NSKeyedArchiver archiveRootObject:savedData toFile:path])
 			success = YES;
 		else
 		{
