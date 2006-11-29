@@ -657,7 +657,18 @@ static INTAppController *sharedAppController = nil;
 
 - (IBAction)synchronize:(id)sender
 {
-	[self sync];
+	if (!INT_syncSchemaRegistered)
+	{
+		NSString *alertTitle = NSLocalizedString(@"INTSyncWhenSchemaNotRegisteredAlertTitle", @"Sync when sync schema not registered alert title");
+		NSString *alertMessage = NSLocalizedString(@"INTSyncWhenSchemaNotRegisteredAlertMessage", @"Sync when sync schema not registered alert message");
+		NSString *defaultButtonTitle = NSLocalizedString(@"INTSyncWhenSchemaNotRegisteredDefaultButton", @"Sync when sync schema not registered alert default button"); // (OK)
+		NSString *alternateButtonTitle = nil;
+		NSString *otherButtonTitle = nil;
+		
+		NSRunAlertPanel(alertTitle, alertMessage, defaultButtonTitle, alternateButtonTitle, otherButtonTitle);
+	}
+	else
+		[self sync];
 }
 
 
