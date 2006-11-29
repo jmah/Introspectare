@@ -74,8 +74,7 @@
 
 - (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames
 {
-	if (![[self lastSyncDate] isEqual:[NSDate distantPast]])
-		[self sync];
+	[self sync];
 }
 
 
