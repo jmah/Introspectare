@@ -128,7 +128,7 @@
 	
 	// Display progress window
 	NSWindow *sheet = nil;
-	NSModalSession modalSession;
+	NSModalSession modalSession = NULL;
 	if (displayProgress)
 	{
 		[syncProgressIndicator setIndeterminate:YES];
