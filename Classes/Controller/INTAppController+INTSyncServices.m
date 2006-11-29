@@ -847,10 +847,7 @@
 			if (actualValueIdentifier)
 				[valueIdentifiers addObject:actualValueIdentifier];
 			else
-			{
-				NSLog(@"Expected to find an identifier mapping for %@, but didn't", initialValueIdentifier);
 				[valueIdentifiers addObject:initialValueIdentifier];
-			}
 		}
 		
 		
