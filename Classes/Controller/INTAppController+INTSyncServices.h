@@ -20,6 +20,8 @@
 - (void)syncClient:(ISyncClient *)client mightWantToSynEntityNames:(NSArray *)entityNames;
 - (NSDate *)lastSyncDate;
 - (void)sync;
+- (void)syncBeforeApplicationTerminates;
+- (void)syncWhileInactive;
 - (BOOL)isSynchronizing;
 - (NSArray *)objectsForEntityName:(NSString *)entityName;
 - (void)removeAllObjectsForEntityName:(NSString *)entityName;

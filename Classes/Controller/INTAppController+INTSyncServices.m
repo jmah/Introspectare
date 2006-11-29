@@ -22,7 +22,8 @@
 
 #pragma mark Synchronization
 - (void)setLastSyncDate:(NSDate *)date;
-- (void)reallySync;
+- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges displayProgressPanel:(BOOL)displayProgress;
+- (void)reallySyncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges;
 
 @end
 
@@ -96,43 +97,21 @@
 
 - (void)sync
 {
-	INT_isSyncing = YES;
-	[[self undoManager] disableUndoRegistration];
-	
-	// Display progress window
-	[syncProgressIndicator setIndeterminate:YES];
-	NSWindow *sheet = nil;
-	NSModalSession modalSession;
-	if ([[NSApp orderedWindows] count] > 0)
-	{
-		sheet = syncProgressPanel;
-		[NSApp beginSheet:syncProgressPanel
-		   modalForWindow:[[NSApp orderedWindows] objectAtIndex:0]
-			modalDelegate:nil
-		   didEndSelector:NULL
-			  contextInfo:NULL];
-	}
-	else
-	{
-		modalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
-		[NSApp runModalSession:modalSession];
-	}
-	[syncProgressPanel display];
-	[syncProgressIndicator startAnimation:nil];
-	
-	// Sync!
-	[self reallySync];
-	
-	// Close progress window
-	[syncProgressIndicator stopAnimation:nil];
-	if (sheet)
-		[NSApp endSheet:sheet];
-	else
-		[NSApp endModalSession:modalSession];
-	[syncProgressPanel orderOut:nil];
-	
-	[[self undoManager] enableUndoRegistration];
-	INT_isSyncing = NO;
+	[self syncWithTimeout:2.0 pullChanges:YES displayProgressPanel:YES];
+}
+
+
+- (void)syncBeforeApplicationTerminates
+{
+	if (![[self lastSyncDate] isEqual:[NSDate distantPast]])
+		[self syncWithTimeout:0.0 pullChanges:NO displayProgressPanel:YES];
+}
+
+
+- (void)syncWhileInactive
+{
+	if (![[self lastSyncDate] isEqual:[NSDate distantPast]])
+		[self syncWithTimeout:2.0 pullChanges:NO displayProgressPanel:NO];
 }
 
 
@@ -142,7 +121,55 @@
 }
 
 
-- (void)reallySync // INTAppController (INTSyncServicesPrivateMethods)
+- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges displayProgressPanel:(BOOL)displayProgress // INTAppController (INTSyncServicesPrivateMethods)
+{
+	INT_isSyncing = YES;
+	[[self undoManager] disableUndoRegistration];
+	
+	// Display progress window
+	NSWindow *sheet = nil;
+	NSModalSession modalSession;
+	if (displayProgress)
+	{
+		[syncProgressIndicator setIndeterminate:YES];
+		if (([[NSApp orderedWindows] count] > 0) && [[[NSApp orderedWindows] objectAtIndex:0] isVisible])
+		{
+			sheet = syncProgressPanel;
+			[NSApp beginSheet:syncProgressPanel
+			   modalForWindow:[[NSApp orderedWindows] objectAtIndex:0]
+				modalDelegate:nil
+			   didEndSelector:NULL
+				  contextInfo:NULL];
+		}
+		else
+		{
+			modalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
+			[NSApp runModalSession:modalSession];
+		}
+		[syncProgressPanel display];
+		[syncProgressIndicator startAnimation:nil];
+	}
+		
+	// Sync!
+	[self reallySyncWithTimeout:2.0 pullChanges:YES];
+	
+	// Close progress window
+	if (displayProgress)
+	{
+		[syncProgressIndicator stopAnimation:nil];
+		if (sheet)
+			[NSApp endSheet:sheet];
+		else
+			[NSApp endModalSession:modalSession];
+		[syncProgressPanel orderOut:nil];
+	}
+	
+	[[self undoManager] enableUndoRegistration];
+	INT_isSyncing = NO;
+}
+
+
+- (void)reallySyncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges // INTAppController (INTSyncServicesPrivateMethods)
 {
 	// Save backup file
 	NSString *extension = [[self dataFilename] pathExtension];
@@ -180,7 +207,7 @@
 		nil];
 	ISyncSession *session = [ISyncSession beginSessionWithClient:client 
 													 entityNames:[entityNameToClassNameMapping allKeys]
-													  beforeDate:[NSDate dateWithTimeIntervalSinceNow:2.0f]];
+													  beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
 	if (!session)
 	{
 		NSLog(@"Timed out while waiting for sync session");
@@ -283,10 +310,16 @@
 	[syncProgressIndicator startAnimation:nil];
 	[self setLastSyncDate:[NSDate date]];
 	
+	if (!pullChanges)
+	{
+		[session finishSyncing];
+		return;
+	}
+	
 	
 	// Prepare to pull
 	BOOL canPull = [session prepareToPullChangesForEntityNames:[entityNameToClassNameMapping allKeys]
-													beforeDate:[NSDate dateWithTimeIntervalSinceNow:5.0f]];
+													beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
 	if ([session isCancelled])
 	{
 		NSLog(@"Sync session cancelled while waiting to pull changes");
@@ -307,11 +340,11 @@
 	 * principles have no relationships. Thus there needs to be another way to
 	 * obtain a reference to one of these principles.
 	 */
-	unsigned changeCount = 0;
 	INT_unresolvedPrinciples = [[NSMutableArray alloc] init];
 	NSMutableArray *allUnresolvedRelationships = [[NSMutableArray alloc] init];
 	NSMutableDictionary *recordIdentifierMapping = [[NSMutableDictionary alloc] init];
 	{
+		unsigned changeCount = 0;
 		NSEnumerator *entityNamesEnumerator = [[entityNameToClassNameMapping allKeys] objectEnumerator];
 		NSString *entityName;
 		while ((entityName = [entityNamesEnumerator nextObject]))
@@ -350,8 +383,8 @@
 					[session clientRefusedChangesForRecordWithIdentifier:recordIdentifier];
 			}
 		}
+		NSLog(@"Pulled %d changes. %d unresolved relationships, %d identifier mappings", changeCount, [allUnresolvedRelationships count], [recordIdentifierMapping count]);
 	}
-	NSLog(@"Pulled %d changes. %d unresolved relationships, %d identifier mappings", changeCount, [allUnresolvedRelationships count], [recordIdentifierMapping count]);
 	
 	BOOL didResolveAllRelationships = [self resolveRelationships:allUnresolvedRelationships
 									 withRecordIdentifierMapping:recordIdentifierMapping];

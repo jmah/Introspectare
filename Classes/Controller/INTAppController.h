@@ -37,6 +37,7 @@
 	NSMutableArray *INT_unresolvedPrinciples;
 	NSMutableDictionary *INT_objectsChangedSinceLastSync;
 	NSMutableDictionary *INT_objectIdentifiersDeletedSinceLastSync;
+	NSTimer *INT_inactiveSyncTimer;
 }
 
 
