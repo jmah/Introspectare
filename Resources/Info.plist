@@ -35,6 +35,6 @@ ${CONFIGURATION} build on __DATE__ __TIME__ by $(VERSION_INFO_BUILDER)</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
-	<string>INTApplication</string>
+	<string>NSApplication</string>
 </dict>
 </plist>

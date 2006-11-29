@@ -11,7 +11,6 @@
 #import "INTAppController+INTBackupQuickPick.h"
 #import "INTAppController+INTSyncServices.h"
 #import "INTShared.h"
-#import "INTApplication.h"
 #import "INTEntriesController.h"
 #import "INTConstitutionsController.h"
 #import "INTInspectorController.h"
@@ -755,23 +754,13 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationDidResignActive:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	[INT_inactiveSyncTimer invalidate];
-	INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
-															 target:self
-														   selector:@selector(inactiveSyncTimerHit:)
-														   userInfo:NULL
-															repeats:NO];
-}
-
-
-- (void)applicationDidSendEvent:(NSEvent *)event // NSObject (INTApplicationDelegate
-{
-	[INT_inactiveSyncTimer invalidate];
-	INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
-															 target:self
-														   selector:@selector(inactiveSyncTimerHit:)
-														   userInfo:NULL
-															repeats:NO];
+	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
+	if (![self isSyncing])
+		INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+																 target:self
+															   selector:@selector(inactiveSyncTimerHit:)
+															   userInfo:NULL
+																repeats:NO];
 }
 
 
