@@ -224,9 +224,9 @@
 		
 		
 		// Actually push the records
-		NSEnumerator *entityNamesEnumeramtor = [[entityNameToClassNameMapping allKeys] objectEnumerator];
+		NSEnumerator *entityNamesEnumerator = [[entityNameToClassNameMapping allKeys] objectEnumerator];
 		NSString *entityName;
-		while ((entityName = [entityNamesEnumeramtor nextObject]))
+		while ((entityName = [entityNamesEnumerator nextObject]))
 		{
 			if ([session shouldPushChangesForEntityName:entityName])
 			{
@@ -312,9 +312,9 @@
 	NSMutableArray *allUnresolvedRelationships = [[NSMutableArray alloc] init];
 	NSMutableDictionary *recordIdentifierMapping = [[NSMutableDictionary alloc] init];
 	{
-		NSEnumerator *entityNamesEnumeramtor = [[entityNameToClassNameMapping allKeys] objectEnumerator];
+		NSEnumerator *entityNamesEnumerator = [[entityNameToClassNameMapping allKeys] objectEnumerator];
 		NSString *entityName;
-		while ((entityName = [entityNamesEnumeramtor nextObject]))
+		while ((entityName = [entityNamesEnumerator nextObject]))
 		{
 			if (![session shouldPullChangesForEntityName:entityName])
 				continue;
