@@ -17,6 +17,7 @@
 @interface INTEntriesView : NSView
 {
 	@private
+	BOOL INT_needsToUpdateFrameSize;
 	NSCalendar *INT_calendar;
 	NSColor *INT_backgroundColor;
 	float INT_rowHeight;

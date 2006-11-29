@@ -31,6 +31,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 #pragma mark Managing the view hierarchy
 - (void)windowDidChangeKey:(NSNotification *)notification;
+- (void)windowDidUpdate:(NSNotification *)notification;
 - (void)applicationDidChangeActive:(NSNotification *)notification;
 
 #pragma mark Getting auxiliary views for enclosing an scroll view
@@ -207,7 +208,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)setRowHeight:(float)rowHeight
 {
 	INT_rowHeight = rowHeight;
-	[self updateFrameSize];
+	INT_needsToUpdateFrameSize = YES;
 	[[self enclosingScrollView] setVerticalLineScroll:([self rowHeight] + [self intercellSpacing].height)];
 	[self setNeedsDisplay:YES];
 }
@@ -222,7 +223,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)setIntercellSpacing:(NSSize)intercellSpacing
 {
 	INT_intercellSpacing = intercellSpacing;
-	[self updateFrameSize];
+	INT_needsToUpdateFrameSize = YES;
 	[[self enclosingScrollView] setHorizontalLineScroll:([self columnWidth] + [self intercellSpacing].width)];
 	[[self enclosingScrollView] setVerticalLineScroll:([self rowHeight] + [self intercellSpacing].height)];
 	[self setNeedsDisplay:YES];
@@ -244,7 +245,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)setColumnWidth:(float)columnWidth
 {
 	INT_columnWidth = columnWidth;
-	[self updateFrameSize];
+	INT_needsToUpdateFrameSize = YES;
 	[[self enclosingScrollView] setHorizontalLineScroll:([self columnWidth] + [self intercellSpacing].width)];
 	[self setNeedsDisplay:YES];
 }
@@ -336,7 +337,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 				[self bind:@"selectionIndexes" toObject:ac withKeyPath:@"selectionIndexes" options:nil];
 		}
 		
-		[self updateFrameSize];
+		INT_needsToUpdateFrameSize = YES;
 		[self setNeedsDisplay:YES];
 		
 		
@@ -360,10 +361,16 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
 			INTAnnotatedPrinciple *annotatedPrinciple;
 			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+			{
 				[annotatedPrinciple addObserver:self
 									 forKeyPath:@"upheld"
 										options:0
 										context:entry];
+				[annotatedPrinciple addObserver:self
+									 forKeyPath:@"principle.label"
+										options:0
+										context:entry];
+			}
 		}
 	}
 	else
@@ -385,14 +392,17 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
 			INTAnnotatedPrinciple *annotatedPrinciple;
 			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+			{
 				[annotatedPrinciple removeObserver:self forKeyPath:@"upheld"];
+				[annotatedPrinciple removeObserver:self forKeyPath:@"principle.label"];
+			}
 		}
 		
 		[INT_entriesContainer removeObserver:self forKeyPath:INT_entriesKeyPath];
 		[INT_entriesContainer release], INT_entriesContainer = nil;
 		[INT_entriesKeyPath release], INT_entriesKeyPath = nil;
 		
-		[self updateFrameSize];
+		INT_needsToUpdateFrameSize = YES;
 		[self setNeedsDisplay:YES];
 	}
 		[super unbind:binding];
@@ -409,7 +419,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	{
 		if ([keyPath isEqualToString:INT_entriesKeyPath])
 		{
-			[self updateFrameSize];
+			INT_needsToUpdateFrameSize = YES;
 			[self setNeedsDisplay:YES];
 			handled = YES;
 		}
@@ -435,6 +445,12 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			INTEntry *entry = (INTEntry *)context;
 			NSRect rect = [self rectForAnnotatedPrinciple:object ofEntry:entry];
 			[self setNeedsDisplayInRect:rect];
+			handled = YES;
+		}
+		else if ([keyPath isEqualToString:@"principle.label"])
+		{
+			INT_needsToUpdateFrameSize = YES;
+			[self setNeedsDisplay:YES];
 			handled = YES;
 		}
 	}
@@ -578,20 +594,38 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 														name:NSWindowDidBecomeKeyNotification
 													  object:[self window]];
 	}
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeKey:)
-												 name:NSWindowDidResignKeyNotification
-											   object:newWindow];
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(windowDidChangeKey:)
-												 name:NSWindowDidBecomeKeyNotification
-											   object:newWindow];
+	if (newWindow)
+	{
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(windowDidChangeKey:)
+													 name:NSWindowDidResignKeyNotification
+												   object:newWindow];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(windowDidChangeKey:)
+													 name:NSWindowDidBecomeKeyNotification
+												   object:newWindow];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(windowDidUpdate:)
+													 name:NSWindowDidUpdateNotification
+												   object:newWindow];
+	}
 }
 
 
 - (void)windowDidChangeKey:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
 {
 	[self setNeedsDisplay:YES];
+}
+
+
+- (void)windowDidUpdate:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
+{
+	if (INT_needsToUpdateFrameSize)
+	{
+		[self updateFrameSize];
+		INT_needsToUpdateFrameSize = NO;
+		[self setNeedsDisplay:YES];
+	}
 }
 
 
