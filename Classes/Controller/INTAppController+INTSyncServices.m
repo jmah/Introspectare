@@ -9,6 +9,7 @@
 #import "INTAppController+INTSyncServices.h"
 #import "INTAppController+INTPersistence.h"
 #import <Foundation/NSDebug.h>
+#import "INTApplication.h"
 #import "INTFlattening.h"
 #import "INTLibrary.h"
 #import "INTEntry.h"
@@ -194,11 +195,17 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	NSModalSession modalSession = NULL;
 	if (displayProgress)
 	{
+		// Prevent the dock icon from bouncing
+		BOOL ignored = [(INTApplication *)NSApp ignoresUserAttentionRequests];
+		[(INTApplication *)NSApp setIgnoresUserAttentionRequests:YES];
+		
 		[syncProgressIndicator setIndeterminate:YES];
 		modalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
 		[syncProgressPanel makeKeyAndOrderFront:nil];
 		[NSApp runModalSession:modalSession];
 		[syncProgressIndicator startAnimation:nil];
+		
+		[(INTApplication *)NSApp setIgnoresUserAttentionRequests:ignored];
 	}
 	
 	// Store all objects that might be synced
