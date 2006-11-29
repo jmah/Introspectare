@@ -429,15 +429,26 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	
 	// Prepare to pull
-	BOOL canPull = NO;
-	@try
+	NSMutableArray *entityNamesToPull = [NSMutableArray array];
 	{
-		canPull = [session prepareToPullChangesForEntityNames:[INTEntityNameToClassNameMapping allKeys]
-												   beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
+		NSEnumerator *entityNamesEnumerator = [[INTEntityNameToClassNameMapping allKeys] objectEnumerator];
+		NSString *entityName;
+		while ((entityName = [entityNamesEnumerator nextObject]))
+			if ([session shouldPullChangesForEntityName:entityName])
+				[entityNamesToPull addObject:entityName];
 	}
-	@catch (id e)
+	
+	
+	if ([entityNamesToPull count] == 0)
 	{
+		if (NSDebugEnabled)
+			NSLog(@"No entities available to pull. Done.");
+		[session finishSyncing];
+		return;
 	}
+	
+	BOOL canPull = [session prepareToPullChangesForEntityNames:entityNamesToPull
+													beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
 	if ([session isCancelled])
 	{
 		if (NSDebugEnabled)
@@ -447,8 +458,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	else if (!canPull)
 	{
 		if (NSDebugEnabled)
-			NSLog(@"Session doesn't want us to pull changes");
-		[session finishSyncing];
+			NSLog(@"Timed out while waiting to pull changes");
 		return;
 	}
 	
@@ -458,12 +468,10 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	NSMutableDictionary *recordIdentifierMapping = [NSMutableDictionary dictionary];
 	{
 		unsigned changeCount = 0;
-		NSEnumerator *entityNamesEnumerator = [[INTEntityNameToClassNameMapping allKeys] objectEnumerator];
+		NSEnumerator *entityNamesEnumerator = [entityNamesToPull objectEnumerator];
 		NSString *entityName;
 		while ((entityName = [entityNamesEnumerator nextObject]))
 		{
-			if (![session shouldPullChangesForEntityName:entityName])
-				continue;
 			
 			if ([session shouldReplaceAllRecordsOnClientForEntityName:entityName])
 				[self removeAllObjectsForEntityName:entityName];
@@ -524,21 +532,22 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	if (didResolveAllRelationships)
 	{
 		BOOL didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]] error:NULL];
-		if (!didSaveChanges)
-			NSLog(@"Could not save synchronized changes. Ignoring...");
-		
-		[session clientCommittedAcceptedChanges];
-		[session finishSyncing];
+		if (didSaveChanges)
+			[session clientCommittedAcceptedChanges];
+		else
+		{
+			if (NSDebugEnabled)
+				NSLog(@"Could not save synchronized changes. Reverting to backup of data before sync");
+			[self performSelectorOnMainThread:@selector(revertDataToBackup) withObject:nil waitUntilDone:YES];
+		}
 	}
 	else
 	{
 		if (NSDebugEnabled)
 			NSLog(@"Failed to resolve all relationships. Reverting to backup of data before sync");
-		[session cancelSyncing];
-		NSString *extension = [[self dataFilename] pathExtension];
-		NSString *backupFilename = [[[[self dataFilename] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
-		[self loadFromFile:backupFilename error:NULL];
+		[self performSelectorOnMainThread:@selector(revertDataToBackup) withObject:nil waitUntilDone:YES];
 	}
+	[session finishSyncing];
 }
 
 
@@ -604,6 +613,14 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 
 #pragma mark Sync helper methods
+
+- (void)revertDataToBackup // INTAppController (INTSyncServicesPrivateMethods)
+{
+	NSString *extension = [[self dataFilename] pathExtension];
+	NSString *backupFilename = [[[[self dataFilename] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
+	[self loadFromFile:backupFilename error:NULL];
+}
+
 
 - (NSArray *)objectsForEntityName:(NSString *)entityName // INTAppController (INTSyncServicesPrivateMethods)
 {
