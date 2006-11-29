@@ -95,7 +95,6 @@ static INTAppController *sharedAppController = nil;
 
 - (void)awakeFromNib
 {
-	[syncProgressIndicator setUsesThreadedAnimation:YES];
 }
 
 

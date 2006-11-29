@@ -36,7 +36,15 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 #pragma mark Performing sync operations
 - (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync displayProgressPanel:(BOOL)displayProgress;
+- (void)threadedSyncWithProgressAndArguments:(NSDictionary *)arguments;
 - (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync;
+
+#pragma mark Threaded sync helper methods
+- (void)threadedSyncSetup;
+- (void)threadedSyncTeardown;
+- (void)threadedSyncSetProgressMaxValue:(NSNumber *)maxValue;
+- (void)threadedIncrementProgress;
+- (void)threadedSetProgressIndeterminate:(NSNumber *)indeterminate;
 
 #pragma mark Sync helper methods
 - (NSArray *)objectsForEntityName:(NSString *)entityName;
@@ -187,26 +195,46 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		return;
 	}
 	
-	INT_isSyncing = YES;
-	[[self undoManager] disableUndoRegistration];
-	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Syncing"]];
-	
-	// Display progress window
-	NSModalSession modalSession = NULL;
+	INT_isUsingSyncProgress = displayProgress;
 	if (displayProgress)
 	{
-		// Prevent the dock icon from bouncing
-		BOOL ignored = [(INTApplication *)NSApp ignoresUserAttentionRequests];
-		[(INTApplication *)NSApp setIgnoresUserAttentionRequests:YES];
-		
-		[syncProgressIndicator setIndeterminate:YES];
-		modalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
-		[syncProgressPanel makeKeyAndOrderFront:nil];
-		[NSApp runModalSession:modalSession];
-		[syncProgressIndicator startAnimation:nil];
-		
-		[(INTApplication *)NSApp setIgnoresUserAttentionRequests:ignored];
+		NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithDouble:timeout], @"timeout",
+			[NSNumber numberWithBool:pullChanges], @"pullChanges",
+			[NSNumber numberWithBool:slowSync], @"forceSlowSync",
+			nil];
+		[NSThread detachNewThreadSelector:@selector(threadedSyncWithProgressAndArguments:) toTarget:self withObject:args];
 	}
+	else
+	{
+		INT_isSyncing = YES;
+		[[self undoManager] disableUndoRegistration];
+		[NSApp setApplicationIconImage:[NSImage imageNamed:@"Syncing"]];
+		
+		// Store all objects that might be synced
+		INT_syncObjectsByEntities = [self objectsForEntityNames:[INTEntityNameToClassNameMapping allKeys]];
+		
+		@try
+		{
+			[self _syncWithTimeout:2.0 pullChanges:YES forceSlowSync:slowSync];
+		}
+		@catch (id e)
+		{
+			NSLog(@"Exception while syncing: %@", e);
+		}
+		
+		INT_syncObjectsByEntities = nil;
+		[NSApp setApplicationIconImage:[NSImage imageNamed:@"Introspectare"]];
+		[[self undoManager] enableUndoRegistration];
+		INT_isSyncing = NO;
+	}
+}
+
+
+- (void)threadedSyncWithProgressAndArguments:(NSDictionary *)arguments // INTAppController (INTSyncServicesPrivateMethods)
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	[self performSelectorOnMainThread:@selector(threadedSyncSetup) withObject:nil waitUntilDone:YES];
 	
 	// Store all objects that might be synced
 	INT_syncObjectsByEntities = [self objectsForEntityNames:[INTEntityNameToClassNameMapping allKeys]];
@@ -214,7 +242,9 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	// Sync!
 	@try
 	{
-		[self _syncWithTimeout:2.0 pullChanges:YES forceSlowSync:slowSync];
+		[self _syncWithTimeout:30.0
+				   pullChanges:[[arguments objectForKey:@"pullChanges"] boolValue]
+				 forceSlowSync:[[arguments objectForKey:@"forceSlowSync"] boolValue]];
 	}
 	@catch (id e)
 	{
@@ -223,18 +253,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	INT_syncObjectsByEntities = nil;
 	
-	// Close progress window
-	if (displayProgress)
-	{
-		[syncProgressIndicator stopAnimation:nil];
-		[NSApp endModalSession:modalSession];
-		[syncProgressPanel orderOut:nil];
-	}
-	
-	// Have to change icon back on next run loop cycle
-	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Introspectare"]];
-	[[self undoManager] enableUndoRegistration];
-	INT_isSyncing = NO;
+	[self performSelectorOnMainThread:@selector(threadedSyncTeardown) withObject:nil waitUntilDone:NO];
+	[pool drain];
 }
 
 
@@ -292,31 +312,33 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	// Push the truth
 	{
-		// Count the number of records we are pushing to give an accurate progress count
-		unsigned totalRecords = 0;
-		NSEnumerator *preflightEntityNamesEnumerator = [[INTEntityNameToClassNameMapping allKeys] objectEnumerator];
-		NSString *preflightEntityName;
-		while ((preflightEntityName = [preflightEntityNamesEnumerator nextObject]))
+		unsigned pushedRecordCount = 0;
+		if (INT_isUsingSyncProgress)
 		{
-			if ([session shouldPushChangesForEntityName:preflightEntityName])
+			// Count the number of records we are pushing to give an accurate progress count
+			NSEnumerator *preflightEntityNamesEnumerator = [[INTEntityNameToClassNameMapping allKeys] objectEnumerator];
+			NSString *preflightEntityName;
+			while ((preflightEntityName = [preflightEntityNamesEnumerator nextObject]))
 			{
-				if ([session shouldPushAllRecordsForEntityName:preflightEntityName])
-					// Slow sync
-					totalRecords += [[self objectsForEntityName:preflightEntityName] count];
-				else
+				if ([session shouldPushChangesForEntityName:preflightEntityName])
 				{
-					// Fast sync
-					NSString *targetClassName = [INTEntityNameToClassNameMapping objectForKey:preflightEntityName];
-					totalRecords += [[INT_objectsChangedSinceLastSync objectForKey:targetClassName] count];
-					totalRecords += [[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] count];
+					if ([session shouldPushAllRecordsForEntityName:preflightEntityName])
+						// Slow sync
+						pushedRecordCount += [[self objectsForEntityName:preflightEntityName] count];
+					else
+					{
+						// Fast sync
+						NSString *targetClassName = [INTEntityNameToClassNameMapping objectForKey:preflightEntityName];
+						pushedRecordCount += [[INT_objectsChangedSinceLastSync objectForKey:targetClassName] count];
+						pushedRecordCount += [[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] count];
+					}
 				}
 			}
+			
+			[self performSelectorOnMainThread:@selector(threadedSyncSetProgressMaxValue:) 
+								   withObject:[NSNumber numberWithUnsignedInt:pushedRecordCount]
+								waitUntilDone:YES];
 		}
-		
-		[syncProgressIndicator setMaxValue:totalRecords];
-		[syncProgressIndicator setDoubleValue:0.0];
-		[syncProgressIndicator setIndeterminate:NO];
-		[syncProgressIndicator display];
 		
 		
 		// Actually push the records
@@ -336,8 +358,10 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 					{
 						NSDictionary *record = [self recordForObject:localObject entityName:entityName];
 						[session pushChangesFromRecord:record withIdentifier:[localObject uuid]];
-						[syncProgressIndicator incrementBy:1.0];
-						[syncProgressIndicator display];
+						if (INT_isUsingSyncProgress)
+							[self performSelectorOnMainThread:@selector(threadedIncrementProgress) withObject:nil waitUntilDone:NO];
+						else
+							pushedRecordCount++;
 					}
 				}
 				else
@@ -351,8 +375,10 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 					{
 						NSDictionary *record = [self recordForObject:object entityName:entityName];
 						[session pushChangesFromRecord:record withIdentifier:[object uuid]];
-						[syncProgressIndicator incrementBy:1.0];
-						[syncProgressIndicator display];
+						if (INT_isUsingSyncProgress)
+							[self performSelectorOnMainThread:@selector(threadedIncrementProgress) withObject:nil waitUntilDone:NO];
+						else
+							pushedRecordCount++;
 					}
 					
 					NSEnumerator *deletedIdentifiers = [[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] objectEnumerator];
@@ -360,8 +386,10 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 					while ((deletedIdentifier = [deletedIdentifiers nextObject]))
 					{
 						[session deleteRecordWithIdentifier:deletedIdentifier];
-						[syncProgressIndicator incrementBy:1.0];
-						[syncProgressIndicator display];
+						if (INT_isUsingSyncProgress)
+							[self performSelectorOnMainThread:@selector(threadedIncrementProgress) withObject:nil waitUntilDone:NO];
+						else
+							pushedRecordCount++;
 					}
 					
 					[[INT_objectsChangedSinceLastSync objectForKey:targetClassName] removeAllObjects];
@@ -371,14 +399,13 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 			[pool release];
 		}
 		if (NSDebugEnabled)
-			NSLog(@"Pushed %d records", totalRecords);
+			NSLog(@"Pushed %d records", pushedRecordCount);
 	}
 	
 	
 	// Push complete
-	[syncProgressIndicator setIndeterminate:YES];
-	[syncProgressIndicator display];
-	[syncProgressIndicator startAnimation:nil];
+	if (INT_isUsingSyncProgress)
+		[self performSelectorOnMainThread:@selector(threadedSetProgressIndeterminate:) withObject:[NSNumber numberWithBool:YES] waitUntilDone:NO];
 	[self setLastSyncDate:[NSDate date]];
 	
 	if ([session isCancelled])
@@ -395,7 +422,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	@try
 	{
 		canPull = [session prepareToPullChangesForEntityNames:[INTEntityNameToClassNameMapping allKeys]
-												   beforeDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
+												   beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
 	}
 	@catch (id e)
 	{
@@ -409,7 +436,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	else if (!canPull)
 	{
 		if (NSDebugEnabled)
-			NSLog(@"Sync timed out while waiting to pull changes");
+			NSLog(@"Session doesn't want us to pull changes");
 		[session finishSyncing];
 		return;
 	}
@@ -506,6 +533,66 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		[session cancelSyncing];
 		[self loadFromFile:backupFilename error:NULL];
 	}
+}
+
+
+
+#pragma mark Threaded sync helper methods
+
+- (void)threadedSyncSetup // INTAppController (INTSyncServicesPrivateMethods)
+{
+	// Display progress window
+	// Prevent the dock icon from bouncing
+	BOOL ignored = [(INTApplication *)NSApp ignoresUserAttentionRequests];
+	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:YES];
+	
+	[syncProgressIndicator setIndeterminate:YES];
+	INT_syncProgressModalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
+	[syncProgressPanel makeKeyAndOrderFront:nil];
+	[NSApp runModalSession:INT_syncProgressModalSession];
+	[syncProgressIndicator startAnimation:nil];
+	
+	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:ignored];
+	
+	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Syncing"]];
+	
+	INT_isSyncing = YES;
+	[[self undoManager] disableUndoRegistration];
+}
+
+
+- (void)threadedSyncTeardown // INTAppController (INTSyncServicesPrivateMethods)
+{
+	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Introspectare"]];
+	[[self undoManager] enableUndoRegistration];
+	INT_isSyncing = NO;
+	
+	// Close progress window
+	[NSApp endModalSession:INT_syncProgressModalSession];
+	[syncProgressPanel orderOut:nil];
+}
+
+
+- (void)threadedSyncSetProgressMaxValue:(NSNumber *)maxValue // INTAppController (INTSyncServicesPrivateMethods)
+{
+	[syncProgressIndicator setMaxValue:[maxValue doubleValue]];
+	[syncProgressIndicator setDoubleValue:0.0];
+	[syncProgressIndicator setIndeterminate:NO];
+}
+
+
+- (void)threadedIncrementProgress // INTAppController (INTSyncServicesPrivateMethods)
+{
+	[syncProgressIndicator incrementBy:1.0];
+}
+
+
+- (void)threadedSetProgressIndeterminate:(NSNumber *)indeterminate // INTAppController (INTSyncServicesPrivateMethods)
+{
+	BOOL indet = [indeterminate boolValue];
+	[syncProgressIndicator setIndeterminate:indet];
+	if (indet)
+		[syncProgressIndicator startAnimation:nil];
 }
 
 
