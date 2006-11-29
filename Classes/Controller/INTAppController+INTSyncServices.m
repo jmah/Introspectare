@@ -141,7 +141,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 - (void)syncWhileInactive
 {
 	if (![[self lastSyncDate] isEqual:[NSDate distantPast]])
-		[self syncWithTimeout:2.0 pullChanges:NO forceSlowSync:NO displayProgressPanel:NO];
+		[self syncWithTimeout:2.0 pullChanges:YES forceSlowSync:NO displayProgressPanel:NO];
 }
 
 
@@ -388,7 +388,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	@try
 	{
 		canPull = [session prepareToPullChangesForEntityNames:[INTEntityNameToClassNameMapping allKeys]
-												   beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
+												   beforeDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
 	}
 	@catch (id e)
 	{
@@ -708,6 +708,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		{
 			attributeKeys = [NSArray arrayWithObject:@"upheld"];
 			relationshipKeys = [NSArray arrayWithObject:@"principle"];
+			ignoredKeys = [NSArray arrayWithObject:@"entry"];
 		}
 		
 		

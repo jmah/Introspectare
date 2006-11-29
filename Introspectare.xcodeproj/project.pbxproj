@@ -598,7 +598,7 @@
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.6;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -608,7 +608,7 @@
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.6;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;
