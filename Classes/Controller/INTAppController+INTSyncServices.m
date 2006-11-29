@@ -20,17 +20,34 @@
 
 @interface INTAppController (INTSyncServicesPrivateMethods)
 
-#pragma mark Synchronization
+#pragma mark Accessing sync status
 - (void)setLastSyncDate:(NSDate *)date;
+
+#pragma mark Sync notification handlers
+- (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames;
+
+#pragma mark Getting the sync client
+- (ISyncClient *)syncClient;
+
+#pragma mark Performing sync operations
 - (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges displayProgressPanel:(BOOL)displayProgress;
-- (void)reallySyncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges;
+- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges;
+
+#pragma mark Sync helper methods
+- (NSArray *)objectsForEntityName:(NSString *)entityName;
+- (void)removeAllObjectsForEntityName:(NSString *)entityName;
+- (NSDictionary *)recordForObject:(id)object entityName:(NSString *)entityName;
+- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName;
+- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName unresolvedRelationships:(NSArray *)unresolvedRelationships;
+- (BOOL)handleSyncChange:(ISyncChange *)change forEntityName:(NSString *)entityName newRecordIdentifier:(NSString **)outRecordIdentifier unresolvedRelationships:(NSArray **)outUnresolvedRelationships;
+- (BOOL)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping;
 
 @end
 
 
 @implementation INTAppController (INTSyncServices)
 
-#pragma mark Synchronization
+#pragma mark Registering for sync
 
 - (BOOL)registerSyncSchema
 {
@@ -46,23 +63,6 @@
 }
 
 
-- (ISyncClient *)syncClient
-{
-	NSString *clientIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-	ISyncClient *client = [[ISyncManager sharedManager] clientWithIdentifier:clientIdentifier];
-	
-	if (!client)
-	{
-		NSString *clientDescriptionPath = [[NSBundle mainBundle] pathForResource:@"ClientDescription"
-																		  ofType:@"plist"];
-		client = [[ISyncManager sharedManager] registerClientWithIdentifier:clientIdentifier
-														descriptionFilePath:clientDescriptionPath];
-	}
-	
-	return client;
-}
-
-
 - (void)registerForSyncNotifications
 {
 	ISyncClient *client = [self syncClient];
@@ -72,11 +72,8 @@
 }
 
 
-- (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames
-{
-	[self sync];
-}
 
+#pragma mark Accessing sync status
 
 - (NSDate *)lastSyncDate
 {
@@ -93,6 +90,15 @@
 	[oldValue release];
 }
 
+
+- (BOOL)isSyncing
+{
+	return INT_isSyncing;
+}
+
+
+
+#pragma mark Initiating sync actions
 
 - (void)sync
 {
@@ -114,11 +120,37 @@
 }
 
 
-- (BOOL)isSyncing
+
+#pragma mark Sync notification handlers
+
+- (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames // INTAppController (INTSyncServicesPrivateMethods)
 {
-	return INT_isSyncing;
+	[self sync];
 }
 
+
+
+#pragma mark Getting the sync client
+
+- (ISyncClient *)syncClient // INTAppController (INTSyncServicesPrivateMethods)
+{
+	NSString *clientIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+	ISyncClient *client = [[ISyncManager sharedManager] clientWithIdentifier:clientIdentifier];
+	
+	if (!client)
+	{
+		NSString *clientDescriptionPath = [[NSBundle mainBundle] pathForResource:@"ClientDescription"
+																		  ofType:@"plist"];
+		client = [[ISyncManager sharedManager] registerClientWithIdentifier:clientIdentifier
+														descriptionFilePath:clientDescriptionPath];
+	}
+	
+	return client;
+}
+
+
+
+#pragma mark Performing sync operations
 
 - (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges displayProgressPanel:(BOOL)displayProgress // INTAppController (INTSyncServicesPrivateMethods)
 {
@@ -152,7 +184,7 @@
 	// Sync!
 	@try
 	{
-		[self reallySyncWithTimeout:2.0 pullChanges:YES];
+		[self syncWithTimeout:2.0 pullChanges:YES];
 	}
 	@catch (id e)
 	{
@@ -175,7 +207,7 @@
 }
 
 
-- (void)reallySyncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges // INTAppController (INTSyncServicesPrivateMethods)
+- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges // INTAppController (INTSyncServicesPrivateMethods)
 {
 	// Save backup file
 	NSString *extension = [[self dataFilename] pathExtension];
@@ -416,7 +448,10 @@
 }
 
 
-- (NSArray *)objectsForEntityName:(NSString *)entityName
+
+#pragma mark Sync helper methods
+
+- (NSArray *)objectsForEntityName:(NSString *)entityName // INTAppController (INTSyncServicesPrivateMethods)
 {
 	if ([entityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
 		return [[[self library] entries] allObjects];
@@ -440,7 +475,7 @@
 }
 
 
-- (void)removeAllObjectsForEntityName:(NSString *)entityName
+- (void)removeAllObjectsForEntityName:(NSString *)entityName // INTAppController (INTSyncServicesPrivateMethods)
 {
 	if ([entityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
 	{
@@ -483,7 +518,7 @@
 }
 
 
-- (NSDictionary *)recordForObject:(id)object entityName:(NSString *)entityName // Returns the sync record
+- (NSDictionary *)recordForObject:(id)object entityName:(NSString *)entityName // INTAppController (INTSyncServicesPrivateMethods)
 {
 	NSMutableDictionary *record = [NSMutableDictionary dictionaryWithObject:entityName forKey:@"com.apple.syncservices.RecordEntityName"];
 	
@@ -555,7 +590,7 @@
 }
 
 
-- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName
+- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName // INTAppController (INTSyncServicesPrivateMethods)
 {
 	NSEnumerator *enumerator = [[self objectsForEntityName:entityName] objectEnumerator];
 	id object = nil;
@@ -567,7 +602,7 @@
 }
 
 
-- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName unresolvedRelationships:(NSArray *)unresolvedRelationships
+- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName unresolvedRelationships:(NSArray *)unresolvedRelationships // INTAppController (INTSyncServicesPrivateMethods)
 {
 	id object = [self objectWithRecordIdentifier:identifier entityName:entityName];
 	if (!object)
@@ -585,7 +620,7 @@
 }
 
 
-- (BOOL)handleSyncChange:(ISyncChange *)change forEntityName:(NSString *)entityName newRecordIdentifier:(NSString **)outRecordIdentifier unresolvedRelationships:(NSArray **)outUnresolvedRelationships
+- (BOOL)handleSyncChange:(ISyncChange *)change forEntityName:(NSString *)entityName newRecordIdentifier:(NSString **)outRecordIdentifier unresolvedRelationships:(NSArray **)outUnresolvedRelationships // INTAppController (INTSyncServicesPrivateMethods)
 {
 	BOOL success = NO;
 	NSMutableArray *unresolved = [NSMutableArray array];
@@ -824,7 +859,7 @@
 }
 
 
-- (BOOL)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping
+- (BOOL)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping // INTAppController (INTSyncServicesPrivateMethods)
 {
 	BOOL success = YES;
 	NSEnumerator *unresolvedRelationshipsEnumerator = [unresolvedRelationships objectEnumerator];

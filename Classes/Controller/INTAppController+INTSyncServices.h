@@ -13,22 +13,17 @@
 
 @interface INTAppController (INTSyncServices)
 
-#pragma mark Synchronization
+#pragma mark Registering for sync
 - (BOOL)registerSyncSchema;
-- (ISyncClient *)syncClient;
 - (void)registerForSyncNotifications;
-- (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames;
+
+#pragma mark Accessing sync status
+- (BOOL)isSyncing;
 - (NSDate *)lastSyncDate;
+
+#pragma mark Initiating sync actions
 - (void)sync;
 - (void)syncBeforeApplicationTerminates;
 - (void)syncWhileInactive;
-- (BOOL)isSyncing;
-- (NSArray *)objectsForEntityName:(NSString *)entityName;
-- (void)removeAllObjectsForEntityName:(NSString *)entityName;
-- (NSDictionary *)recordForObject:(id)object entityName:(NSString *)entityName; // Returns the sync record
-- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName;
-- (id)objectWithRecordIdentifier:(NSString *)identifier entityName:(NSString *)entityName unresolvedRelationships:(NSArray *)unresolvedRelationships;
-- (BOOL)handleSyncChange:(ISyncChange *)change forEntityName:(NSString *)entityName newRecordIdentifier:(NSString **)outRecordIdentifier unresolvedRelationships:(NSArray **)outUnresolvedRelationships;
-- (BOOL)resolveRelationships:(NSArray *)unresolvedRelationships withRecordIdentifierMapping:(NSDictionary *)recordIdentifierMapping;
 
 @end
