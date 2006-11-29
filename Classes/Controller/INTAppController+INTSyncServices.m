@@ -8,6 +8,7 @@
 
 #import "INTAppController+INTSyncServices.h"
 #import "INTAppController+INTPersistence.h"
+#import <Foundation/NSDebug.h>
 #import "INTFlattening.h"
 #import "INTLibrary.h"
 #import "INTEntry.h"
@@ -178,6 +179,13 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 - (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync displayProgressPanel:(BOOL)displayProgress // INTAppController (INTSyncServicesPrivateMethods)
 {
+	if (!INT_syncSchemaRegistered)
+	{
+		if (NSDebugEnabled)
+			NSLog(@"Not syncing because the sync schema was not registered");
+		return;
+	}
+	
 	INT_isSyncing = YES;
 	[[self undoManager] disableUndoRegistration];
 	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Syncing"]];
@@ -231,20 +239,23 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	BOOL didSave = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:backupFilename] error:NULL];
 	if (!didSave)
 	{
-		NSLog(@"Not synching because data backup could not be saved");
+		if (NSDebugEnabled)
+			NSLog(@"Not synching because data backup could not be saved");
 		return;
 	}
 	
 	if (![[ISyncManager sharedManager] isEnabled])
 	{
-		NSLog(@"Not synching because sync server is unavailable");
+		if (NSDebugEnabled)
+			NSLog(@"Not synching because sync server is unavailable");
 		return;
 	}
 	
 	ISyncClient *client = [self syncClient];
 	if (!client)
 	{
-		NSLog(@"Not synching because a sync client could not be obtained");
+		if (NSDebugEnabled)
+			NSLog(@"Not synching because a sync client could not be obtained");
 		return;
 	}
 	
@@ -259,7 +270,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 													  beforeDate:[NSDate dateWithTimeIntervalSinceNow:timeout]];
 	if (!session)
 	{
-		NSLog(@"Timed out while waiting for sync session");
+		if (NSDebugEnabled)
+			NSLog(@"Timed out while waiting for sync session");
 		return;
 	}
 	
@@ -270,7 +282,6 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	else if ([[self lastSyncDate] isEqual:[NSDate distantPast]])
 		// Never synced before
 		[session clientWantsToPushAllRecordsForEntityNames:[INTEntityNameToClassNameMapping allKeys]];
-	
 	
 	// Push the truth
 	{
@@ -352,7 +363,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 			}
 			[pool release];
 		}
-		NSLog(@"Pushed %d records", totalRecords);
+		if (NSDebugEnabled)
+			NSLog(@"Pushed %d records", totalRecords);
 	}
 	
 	
@@ -383,12 +395,14 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	}
 	if ([session isCancelled])
 	{
-		NSLog(@"Sync session cancelled while waiting to pull changes");
+		if (NSDebugEnabled)
+			NSLog(@"Sync session cancelled while waiting to pull changes");
 		return;
 	}
 	else if (!canPull)
 	{
-		NSLog(@"Sync timed out while waiting to pull changes");
+		if (NSDebugEnabled)
+			NSLog(@"Sync timed out while waiting to pull changes");
 		[session finishSyncing];
 		return;
 	}
@@ -447,7 +461,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 					[session clientRefusedChangesForRecordWithIdentifier:recordIdentifier];
 			}
 		}
-		NSLog(@"Pulled %d changes. %d unresolved relationships, %d identifier mappings", changeCount, [allUnresolvedRelationships count], [recordIdentifierMapping count]);
+		if (NSDebugEnabled)
+			NSLog(@"Pulled %d changes. %d unresolved relationships, %d identifier mappings", changeCount, [allUnresolvedRelationships count], [recordIdentifierMapping count]);
 	}
 	
 	BOOL didResolveAllRelationships = NO;
@@ -472,13 +487,15 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		}
 		else
 		{
-			NSLog(@"Could not save synchronized changes");
+			if (NSDebugEnabled)
+				NSLog(@"Could not save synchronized changes");
 			[session cancelSyncing];
 		}
 	}
 	else
 	{
-		NSLog(@"Failed to resolve all relationships. Reverting to backup of data before sync");
+		if (NSDebugEnabled)
+			NSLog(@"Failed to resolve all relationships. Reverting to backup of data before sync");
 		[session cancelSyncing];
 		[self loadFromFile:backupFilename error:NULL];
 	}

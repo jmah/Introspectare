@@ -7,8 +7,17 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <Foundation/NSDebug.h>
+
 
 int main(int argc, char *argv[])
 {
+#ifndef _RELEASE_
+	NSDebugEnabled = YES;
+	NSZombieEnabled = NO;
+	NSDeallocateZombies = NO;
+	NSHangOnUncaughtException = NO;
+#endif
+	
 	return NSApplicationMain(argc, (const char **)argv);
 }
