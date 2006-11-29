@@ -461,7 +461,8 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	unsigned currIndex = [oldIndexes firstIndex];
 	while (currIndex != NSNotFound)
 	{
-		[self setNeedsDisplayInRect:[self rectForEntry:[[self sortedEntries] objectAtIndex:currIndex]]];
+		if (currIndex < [[self sortedEntries] count])
+			[self setNeedsDisplayInRect:[self rectForEntry:[[self sortedEntries] objectAtIndex:currIndex]]];
 		currIndex = [oldIndexes indexGreaterThanIndex:currIndex];
 	}
 	
