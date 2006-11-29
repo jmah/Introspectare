@@ -22,7 +22,7 @@
 - (void)sync;
 - (void)syncBeforeApplicationTerminates;
 - (void)syncWhileInactive;
-- (BOOL)isSynchronizing;
+- (BOOL)isSyncing;
 - (NSArray *)objectsForEntityName:(NSString *)entityName;
 - (void)removeAllObjectsForEntityName:(NSString *)entityName;
 - (NSDictionary *)recordForObject:(id)object entityName:(NSString *)entityName; // Returns the sync record

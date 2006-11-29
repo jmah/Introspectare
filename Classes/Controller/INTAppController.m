@@ -486,7 +486,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)objectChanged:(id)object // INTAppController (INTPrivateMethods)
 {
-	if (![self isSynchronizing])
+	if (![self isSyncing])
 	{
 		NSString *className = nil;
 		if ([object isKindOfClass:[INTEntry class]])
@@ -508,7 +508,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)objectDeleted:(id)object // INTAppController (INTPrivateMethods)
 {
-	if (![self isSynchronizing])
+	if (![self isSyncing])
 	{
 		NSString *className = nil;
 		if ([object isKindOfClass:[INTEntry class]])

@@ -115,7 +115,7 @@
 }
 
 
-- (BOOL)isSynchronizing
+- (BOOL)isSyncing
 {
 	return INT_isSyncing;
 }
