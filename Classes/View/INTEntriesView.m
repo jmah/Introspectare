@@ -85,7 +85,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 {
 	if ((self = [super initWithFrame:frame]))
 	{
-		if (![calendar isEqual:[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar]])
+		if (![[calendar calendarIdentifier] isEqual:NSGregorianCalendar])
 		{
 			[self release];
 			[NSException raise:NSInvalidArgumentException format:@"INTEntriesView only supports Gregorian calendars"];
