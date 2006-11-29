@@ -17,6 +17,10 @@
 
 @interface INTAppController : NSObject 
 {
+	@public
+	IBOutlet NSWindow *syncProgressPanel;
+	IBOutlet NSProgressIndicator *syncProgressIndicator;
+	
 	@private
 	INTLibrary *INT_library;
 	NSUndoManager *INT_undoManager;

@@ -9,11 +9,11 @@
                 showDays = id; 
                 showHideInspector = id; 
                 showInspector = id; 
-                showPrinciples = id; 
                 synchronize = id; 
             }; 
             CLASS = INTAppController; 
             LANGUAGE = ObjC; 
+            OUTLETS = {syncProgressIndicator = NSProgressIndicator; syncProgressPanel = NSWindow; }; 
             SUPERCLASS = NSObject; 
         }
     ); 

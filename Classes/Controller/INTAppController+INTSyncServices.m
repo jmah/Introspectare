@@ -97,7 +97,41 @@
 - (void)sync
 {
 	INT_isSyncing = YES;
+	[[self undoManager] disableUndoRegistration];
+	
+	// Display progress window
+	[syncProgressIndicator setIndeterminate:YES];
+	NSWindow *sheet = nil;
+	NSModalSession modalSession;
+	if ([[NSApp orderedWindows] count] > 0)
+	{
+		sheet = syncProgressPanel;
+		[NSApp beginSheet:syncProgressPanel
+		   modalForWindow:[[NSApp orderedWindows] objectAtIndex:0]
+			modalDelegate:nil
+		   didEndSelector:NULL
+			  contextInfo:NULL];
+	}
+	else
+	{
+		modalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
+		[NSApp runModalSession:modalSession];
+	}
+	[syncProgressPanel display];
+	[syncProgressIndicator startAnimation:nil];
+	
+	// Sync!
 	[self reallySync];
+	
+	// Close progress window
+	[syncProgressIndicator stopAnimation:nil];
+	if (sheet)
+		[NSApp endSheet:sheet];
+	else
+		[NSApp endModalSession:modalSession];
+	[syncProgressPanel orderOut:nil];
+	
+	[[self undoManager] enableUndoRegistration];
 	INT_isSyncing = NO;
 }
 
@@ -161,8 +195,35 @@
 	
 	
 	// Push the truth
-	unsigned pushCount = 0;
 	{
+		// Count the number of records we are pushing to give an accurate progress count
+		unsigned totalRecords = 0;
+		NSEnumerator *preflightEntityNamesEnumerator = [[entityNameToClassNameMapping allKeys] objectEnumerator];
+		NSString *preflightEntityName;
+		while ((preflightEntityName = [preflightEntityNamesEnumerator nextObject]))
+		{
+			if ([session shouldPushChangesForEntityName:preflightEntityName])
+			{
+				if ([session shouldPushAllRecordsForEntityName:preflightEntityName])
+					// Slow sync
+					totalRecords += [[self objectsForEntityName:preflightEntityName] count];
+				else
+				{
+					// Fast sync
+					NSString *targetClassName = [entityNameToClassNameMapping objectForKey:preflightEntityName];
+					totalRecords += [[INT_objectsChangedSinceLastSync objectForKey:targetClassName] count];
+					totalRecords += [[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] count];
+				}
+			}
+		}
+		
+		[syncProgressIndicator setMaxValue:totalRecords];
+		[syncProgressIndicator setDoubleValue:0.0];
+		[syncProgressIndicator setIndeterminate:NO];
+		
+		
+		
+		// Actually push the records
 		NSEnumerator *entityNamesEnumeramtor = [[entityNameToClassNameMapping allKeys] objectEnumerator];
 		NSString *entityName;
 		while ((entityName = [entityNamesEnumeramtor nextObject]))
@@ -179,7 +240,8 @@
 						NSDictionary *record = [self recordForObject:localObject entityName:entityName];
 						[session pushChangesFromRecord:record
 										withIdentifier:[localObject uuid]];
-						pushCount++;
+						[syncProgressIndicator incrementBy:1.0];
+						[syncProgressIndicator display];
 					}
 				}
 				else
@@ -194,24 +256,31 @@
 						NSDictionary *record = [self recordForObject:object entityName:entityName];
 						[session pushChangesFromRecord:record
 										withIdentifier:[object uuid]];
-						pushCount++;
+						[syncProgressIndicator incrementBy:1.0];
+						[syncProgressIndicator display];
 					}
 					
 					NSEnumerator *deletedIdentifiers = [[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] objectEnumerator];
 					NSString *deletedIdentifier;
 					while ((deletedIdentifier = [deletedIdentifiers nextObject]))
+					{
 						[session deleteRecordWithIdentifier:deletedIdentifier];
+						[syncProgressIndicator incrementBy:1.0];
+						[syncProgressIndicator display];
+					}
 					
 					[[INT_objectsChangedSinceLastSync objectForKey:targetClassName] removeAllObjects];
 					[[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] removeAllObjects];
 				}
 			}
 		}
+		NSLog(@"Pushed %d records", totalRecords);
 	}
-	NSLog(@"Pushed %d records.", pushCount);
 	
 	
 	// Push complete
+	[syncProgressIndicator setIndeterminate:YES];
+	[syncProgressIndicator startAnimation:nil];
 	[self setLastSyncDate:[NSDate date]];
 	
 	

@@ -36,6 +36,7 @@
 		28574E260B1CC1120045FCF4 /* INTEntry+INTSyncServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574E250B1CC1120045FCF4 /* INTEntry+INTSyncServices.m */; };
 		28574E8F0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574E8E0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m */; };
 		28574ECE0B1CCF9B0045FCF4 /* INTFlattening.m in Sources */ = {isa = PBXBuildFile; fileRef = 28574ECD0B1CCF9B0045FCF4 /* INTFlattening.m */; };
+		2857534E0B1D19110045FCF4 /* Sync Services.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2857534D0B1D19110045FCF4 /* Sync Services.icns */; };
 		285EE8620B11E795002F8B5A /* INTEntriesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 285EE8610B11E795002F8B5A /* INTEntriesView.m */; };
 		287031420A61607000A7F5A7 /* Introspectare.icns in Resources */ = {isa = PBXBuildFile; fileRef = 287031410A61607000A7F5A7 /* Introspectare.icns */; };
 		288FC9BF0A75DF520044C951 /* INTCircleSwitchButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 288FC9BE0A75DF520044C951 /* INTCircleSwitchButtonCell.m */; };
@@ -108,6 +109,7 @@
 		28574E8E0B1CCA1C0045FCF4 /* INTAnnotatedPrinciple+INTSyncServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INTAnnotatedPrinciple+INTSyncServices.m"; sourceTree = "<group>"; };
 		28574ECC0B1CCF9B0045FCF4 /* INTFlattening.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTFlattening.h; sourceTree = "<group>"; };
 		28574ECD0B1CCF9B0045FCF4 /* INTFlattening.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTFlattening.m; sourceTree = "<group>"; };
+		2857534D0B1D19110045FCF4 /* Sync Services.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "Sync Services.icns"; sourceTree = "<group>"; };
 		285EE8600B11E795002F8B5A /* INTEntriesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesView.h; sourceTree = "<group>"; };
 		285EE8610B11E795002F8B5A /* INTEntriesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesView.m; sourceTree = "<group>"; };
 		287031410A61607000A7F5A7 /* Introspectare.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Introspectare.icns; sourceTree = "<group>"; };
@@ -309,6 +311,7 @@
 				28BFA0CE0A5AD4510075D416 /* Constitutions.nib */,
 				282DD9D20A7398CA009E2AFB /* Inspector.nib */,
 				287031410A61607000A7F5A7 /* Introspectare.icns */,
+				2857534D0B1D19110045FCF4 /* Sync Services.icns */,
 				28D707F70B18A1B100727436 /* Unread.tiff */,
 				28574C240B1C84590045FCF4 /* ClientDescription.plist */,
 				28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */,
@@ -452,6 +455,7 @@
 				28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */,
 				28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */,
 				28574C250B1C84590045FCF4 /* ClientDescription.plist in Resources */,
+				2857534E0B1D19110045FCF4 /* Sync Services.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,7 +596,7 @@
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.6;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -602,7 +606,7 @@
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.6;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 14;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;

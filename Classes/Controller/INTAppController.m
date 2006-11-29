@@ -92,10 +92,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)awakeFromNib
 {
-	NSError *error = nil;
-	if (![self loadFromFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
-					  error:&error])
-		[NSApp presentError:error];
+	[syncProgressIndicator setUsesThreadedAnimation:YES];
 }
 
 
@@ -657,11 +654,7 @@ static INTAppController *sharedAppController = nil;
 
 - (IBAction)synchronize:(id)sender
 {
-	NSLog(@"Sync starting");
-	[[self undoManager] disableUndoRegistration];
 	[self sync];
-	[[self undoManager] enableUndoRegistration];
-	NSLog(@"Sync done");
 }
 
 
@@ -682,6 +675,11 @@ static INTAppController *sharedAppController = nil;
 		[self registerForSyncNotifications];
 	else
 		NSLog(@"Failed to register sync schema");
+	
+	NSError *error = nil;
+	if (![self loadFromFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
+					  error:&error])
+		[NSApp presentError:error];
 	
 	[self showDays:self];
 }
