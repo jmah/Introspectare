@@ -306,6 +306,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		NSString *entityName;
 		while ((entityName = [entityNamesEnumerator nextObject]))
 		{
+			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 			if ([session shouldPushChangesForEntityName:entityName])
 			{
 				if ([session shouldPushAllRecordsForEntityName:entityName])
@@ -349,6 +350,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 					[[INT_objectIdentifiersDeletedSinceLastSync objectForKey:targetClassName] removeAllObjects];
 				}
 			}
+			[pool release];
 		}
 		NSLog(@"Pushed %d records", totalRecords);
 	}
