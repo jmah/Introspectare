@@ -151,7 +151,14 @@
 	}
 		
 	// Sync!
-	[self reallySyncWithTimeout:2.0 pullChanges:YES];
+	@try
+	{
+		[self reallySyncWithTimeout:2.0 pullChanges:YES];
+	}
+	@catch (id e)
+	{
+		NSLog(@"Caught exception %@", e);
+	}
 	
 	// Close progress window
 	if (displayProgress)
