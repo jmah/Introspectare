@@ -245,7 +245,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		
 		@try
 		{
-			[self _syncWithTimeout:2.0 pullChanges:YES forceSlowSync:slowSync];
+			[self _syncWithTimeout:timeout pullChanges:pullChanges forceSlowSync:slowSync];
 		}
 		@catch (id e)
 		{
