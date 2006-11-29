@@ -181,6 +181,8 @@
 		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
 		do
 		{
+			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+			
 			unsigned currIndex = NSNotFound;
 			NSIndexSet *newIndexes;
 			
@@ -256,6 +258,8 @@
 			}
 			else
 				[self autoscroll:lastNonPeriodicEvent];
+			
+			[pool release];
 			
 			event = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
 									   untilDate:[NSDate distantFuture]

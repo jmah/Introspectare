@@ -720,12 +720,14 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		{
 			if (NSPointInRect(point, cellFrame))
 			{
+				NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 				[dataCell setHighlighted:YES];
 				[self displayRect:cellFrame];
 				BOOL trackUntilMouseUp = [[dataCell class] prefersTrackingUntilMouseUp];
 				BOOL shouldEndTracking = [dataCell trackMouse:event inRect:cellFrame ofView:self untilMouseUp:trackUntilMouseUp];
 				[dataCell setHighlighted:NO];
 				[self displayRect:cellFrame];
+				[pool release];
 				
 				if (shouldEndTracking)
 					break;
@@ -752,12 +754,15 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 				[self setSelectionIndexes:[NSIndexSet indexSet]];
 		}
 		
-		NSIndexSet *originalIndexes = [[[self selectionIndexes] copy] autorelease];
+		NSIndexSet *originalIndexes = [[self selectionIndexes] copy];
 		[self setEventTrackingSelection:YES];
 		NSEvent *lastNonPeriodicEvent = event;
+		
 		[NSEvent startPeriodicEventsAfterDelay:0.2f withPeriod:0.05f];
 		do
 		{
+			NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+			
 			unsigned currIndex = NSNotFound;
 			NSIndexSet *newIndexes;
 			
@@ -835,6 +840,8 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			else
 				[self autoscroll:lastNonPeriodicEvent];
 			
+			[pool release];
+			
 			event = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
 									   untilDate:[NSDate distantFuture]
 										  inMode:NSEventTrackingRunLoopMode
@@ -845,7 +852,9 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		} while ([event type] != NSLeftMouseUp);
 		[NSEvent stopPeriodicEvents];
 		
+		[originalIndexes release];
 		[self setEventTrackingSelection:NO];
+		
 		// Scroll selected entries to visible
 		[self setSelectionIndexes:[self selectionIndexes]];
 	}
