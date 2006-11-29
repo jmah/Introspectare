@@ -362,7 +362,9 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	[syncProgressIndicator startAnimation:nil];
 	[self setLastSyncDate:[NSDate date]];
 	
-	if (!pullChanges)
+	if ([session isCancelled])
+		return;
+	else if (!pullChanges)
 	{
 		[session finishSyncing];
 		return;
