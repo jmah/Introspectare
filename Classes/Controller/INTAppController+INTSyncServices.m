@@ -249,7 +249,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	}
 	
 	
-	// Refresh sync if the data file doesn't extyist
+	// Refresh sync if the data file doesn't exist
 	BOOL shouldRefreshSync = NO;
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]])
 		shouldRefreshSync = YES;
@@ -464,8 +464,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	BOOL didSaveChanges = NO;
 	if (didResolveAllRelationships)
 	{
-		didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
-									error:NULL];
+		didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]] error:NULL];
 		if (didSaveChanges)
 		{
 			[session clientCommittedAcceptedChanges];
