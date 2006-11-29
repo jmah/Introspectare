@@ -355,6 +355,10 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 					   options:0
 					   context:NULL];
 			[entry addObserver:self
+					forKeyPath:@"constitution.versionLabel"
+					   options:0
+					   context:NULL];
+			[entry addObserver:self
 					forKeyPath:@"annotatedPrinciples"
 					   options:0
 					   context:NULL];
@@ -388,6 +392,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		{
 			[entry removeObserver:self forKeyPath:@"note"];
 			[entry removeObserver:self forKeyPath:@"unread"];
+			[entry removeObserver:self forKeyPath:@"constitution.versionLabel"];
 			[entry removeObserver:self forKeyPath:@"annotatedPrinciples"];
 			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
 			INTAnnotatedPrinciple *annotatedPrinciple;
@@ -431,7 +436,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			[[self headerView] setNeedsDisplay:YES];
 			handled = YES;
 		}
-		else if ([keyPath isEqualToString:@"annotatedPrinciples"])
+		else if ([keyPath isEqualToString:@"annotatedPrinciples"] || [keyPath isEqualToString:@"constitution.versionLabel"])
 		{
 			[self setNeedsDisplay:YES];
 			[[self headerView] setNeedsDisplay:YES];
