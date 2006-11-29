@@ -122,6 +122,8 @@
 {
 	if ([[[self library] constitutions] count] > 0)
 	{
+		[[[INTAppController sharedAppController] undoManager] disableUndoRegistration];
+		
 		// Find oldest constitution creation date
 		NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:YES];
 		NSArray *sortedConstitutions = [[[self library] constitutions] sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateAscending]];
@@ -134,6 +136,8 @@
 			 currDay++)
 			[[self library] addEntryForDayOfCommonEra:currDay];
 		[dateAscending release];
+		
+		[[[INTAppController sharedAppController] undoManager] enableUndoRegistration];
 	}
 }
 
