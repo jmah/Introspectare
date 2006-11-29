@@ -47,6 +47,8 @@
 	// Bindings
 	NSObject *INT_entriesContainer;
 	NSString *INT_entriesKeyPath;
+	
+	NSArray *INT_observedEntries;
 }
 
 

@@ -24,6 +24,10 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 @interface INTEntriesView (INTPrivateMethods)
 
+#pragma mark Managing bindings
+- (void)beginObservingEntries:(NSArray *)entries;
+- (void)endObservingEntries:(NSArray *)entries;
+
 #pragma mark Action methods
 - (void)selectedAnnotatedPrincipleClicked:(id)sender;
 - (void)markSelectedEntriesAsRead:(id)sender;
@@ -106,6 +110,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		
 		INT_prevClipViewFrameWidth = NAN;
 		INT_selectionIndexes = [[NSIndexSet indexSet] retain];
+		INT_observedEntries = [[NSArray alloc] init];
 		
 		// Create default principle label cell
 		INT_principleLabelCell = [[NSTextFieldCell alloc] initTextCell:[NSString string]];
@@ -167,6 +172,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	[INT_showInspectorItem release], INT_showInspectorItem = nil;
 	[INT_entriesContainer release], INT_entriesContainer = nil;
 	[INT_entriesKeyPath release], INT_entriesKeyPath = nil;
+	[INT_observedEntries release], INT_observedEntries = nil;
 	
 	[super dealloc];
 }
@@ -322,10 +328,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	{
 		INT_entriesContainer = [observableController retain];
 		INT_entriesKeyPath = [keyPath copy];
-		[observableController addObserver:self
-							   forKeyPath:keyPath
-								  options:0
-								  context:NULL];
+		[observableController addObserver:self forKeyPath:keyPath options:0 context:NULL];
+		
+		NSArray *entries = [observableController valueForKeyPath:keyPath];
+		[self beginObservingEntries:entries];
+		[INT_observedEntries release], INT_observedEntries = [entries copy];
 		
 		if ([observableController isKindOfClass:[NSArrayController class]])
 		{
@@ -339,43 +346,6 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		
 		INT_needsToUpdateFrameSize = YES;
 		[self setNeedsDisplay:YES];
-		
-		
-		// Observe interesting things
-		NSEnumerator *entries = [[observableController valueForKeyPath:keyPath] objectEnumerator];
-		INTEntry *entry;
-		while ((entry = [entries nextObject]))
-		{
-			[entry addObserver:self
-					forKeyPath:@"unread"
-					   options:0
-					   context:NULL];
-			[entry addObserver:self
-					forKeyPath:@"note"
-					   options:0
-					   context:NULL];
-			[entry addObserver:self
-					forKeyPath:@"constitution.versionLabel"
-					   options:0
-					   context:NULL];
-			[entry addObserver:self
-					forKeyPath:@"annotatedPrinciples"
-					   options:0
-					   context:NULL];
-			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
-			INTAnnotatedPrinciple *annotatedPrinciple;
-			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
-			{
-				[annotatedPrinciple addObserver:self
-									 forKeyPath:@"upheld"
-										options:0
-										context:entry];
-				[annotatedPrinciple addObserver:self
-									 forKeyPath:@"principle.label"
-										options:0
-										context:entry];
-			}
-		}
 	}
 	else
 		[super bind:binding toObject:observableController withKeyPath:keyPath options:options];
@@ -386,31 +356,59 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 {
 	if ([binding isEqualToString:@"entries"])
 	{
-		NSEnumerator *entries = [[self sortedEntries] objectEnumerator];
-		INTEntry *entry;
-		while ((entry = [entries nextObject]))
-		{
-			[entry removeObserver:self forKeyPath:@"note"];
-			[entry removeObserver:self forKeyPath:@"unread"];
-			[entry removeObserver:self forKeyPath:@"constitution.versionLabel"];
-			[entry removeObserver:self forKeyPath:@"annotatedPrinciples"];
-			NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
-			INTAnnotatedPrinciple *annotatedPrinciple;
-			while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
-			{
-				[annotatedPrinciple removeObserver:self forKeyPath:@"upheld"];
-				[annotatedPrinciple removeObserver:self forKeyPath:@"principle.label"];
-			}
-		}
-		
 		[INT_entriesContainer removeObserver:self forKeyPath:INT_entriesKeyPath];
 		[INT_entriesContainer release], INT_entriesContainer = nil;
 		[INT_entriesKeyPath release], INT_entriesKeyPath = nil;
 		
+		[self endObservingEntries:INT_observedEntries];
+		[INT_observedEntries release], INT_observedEntries = [[NSArray alloc] init];
+		
 		INT_needsToUpdateFrameSize = YES;
 		[self setNeedsDisplay:YES];
 	}
-		[super unbind:binding];
+	[super unbind:binding];
+}
+
+
+- (void)beginObservingEntries:(NSArray *)entries // INTEntriesView (INTPrivateMethods)
+{
+	NSEnumerator *entriesEnumerator = [entries objectEnumerator];
+	INTEntry *entry;
+	while ((entry = [entriesEnumerator nextObject]))
+	{
+		[entry addObserver:self forKeyPath:@"unread" options:0 context:NULL];
+		[entry addObserver:self forKeyPath:@"note" options:0 context:NULL];
+		[entry addObserver:self forKeyPath:@"constitution.versionLabel" options:0 context:NULL];
+		[entry addObserver:self forKeyPath:@"annotatedPrinciples" options:0 context:NULL];
+		NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
+		INTAnnotatedPrinciple *annotatedPrinciple;
+		while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+		{
+			[annotatedPrinciple addObserver:self forKeyPath:@"upheld" options:0 context:entry];
+			[annotatedPrinciple addObserver:self forKeyPath:@"principle.label" options:0 context:NULL];
+		}
+	}
+}
+
+
+- (void)endObservingEntries:(NSArray *)entries // INTEntriesView (INTPrivateMethods)
+{
+	NSEnumerator *entriesEnumerator = [entries objectEnumerator];
+	INTEntry *entry;
+	while ((entry = [entriesEnumerator nextObject]))
+	{
+		[entry removeObserver:self forKeyPath:@"note"];
+		[entry removeObserver:self forKeyPath:@"unread"];
+		[entry removeObserver:self forKeyPath:@"constitution.versionLabel"];
+		[entry removeObserver:self forKeyPath:@"annotatedPrinciples"];
+		NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
+		INTAnnotatedPrinciple *annotatedPrinciple;
+		while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
+		{
+			[annotatedPrinciple removeObserver:self forKeyPath:@"upheld"];
+			[annotatedPrinciple removeObserver:self forKeyPath:@"principle.label"];
+		}
+	}
 }
 
 
@@ -424,6 +422,19 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	{
 		if ([keyPath isEqualToString:INT_entriesKeyPath])
 		{
+			NSMutableArray *oldEntries = [INT_observedEntries mutableCopy];
+			[oldEntries removeObjectsInArray:[self sortedEntries]];
+			[self endObservingEntries:oldEntries];
+			[oldEntries release];
+			
+			NSMutableArray *newEntries = [[self sortedEntries] mutableCopy];
+			[newEntries removeObjectsInArray:INT_observedEntries];
+			[self beginObservingEntries:newEntries];
+			[newEntries release];
+			
+			[INT_observedEntries release];
+			INT_observedEntries = [[self sortedEntries] copy];
+			
 			INT_needsToUpdateFrameSize = YES;
 			[self setNeedsDisplay:YES];
 			handled = YES;
