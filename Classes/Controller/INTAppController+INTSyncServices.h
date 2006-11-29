@@ -23,6 +23,7 @@
 
 #pragma mark Initiating sync actions
 - (void)sync;
+- (void)slowSync;
 - (void)syncBeforeApplicationTerminates;
 - (void)syncWhileInactive;
 

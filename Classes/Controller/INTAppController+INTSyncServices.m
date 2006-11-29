@@ -33,8 +33,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 - (ISyncClient *)syncClient;
 
 #pragma mark Performing sync operations
-- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges displayProgressPanel:(BOOL)displayProgress;
-- (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges;
+- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync displayProgressPanel:(BOOL)displayProgress;
+- (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync;
 
 #pragma mark Sync helper methods
 - (NSArray *)objectsForEntityName:(NSString *)entityName;
@@ -120,21 +120,27 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 - (void)sync
 {
-	[self syncWithTimeout:2.0 pullChanges:YES displayProgressPanel:YES];
+	[self syncWithTimeout:2.0 pullChanges:YES forceSlowSync:NO displayProgressPanel:YES];
+}
+
+
+- (void)slowSync
+{
+	[self syncWithTimeout:2.0 pullChanges:YES forceSlowSync:YES displayProgressPanel:YES];
 }
 
 
 - (void)syncBeforeApplicationTerminates
 {
 	if (![[self lastSyncDate] isEqual:[NSDate distantPast]])
-		[self syncWithTimeout:0.0 pullChanges:NO displayProgressPanel:YES];
+		[self syncWithTimeout:0.0 pullChanges:NO forceSlowSync:NO displayProgressPanel:NO];
 }
 
 
 - (void)syncWhileInactive
 {
 	if (![[self lastSyncDate] isEqual:[NSDate distantPast]])
-		[self syncWithTimeout:2.0 pullChanges:NO displayProgressPanel:NO];
+		[self syncWithTimeout:2.0 pullChanges:NO forceSlowSync:NO displayProgressPanel:NO];
 }
 
 
@@ -170,7 +176,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 #pragma mark Performing sync operations
 
-- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges displayProgressPanel:(BOOL)displayProgress // INTAppController (INTSyncServicesPrivateMethods)
+- (void)syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync displayProgressPanel:(BOOL)displayProgress // INTAppController (INTSyncServicesPrivateMethods)
 {
 	INT_isSyncing = YES;
 	[[self undoManager] disableUndoRegistration];
@@ -193,7 +199,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	// Sync!
 	@try
 	{
-		[self _syncWithTimeout:2.0 pullChanges:YES];
+		[self _syncWithTimeout:2.0 pullChanges:YES forceSlowSync:slowSync];
 	}
 	@catch (id e)
 	{
@@ -217,7 +223,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 }
 
 
-- (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges // INTAppController (INTSyncServicesPrivateMethods)
+- (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync // INTAppController (INTSyncServicesPrivateMethods)
 {
 	// Save backup file
 	NSString *extension = [[self dataFilename] pathExtension];
@@ -259,6 +265,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	if (shouldRefreshSync)
 		[session clientDidResetEntityNames:[INTEntityNameToClassNameMapping allKeys]];
+	else if (slowSync)
+		[session clientWantsToPushAllRecordsForEntityNames:[INTEntityNameToClassNameMapping allKeys]];
 	else if ([[self lastSyncDate] isEqual:[NSDate distantPast]])
 		// Never synced before
 		[session clientWantsToPushAllRecordsForEntityNames:[INTEntityNameToClassNameMapping allKeys]];

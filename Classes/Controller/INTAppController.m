@@ -739,9 +739,9 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationWillTerminate:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	[self syncBeforeApplicationTerminates];
 	[INT_constitutionsController close];
 	[INT_entriesControler close];
+	[self syncBeforeApplicationTerminates];
 }
 
 
