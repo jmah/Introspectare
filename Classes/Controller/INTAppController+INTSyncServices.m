@@ -205,6 +205,25 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		return;
 	}
 	
+	if (![[ISyncManager sharedManager] isEnabled])
+	{
+		if (NSDebugEnabled)
+			NSLog(@"Not synching because sync server is unavailable");
+		return;
+	}
+	
+	// Save backup file
+	NSString *extension = [[self dataFilename] pathExtension];
+	NSString *backupFilename = [[[[self dataFilename] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
+	BOOL didSave = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:backupFilename] error:NULL];
+	if (!didSave)
+	{
+		if (NSDebugEnabled)
+			NSLog(@"Not synching because data backup could not be saved");
+		return;
+	}
+	
+	
 	INT_isUsingSyncProgress = displayProgress;
 	if (displayProgress)
 	{
@@ -270,24 +289,6 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 - (void)_syncWithTimeout:(NSTimeInterval)timeout pullChanges:(BOOL)pullChanges forceSlowSync:(BOOL)slowSync // INTAppController (INTSyncServicesPrivateMethods)
 {
-	// Save backup file
-	NSString *extension = [[self dataFilename] pathExtension];
-	NSString *backupFilename = [[[[self dataFilename] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
-	BOOL didSave = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:backupFilename] error:NULL];
-	if (!didSave)
-	{
-		if (NSDebugEnabled)
-			NSLog(@"Not synching because data backup could not be saved");
-		return;
-	}
-	
-	if (![[ISyncManager sharedManager] isEnabled])
-	{
-		if (NSDebugEnabled)
-			NSLog(@"Not synching because sync server is unavailable");
-		return;
-	}
-	
 	ISyncClient *client = [self syncClient];
 	if (!client)
 	{
@@ -520,27 +521,22 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		NSLog(@"Exception while resolving relationships: %@", e);
 	}
 	
-	BOOL didSaveChanges = NO;
 	if (didResolveAllRelationships)
 	{
-		didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]] error:NULL];
-		if (didSaveChanges)
-		{
-			[session clientCommittedAcceptedChanges];
-			[session finishSyncing];
-		}
-		else
-		{
-			if (NSDebugEnabled)
-				NSLog(@"Could not save synchronized changes");
-			[session cancelSyncing];
-		}
+		BOOL didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]] error:NULL];
+		if (!didSaveChanges)
+			NSLog(@"Could not save synchronized changes. Ignoring...");
+		
+		[session clientCommittedAcceptedChanges];
+		[session finishSyncing];
 	}
 	else
 	{
 		if (NSDebugEnabled)
 			NSLog(@"Failed to resolve all relationships. Reverting to backup of data before sync");
 		[session cancelSyncing];
+		NSString *extension = [[self dataFilename] pathExtension];
+		NSString *backupFilename = [[[[self dataFilename] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
 		[self loadFromFile:backupFilename error:NULL];
 	}
 }
