@@ -31,13 +31,15 @@
 	
 	NSString *INT_showHideInspectorMenuItemTitle;
 	
-	BOOL INT_isSyncing;
-	NSDate *INT_lastSyncDate;
-	BOOL INT_syncSchemaRegistered;
-	NSMutableArray *INT_unresolvedPrinciples;
 	NSMutableDictionary *INT_objectsChangedSinceLastSync;
 	NSMutableDictionary *INT_objectIdentifiersDeletedSinceLastSync;
 	NSTimer *INT_inactiveSyncTimer;
+	BOOL INT_syncSchemaRegistered;
+	
+	// INTSyncServices
+	BOOL INT_isSyncing;
+	NSDate *INT_lastSyncDate;
+	NSMutableArray *INT_unresolvedPrinciples;
 }
 
 
