@@ -500,6 +500,14 @@ static INTAppController *sharedAppController = nil;
 		
 		if (className)
 			[[INT_objectsChangedSinceLastSync objectForKey:className] addObject:object];
+		
+		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
+		if (![self isSyncing] && INT_syncSchemaRegistered)
+			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
+																	 target:self
+																   selector:@selector(inactiveSyncTimerHit:)
+																   userInfo:NULL
+																	repeats:NO];
 	}
 }
 
@@ -525,6 +533,14 @@ static INTAppController *sharedAppController = nil;
 			[[INT_objectsChangedSinceLastSync objectForKey:className] removeObject:object];
 			[[INT_objectIdentifiersDeletedSinceLastSync objectForKey:className] addObject:[object uuid]];
 		}
+		
+		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
+		if (![self isSyncing] && INT_syncSchemaRegistered)
+			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
+																	 target:self
+																   selector:@selector(inactiveSyncTimerHit:)
+																   userInfo:NULL
+																	repeats:NO];
 	}
 }
 
