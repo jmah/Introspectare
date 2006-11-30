@@ -724,7 +724,6 @@ static INTAppController *sharedAppController = nil;
 		[NSApp presentError:error];
 	
 	[self showDays:self];
-	[self syncWhileInactive];
 }
 
 
@@ -777,8 +776,13 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	if (INT_inactiveSyncTimer)
-		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
+	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
+	if (![self isSyncing] && INT_syncSchemaRegistered)
+		INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
+																 target:self
+															   selector:@selector(inactiveSyncTimerHit:)
+															   userInfo:NULL
+																repeats:NO];
 }
 
 
