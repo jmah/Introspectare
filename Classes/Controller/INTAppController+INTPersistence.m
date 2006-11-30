@@ -27,6 +27,12 @@
 }
 
 
+- (NSString *)dataFilePath
+{
+	return [[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]];
+}
+
+
 // Attempts to create the data directory (if it does not already exist), and returns YES if creation succeeded and the data file is writable or createable.
 - (BOOL)ensureReadableFileAtPath:(NSString *)path error:(NSError **)outError
 {

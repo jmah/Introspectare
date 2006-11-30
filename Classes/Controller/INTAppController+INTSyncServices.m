@@ -214,8 +214,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	// Save backup file
 	NSString *extension = [[self dataFilename] pathExtension];
-	NSString *backupFilename = [[[[self dataFilename] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
-	BOOL didSave = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:backupFilename] error:NULL];
+	NSString *backupPath = [[[[self dataFilePath] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
+	BOOL didSave = [self saveToFile:backupPath error:NULL];
 	if (!didSave)
 	{
 		if (NSDebugEnabled)
@@ -300,7 +300,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	// Refresh sync if the data file doesn't exist
 	BOOL shouldRefreshSync = NO;
-	if (![[NSFileManager defaultManager] fileExistsAtPath:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]])
+	if (![[NSFileManager defaultManager] fileExistsAtPath:[self dataFilePath]])
 		shouldRefreshSync = YES;
 	
 	ISyncSession *session = [ISyncSession beginSessionWithClient:client 
@@ -531,7 +531,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	
 	if (didResolveAllRelationships)
 	{
-		BOOL didSaveChanges = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]] error:NULL];
+		BOOL didSaveChanges = [self saveToFile:[self dataFilePath] error:NULL];
 		if (didSaveChanges)
 			[session clientCommittedAcceptedChanges];
 		else
@@ -617,8 +617,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 - (void)revertDataToBackup // INTAppController (INTSyncServicesPrivateMethods)
 {
 	NSString *extension = [[self dataFilename] pathExtension];
-	NSString *backupFilename = [[[[self dataFilename] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
-	[self loadFromFile:backupFilename error:NULL];
+	NSString *backupPath = [[[[self dataFilePath] stringByDeletingPathExtension] stringByAppendingString:@".BeforeLastSync"] stringByAppendingPathExtension:extension];
+	[self loadFromFile:backupPath error:NULL];
 }
 
 

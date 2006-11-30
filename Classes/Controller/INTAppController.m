@@ -604,8 +604,7 @@ static INTAppController *sharedAppController = nil;
 	if ([self commitEditing])
 	{
 		NSError *error = nil;
-		if (![self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
-						error:&error])
+		if (![self saveToFile:[self dataFilePath] error:&error])
 			[NSApp presentError:error];
 	}
 }
@@ -615,8 +614,7 @@ static INTAppController *sharedAppController = nil;
 {
 	[self discardEditing];
 	NSError *error = nil;
-	if (![self loadFromFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
-					  error:&error])
+	if (![self loadFromFile:[self dataFilePath] error:&error])
 		[NSApp presentError:error];
 }
 
@@ -719,8 +717,7 @@ static INTAppController *sharedAppController = nil;
 	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:INTSyncEnabledKey];
 	
 	NSError *error = nil;
-	if (![self loadFromFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
-					  error:&error])
+	if (![self loadFromFile:[self dataFilePath] error:&error])
 		[NSApp presentError:error];
 	
 	[self showDays:self];
@@ -736,8 +733,7 @@ static INTAppController *sharedAppController = nil;
 	{
 		// Perform a save
 		NSError *saveError = nil;
-		BOOL didSave = [self saveToFile:[[self dataFolderPath] stringByAppendingPathComponent:[self dataFilename]]
-								  error:&saveError];
+		BOOL didSave = [self saveToFile:[self dataFilePath] error:&saveError];
 		
 		if (didSave)
 			reply = NSTerminateNow;
