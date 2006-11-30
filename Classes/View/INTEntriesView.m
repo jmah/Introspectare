@@ -866,13 +866,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 - (void)moveLeft:(id)sender // NSResponder
 {
-	NSIndexSet *newIndexes;
+	unsigned newIndex = NSNotFound;
 	if ([[self selectionIndexes] count] == 0)
 	{
-		if ([[self sortedEntries] count] == 0)
-			newIndexes = [NSIndexSet indexSet];
-		else
-			newIndexes = [NSIndexSet indexSetWithIndex:([[self sortedEntries] count] - 1)];
+		if ([[self sortedEntries] count] > 0)
+			newIndex = [[self sortedEntries] count] - 1;
 	}
 	else if ([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask)
 	{
@@ -888,15 +886,28 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 				break;
 		}
 		
-		newIndexes = [NSIndexSet indexSetWithIndex:targetEntryIndex];
+		newIndex = targetEntryIndex;
 	}
 	else
 	{
 		if ([[self selectionIndexes] containsIndex:0])
-			newIndexes = [NSIndexSet indexSetWithIndex:0];
+			newIndex = 0;
 		else
-			newIndexes = [NSIndexSet indexSetWithIndex:([[self selectionIndexes] firstIndex] - 1)];
+			newIndex = [[self selectionIndexes] firstIndex] - 1;
 	}
+	
+	// Extend selection if shift is down
+	NSIndexSet *newIndexes;
+	if (newIndex != NSNotFound)
+	{
+		if (([[NSApp currentEvent] modifierFlags] & NSShiftKeyMask) && ([[self selectionIndexes] count] > 0))
+			newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(newIndex, [[self selectionIndexes] lastIndex] - newIndex + 1)];
+		else
+			newIndexes = [NSIndexSet indexSetWithIndex:newIndex];
+		[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:newIndex]];
+	}
+	else
+		newIndexes = [NSIndexSet indexSet];
 	
 	// Tell the controller to adjust its selection indexes, if there is one
 	id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
@@ -913,13 +924,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 - (void)moveRight:(id)sender // NSResponder
 {
-	NSIndexSet *newIndexes;
+	unsigned newIndex = NSNotFound;
 	if ([[self selectionIndexes] count] == 0)
 	{
-		if ([[self sortedEntries] count] == 0)
-			newIndexes = [NSIndexSet indexSet];
-		else
-			newIndexes = [NSIndexSet indexSetWithIndex:0];
+		if ([[self sortedEntries] count] > 0)
+			newIndex = 0;
 	}
 	else if ([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask)
 	{
@@ -935,15 +944,28 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 				break;
 		}
 		
-		newIndexes = [NSIndexSet indexSetWithIndex:targetEntryIndex];
+		newIndex = targetEntryIndex;
 	}
 	else
 	{
 		if ([[self selectionIndexes] containsIndex:([[self sortedEntries] count] - 1)])
-			newIndexes = [NSIndexSet indexSetWithIndex:([[self sortedEntries] count] - 1)];
+			newIndex = [[self sortedEntries] count] - 1;
 		else
-			newIndexes = [NSIndexSet indexSetWithIndex:([[self selectionIndexes] lastIndex] + 1)];
+			newIndex = [[self selectionIndexes] lastIndex] + 1;
 	}
+	
+	// Extend selection if shift is down
+	NSIndexSet *newIndexes;
+	if (newIndex != NSNotFound)
+	{
+		if (([[NSApp currentEvent] modifierFlags] & NSShiftKeyMask) && ([[self selectionIndexes] count] > 0))
+			newIndexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([[self selectionIndexes] firstIndex], newIndex - [[self selectionIndexes] firstIndex] + 1)];
+		else
+			newIndexes = [NSIndexSet indexSetWithIndex:newIndex];
+		[self scrollEntryToVisible:[[self sortedEntries] objectAtIndex:newIndex]];
+	}
+	else
+		newIndexes = [NSIndexSet indexSet];
 	
 	// Tell the controller to adjust its selection indexes, if there is one
 	id observedObject = [[self infoForBinding:@"selectionIndexes"] objectForKey:NSObservedObjectKey];
