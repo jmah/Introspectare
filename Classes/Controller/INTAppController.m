@@ -786,16 +786,4 @@ static INTAppController *sharedAppController = nil;
 }
 
 
-- (void)applicationDidResignActive:(NSNotification *)notification // NSObject (NSApplicationDelegate)
-{
-	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-	if (![self isSyncing] && INT_syncSchemaRegistered)
-		INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
-																 target:self
-															   selector:@selector(inactiveSyncTimerHit:)
-															   userInfo:NULL
-																repeats:NO];
-}
-
-
 @end
