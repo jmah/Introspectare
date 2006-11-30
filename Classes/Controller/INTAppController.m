@@ -703,7 +703,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	NSString *registrationDefaultsPath = [[NSBundle mainBundle] pathForResource:@"registrationDefaults" ofType:@"plist"];
+	NSString *registrationDefaultsPath = [[NSBundle mainBundle] pathForResource:@"RegistrationDefaults" ofType:@"plist"];
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithContentsOfFile:registrationDefaultsPath]];
 	
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[self introspectareBackupQuickPickDestinationPath]])
