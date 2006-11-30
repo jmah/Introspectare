@@ -23,6 +23,7 @@
 		28469F490B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m in Sources */ = {isa = PBXBuildFile; fileRef = 28469F480B19ECBC00F40F8D /* INTAppController+INTBackupQuickPick.m */; };
 		28469F950B19F1F300F40F8D /* org.playhaus.Introspectare.quickpick in Resources */ = {isa = PBXBuildFile; fileRef = 28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */; };
 		284819C30B17567000EEAD7A /* INTEntriesHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 284819C20B17567000EEAD7A /* INTEntriesHeaderCell.m */; };
+		284B52560B1E802C006418D7 /* RegistrationDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 284B52550B1E802C006418D7 /* RegistrationDefaults.plist */; };
 		28574ADE0B1C636C0045FCF4 /* Schema.plist in Resources */ = {isa = PBXBuildFile; fileRef = 28574AD50B1C63510045FCF4 /* Schema.plist */; };
 		28574ADF0B1C636C0045FCF4 /* Schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = 28574AD20B1C63510045FCF4 /* Schema.strings */; };
 		28574AE40B1C63850045FCF4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
@@ -94,6 +95,7 @@
 		284818640B17451B00EEAD7A /* INTEntriesHeaderView+INTProtectedMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INTEntriesHeaderView+INTProtectedMethods.h"; sourceTree = "<group>"; };
 		284819C10B17567000EEAD7A /* INTEntriesHeaderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTEntriesHeaderCell.h; sourceTree = "<group>"; };
 		284819C20B17567000EEAD7A /* INTEntriesHeaderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTEntriesHeaderCell.m; sourceTree = "<group>"; };
+		284B52550B1E802C006418D7 /* RegistrationDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = RegistrationDefaults.plist; sourceTree = "<group>"; };
 		28574ACB0B1C62F80045FCF4 /* Introspectare.syncschema */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Introspectare.syncschema; sourceTree = BUILT_PRODUCTS_DIR; };
 		28574AD30B1C63510045FCF4 /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Schema.strings; sourceTree = "<group>"; };
 		28574AD40B1C63510045FCF4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 				2857534D0B1D19110045FCF4 /* Sync Services.icns */,
 				28FDC16B0B1DCB17001EA54B /* Syncing.icns */,
 				28D707F70B18A1B100727436 /* Unread.tiff */,
+				284B52550B1E802C006418D7 /* RegistrationDefaults.plist */,
 				28574C240B1C84590045FCF4 /* ClientDescription.plist */,
 				28469F2A0B19EB0200F40F8D /* org.playhaus.Introspectare.quickpick */,
 			);
@@ -463,6 +466,7 @@
 				28574AFD0B1C63E20045FCF4 /* Introspectare.syncschema in Resources */,
 				28574C250B1C84590045FCF4 /* ClientDescription.plist in Resources */,
 				28FDC16C0B1DCB17001EA54B /* Syncing.icns in Resources */,
+				284B52560B1E802C006418D7 /* RegistrationDefaults.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -604,7 +608,7 @@
 			baseConfigurationReference = 28E65A560A5A930500DE0C5A /* Debug.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.6;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 18;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
@@ -614,7 +618,7 @@
 			baseConfigurationReference = 28E65A5A0A5A930500DE0C5A /* Release.xcconfig */;
 			buildSettings = {
 				CURRENT_MARKETING_VERSION = 1.6;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 18;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;

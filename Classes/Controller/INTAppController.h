@@ -15,6 +15,10 @@
 @class INTInspectorController;
 
 
+// NSUserDefaults keys
+extern NSString *INTSyncAutomaticallyKey;
+
+
 @interface INTAppController : NSObject 
 {
 	@public

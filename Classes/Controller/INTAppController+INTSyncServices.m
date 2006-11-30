@@ -21,7 +21,7 @@
 
 
 // NSUserDefaults keys
-NSString *INTSyncEnabledKey = @"INTSyncServices_SyncEnabled";
+NSString *INTSyncEnabledKey = @"INTSyncServicesSyncEnabled";
 
 static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
@@ -162,7 +162,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 - (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames // INTAppController (INTSyncServicesPrivateMethods)
 {
-	[self sync];
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+		[self sync];
 }
 
 

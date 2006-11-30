@@ -21,6 +21,9 @@
 #import "INTAnnotatedPrinciple.h"
 
 
+// NSUserDefaults keys
+NSString *INTSyncAutomaticallyKey = @"INTSyncAutomatically";
+
 static INTAppController *sharedAppController = nil;
 
 
@@ -502,7 +505,7 @@ static INTAppController *sharedAppController = nil;
 			[[INT_objectsChangedSinceLastSync objectForKey:className] addObject:object];
 		
 		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-		if (![self isSyncing] && INT_syncSchemaRegistered)
+		if (![self isSyncing] && INT_syncSchemaRegistered && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
 			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
 																	 target:self
 																   selector:@selector(inactiveSyncTimerHit:)
@@ -535,7 +538,7 @@ static INTAppController *sharedAppController = nil;
 		}
 		
 		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-		if (![self isSyncing] && INT_syncSchemaRegistered)
+		if (![self isSyncing] && INT_syncSchemaRegistered && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
 			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
 																	 target:self
 																   selector:@selector(inactiveSyncTimerHit:)
@@ -700,6 +703,9 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
+	NSString *registrationDefaultsPath = [[NSBundle mainBundle] pathForResource:@"registrationDefaults" ofType:@"plist"];
+	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithContentsOfFile:registrationDefaultsPath]];
+	
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[self introspectareBackupQuickPickDestinationPath]])
 	{
 		BOOL success = [self installIntrospetareBackupQuickPick];
@@ -713,14 +719,28 @@ static INTAppController *sharedAppController = nil;
 	else
 		NSLog(@"Failed to register sync schema");
 	
-#warning Make this a user option, and ask when the data file doesn't exist
-	[[NSUserDefaults standardUserDefaults] setBool:YES forKey:INTSyncEnabledKey];
-	
 	NSError *error = nil;
 	if (![self loadFromFile:[self dataFilePath] error:&error])
 		[NSApp presentError:error];
 	
 	[self showDays:self];
+	
+	if (![[NSUserDefaults standardUserDefaults] boolForKey:INTSyncEnabledKey] && ![[NSFileManager defaultManager] fileExistsAtPath:[self dataFilePath]])
+	{
+		// Ask whether to enable synchronization
+		NSString *alertTitle = NSLocalizedString(@"INTAskToEnableSynchronizationAlertTitle", @"Ask whether to enable synchronization alert title");
+		NSString *alertMessage = NSLocalizedString(@"INTAskToEnableSynchronizationAlertMessage", @"Ask whether to enable synchronization alert message");
+		NSString *defaultButtonTitle = NSLocalizedString(@"INTAskToEnableSynchronizationDefaultButton", @"Ask whether to enable synchronization alert default button"); // (Enable)
+		NSString *alternateButtonTitle = NSLocalizedString(@"INTAskToEnableSynchronizationAlternateButton", @"Ask whether to enable synchronization alert default button"); // (Disable)
+		NSString *otherButtonTitle = nil;
+		
+		int result = NSRunInformationalAlertPanel(alertTitle, alertMessage, defaultButtonTitle, alternateButtonTitle, otherButtonTitle);
+		if (result == NSAlertDefaultReturn)
+		{
+			[[NSUserDefaults standardUserDefaults] setBool:YES forKey:INTSyncEnabledKey];
+			[self sync];
+		}
+	}
 }
 
 
@@ -766,14 +786,15 @@ static INTAppController *sharedAppController = nil;
 {
 	[INT_constitutionsController close];
 	[INT_entriesControler close];
-	[self syncBeforeApplicationTerminates];
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+		[self syncBeforeApplicationTerminates];
 }
 
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
 	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-	if (![self isSyncing] && INT_syncSchemaRegistered)
+	if (![self isSyncing] && INT_syncSchemaRegistered && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
 		INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
 																 target:self
 															   selector:@selector(inactiveSyncTimerHit:)
