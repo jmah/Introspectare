@@ -35,7 +35,6 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 #pragma mark Managing the view hierarchy
 - (void)windowDidChangeKey:(NSNotification *)notification;
-- (void)windowDidUpdate:(NSNotification *)notification;
 - (void)applicationDidChangeActive:(NSNotification *)notification;
 
 #pragma mark Getting auxiliary views for enclosing an scroll view
@@ -214,7 +213,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)setRowHeight:(float)rowHeight
 {
 	INT_rowHeight = rowHeight;
-	INT_needsToUpdateFrameSize = YES;
+	[self updateFrameSize];
 	[[self enclosingScrollView] setVerticalLineScroll:([self rowHeight] + [self intercellSpacing].height)];
 	[self setNeedsDisplay:YES];
 }
@@ -229,7 +228,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)setIntercellSpacing:(NSSize)intercellSpacing
 {
 	INT_intercellSpacing = intercellSpacing;
-	INT_needsToUpdateFrameSize = YES;
+	[self updateFrameSize];
 	[[self enclosingScrollView] setHorizontalLineScroll:([self columnWidth] + [self intercellSpacing].width)];
 	[[self enclosingScrollView] setVerticalLineScroll:([self rowHeight] + [self intercellSpacing].height)];
 	[self setNeedsDisplay:YES];
@@ -251,7 +250,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)setColumnWidth:(float)columnWidth
 {
 	INT_columnWidth = columnWidth;
-	INT_needsToUpdateFrameSize = YES;
+	[self updateFrameSize];
 	[[self enclosingScrollView] setHorizontalLineScroll:([self columnWidth] + [self intercellSpacing].width)];
 	[self setNeedsDisplay:YES];
 }
@@ -334,8 +333,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		[self beginObservingEntries:entries];
 		[INT_observedEntries release], INT_observedEntries = [entries copy];
 		
-		[self updateFrameSize], INT_needsToUpdateFrameSize = NO;
-		[self setNeedsDisplay:YES];
+		[self updateFrameSize];
 		
 		if ([observableController isKindOfClass:[NSArrayController class]])
 		{
@@ -363,8 +361,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		[self endObservingEntries:INT_observedEntries];
 		[INT_observedEntries release], INT_observedEntries = [[NSArray alloc] init];
 		
-		INT_needsToUpdateFrameSize = YES;
-		[self setNeedsDisplay:YES];
+		[self updateFrameSize];
 	}
 	[super unbind:binding];
 }
@@ -435,7 +432,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			[INT_observedEntries release];
 			INT_observedEntries = [[self sortedEntries] copy];
 			
-			INT_needsToUpdateFrameSize = YES;
+			[self updateFrameSize];
 			[self setNeedsDisplay:YES];
 			handled = YES;
 		}
@@ -465,7 +462,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		}
 		else if ([keyPath isEqualToString:@"principle.label"])
 		{
-			INT_needsToUpdateFrameSize = YES;
+			[self updateFrameSize];
 			[self setNeedsDisplay:YES];
 			handled = YES;
 		}
@@ -620,10 +617,6 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 												 selector:@selector(windowDidChangeKey:)
 													 name:NSWindowDidBecomeKeyNotification
 												   object:newWindow];
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(windowDidUpdate:)
-													 name:NSWindowDidUpdateNotification
-												   object:newWindow];
 	}
 }
 
@@ -631,17 +624,6 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 - (void)windowDidChangeKey:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
 {
 	[self setNeedsDisplay:YES];
-}
-
-
-- (void)windowDidUpdate:(NSNotification *)notification // INTEntriesView (INTPrivateMethods)
-{
-	if (INT_needsToUpdateFrameSize)
-	{
-		[self updateFrameSize];
-		INT_needsToUpdateFrameSize = NO;
-		[self setNeedsDisplay:YES];
-	}
 }
 
 
@@ -1116,13 +1098,19 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 - (void)clipViewFrameDidChangeChange:(NSNotification *)notification // INTEntriesView (INTProtectedMethods)
 {
+	BOOL wasMaxXVisible = (NSMaxX([self visibleRect]) == NSMaxX([self frame]));
+	
 	NSSize newFrameSize = INT_minimumFrameSize;
 	NSSize newClipViewSize = [[[self enclosingScrollView] contentView] bounds].size;
 	newFrameSize.width  = fmaxf(newClipViewSize.width , newFrameSize.width );
 	newFrameSize.height = fmaxf(newClipViewSize.height, newFrameSize.height);
 	
 	if (!NSEqualSizes([self frame].size, newFrameSize))
+	{
 		[self setFrameSize:newFrameSize];
+		if (wasMaxXVisible)
+			[self scrollPoint:NSMakePoint(NSMaxX([self frame]) - NSWidth([self visibleRect]), NSMinY([self visibleRect]))];
+	}
 	
 	NSSize headerFrameSize = [[self headerView] frame].size;
 	headerFrameSize.width = newFrameSize.width;
