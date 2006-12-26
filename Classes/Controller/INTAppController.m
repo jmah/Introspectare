@@ -515,7 +515,7 @@ static INTAppController *sharedAppController = nil;
 			[[INT_objectsChangedSinceLastSync objectForKey:className] addObject:object];
 		
 		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-		if (![self isSyncing] && INT_syncSchemaRegistered && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+		if (![self isSyncing] && INT_syncSchemaRegistered)
 			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
 																	 target:self
 																   selector:@selector(inactiveSyncTimerHit:)
@@ -548,7 +548,7 @@ static INTAppController *sharedAppController = nil;
 		}
 		
 		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-		if (![self isSyncing] && INT_syncSchemaRegistered && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+		if (![self isSyncing] && INT_syncSchemaRegistered)
 			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
 																	 target:self
 																   selector:@selector(inactiveSyncTimerHit:)
@@ -753,7 +753,8 @@ static INTAppController *sharedAppController = nil;
 - (void)inactiveSyncTimerHit:(NSTimer *)timer
 {
 	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-	[self syncWhileInactive];
+	if (![self isSyncing] && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+		[self syncWhileInactive];
 }
 
 
@@ -856,7 +857,7 @@ static INTAppController *sharedAppController = nil;
 - (void)applicationDidBecomeActive:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
 	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-	if (![self isSyncing] && INT_syncSchemaRegistered && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+	if (![self isSyncing] && INT_syncSchemaRegistered)
 		INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
 																 target:self
 															   selector:@selector(inactiveSyncTimerHit:)
