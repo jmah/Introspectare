@@ -39,6 +39,7 @@
 - (void)setEntries:(NSSet *)entries;
 - (void)addEntriesObject:(INTEntry *)entry;
 - (void)removeEntriesObject:(INTEntry *)entry;
+- (INTEntry *)entryForDayOfCommonEra:(int)day;
 - (INTEntry *)addEntryForDayOfCommonEra:(int)day;
 
 @end

@@ -147,9 +147,15 @@
 }
 
 
+- (INTEntry *)entryForDayOfCommonEra:(int)day;
+{
+	return [INT_entries objectForKey:[NSNumber numberWithInt:day]];
+}
+
+
 - (INTEntry *)addEntryForDayOfCommonEra:(int)day
 {
-	INTEntry *entry = [INT_entries objectForKey:[NSNumber numberWithInt:day]];
+	INTEntry *entry = [self entryForDayOfCommonEra:day];
 	if (!entry)
 	{
 		// Get the contsitution for the given day
