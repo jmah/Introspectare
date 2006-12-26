@@ -18,9 +18,6 @@
 	IBOutlet NSView *entryInspectorView;
 	IBOutlet NSTextField *inspectorDateField;
 	IBOutlet NSScrollView *entriesScrollView;
-	
-	@private
-	NSTimer *INT_updateTimer; // Weak reference
 }
 
 

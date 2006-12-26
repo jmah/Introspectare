@@ -33,8 +33,14 @@ static INTAppController *sharedAppController = nil;
 - (void)changeKeyPath:(NSString *)keyPath ofObject:(id)object toValue:(id)newValue;
 
 #pragma mark Tracking changed objects
+- (BOOL)shouldTrackChangesForSync;
 - (void)objectChanged:(id)object;
 - (void)objectDeleted:(id)object;
+
+#pragma mark Managing entries
+- (void)createEntriesUpToToday;
+- (void)scheduleEntriesUpdateTimer;
+- (void)entriesUpdateTimerDidFire:(NSTimer *)timer;
 
 #pragma mark Managing the inspector
 - (void)setShowHideInspectorMenuItemTitle:(NSString *)title;
@@ -96,14 +102,12 @@ static INTAppController *sharedAppController = nil;
 }
 
 
-- (void)awakeFromNib
-{
-}
-
-
 - (void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	
+	if (INT_entriesUpdateTimer)
+		[INT_entriesUpdateTimer invalidate], INT_entriesUpdateTimer = nil;
 	
 	[INT_library release], INT_library = nil;
 	[INT_undoManager release], INT_undoManager = nil;
@@ -485,9 +489,15 @@ static INTAppController *sharedAppController = nil;
 
 #pragma mark Tracking changed objects
 
+- (BOOL)shouldTrackChangesForSync // INTAppController (INTPrivateMethods)
+{
+	return ![self isSyncing] || ![[self undoManager] isUndoRegistrationEnabled];
+}
+
+
 - (void)objectChanged:(id)object // INTAppController (INTPrivateMethods)
 {
-	if (![self isSyncing])
+	if ([self shouldTrackChangesForSync])
 	{
 		NSString *className = nil;
 		if ([object isKindOfClass:[INTEntry class]])
@@ -517,7 +527,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)objectDeleted:(id)object // INTAppController (INTPrivateMethods)
 {
-	if (![self isSyncing])
+	if ([self shouldTrackChangesForSync])
 	{
 		NSString *className = nil;
 		if ([object isKindOfClass:[INTEntry class]])
@@ -545,6 +555,55 @@ static INTAppController *sharedAppController = nil;
 																   userInfo:NULL
 																	repeats:NO];
 	}
+}
+
+
+
+#pragma mark Managing entries
+
+- (void)createEntriesUpToToday // INTAppController (INTPrivateMethods)
+{
+	if ([[[self library] constitutions] count] > 0)
+	{
+		[[self undoManager] disableUndoRegistration];
+		
+		// Find oldest constitution creation date
+		static NSDate *oldestConstitutionCreationDate = nil;
+		if (!oldestConstitutionCreationDate)
+		{
+			NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:YES];
+			NSArray *sortedConstitutions = [[[self library] constitutions] sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateAscending]];
+			[dateAscending release];
+			oldestConstitutionCreationDate = [[sortedConstitutions objectAtIndex:0] creationDate];
+		}
+		int oldestConstitutionDayOfCommonEra = [[oldestConstitutionCreationDate dateWithCalendarFormat:nil timeZone:nil] dayOfCommonEra];
+		int todayDayOfCommonEra = [[NSCalendarDate calendarDate] dayOfCommonEra];
+		
+		for (int currDay = oldestConstitutionDayOfCommonEra;
+			 currDay <= todayDayOfCommonEra;
+			 currDay++)
+			[[self library] addEntryForDayOfCommonEra:currDay];
+		
+		[[self undoManager] enableUndoRegistration];
+	}
+}
+
+
+- (void)scheduleEntriesUpdateTimer // INTAppController (INTPrivateMethods)
+{
+	if (INT_entriesUpdateTimer)
+		[INT_entriesUpdateTimer invalidate];
+	INT_entriesUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:60
+															  target:self
+															selector:@selector(entriesUpdateTimerDidFire:)
+															userInfo:nil
+															 repeats:YES];
+}
+
+
+- (void)entriesUpdateTimerDidFire:(NSTimer *)timer // INTAppController (INTPrivateMethods)
+{
+	[self createEntriesUpToToday];
 }
 
 
@@ -741,6 +800,9 @@ static INTAppController *sharedAppController = nil;
 			[self sync];
 		}
 	}
+	
+	[self createEntriesUpToToday];
+	[self scheduleEntriesUpdateTimer];
 }
 
 

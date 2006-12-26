@@ -19,16 +19,6 @@
 #import "NSCalendarDate+INTAdditions.h"
 
 
-@interface INTEntriesController (INTPrivateMethods)
-
-#pragma mark Managing entries
-- (void)createEntriesUpToToday;
-- (void)scheduleUpdateTimer;
-- (void)updateTimerDidFire:(NSTimer *)timer;
-
-@end
-
-
 @implementation INTEntriesController
 
 #pragma mark Initializing
@@ -50,10 +40,8 @@
 	[entriesArrayController setSortDescriptors:[NSArray arrayWithObject:dateAscending]];
 	[dateAscending release];
 	
-	[self createEntriesUpToToday];
 	[entriesArrayController rearrangeObjects];
 	[entriesArrayController setSelectionIndex:([[entriesArrayController arrangedObjects] count] - 1)];
-	[self scheduleUpdateTimer];
 	
 	// Create entries view
 	NSCalendar *gregorianCalendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
@@ -75,9 +63,6 @@
 
 - (void)dealloc
 {
-	if (INT_updateTimer)
-		[INT_updateTimer invalidate], INT_updateTimer = nil;
-	
 	[super dealloc];
 }
 
@@ -112,52 +97,6 @@
 - (NSView *)inspectorView
 {
 	return entryInspectorView;
-}
-
-
-
-#pragma mark Managing entries
-
-- (void)createEntriesUpToToday // INTEntriesController (INTPrivateMethods)
-{
-	if ([[[self library] constitutions] count] > 0)
-	{
-		[[[INTAppController sharedAppController] undoManager] disableUndoRegistration];
-		
-		// Find oldest constitution creation date
-		NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:YES];
-		NSArray *sortedConstitutions = [[[self library] constitutions] sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateAscending]];
-		NSDate *oldestConstitutionCreationDate = [[sortedConstitutions objectAtIndex:0] creationDate];
-		int oldestConstitutionDayOfCommonEra = [[oldestConstitutionCreationDate dateWithCalendarFormat:nil timeZone:nil] dayOfCommonEra];
-		int todayDayOfCommonEra = [[NSCalendarDate calendarDate] dayOfCommonEra];
-		
-		for (int currDay = oldestConstitutionDayOfCommonEra;
-			 currDay <= todayDayOfCommonEra;
-			 currDay++)
-			[[self library] addEntryForDayOfCommonEra:currDay];
-		[dateAscending release];
-		
-		[[[INTAppController sharedAppController] undoManager] enableUndoRegistration];
-	}
-}
-
-
-- (void)scheduleUpdateTimer // INTEntriesController (INTPrivateMethods)
-{
-	if (INT_updateTimer)
-		[INT_updateTimer invalidate];
-	INT_updateTimer = [NSTimer scheduledTimerWithTimeInterval:60
-	                                                   target:self
-	                                                 selector:@selector(updateTimerDidFire:)
-	                                                 userInfo:nil
-	                                                  repeats:YES];
-}
-
-
-- (void)updateTimerDidFire:(NSTimer *)timer // INTEntriesController (INTPrivateMethods)
-{
-	[self createEntriesUpToToday];
-	[entriesArrayController rearrangeObjects];
 }
 
 

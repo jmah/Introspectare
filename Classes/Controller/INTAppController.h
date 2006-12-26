@@ -35,6 +35,8 @@ extern NSString *INTSyncAutomaticallyKey;
 	
 	NSString *INT_showHideInspectorMenuItemTitle;
 	
+	NSTimer *INT_entriesUpdateTimer; // Weak reference
+	
 	NSMutableDictionary *INT_objectsChangedSinceLastSync;
 	NSMutableDictionary *INT_objectIdentifiersDeletedSinceLastSync;
 	NSTimer *INT_inactiveSyncTimer;
