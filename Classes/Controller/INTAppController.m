@@ -568,18 +568,14 @@ static INTAppController *sharedAppController = nil;
 		[[self undoManager] disableUndoRegistration];
 		
 		// Find oldest constitution creation date
-		static NSDate *oldestConstitutionCreationDate = nil;
-		if (!oldestConstitutionCreationDate)
-		{
-			NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:YES];
-			NSArray *sortedConstitutions = [[[self library] constitutions] sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateAscending]];
-			[dateAscending release];
-			oldestConstitutionCreationDate = [[sortedConstitutions objectAtIndex:0] creationDate];
-		}
+		NSSortDescriptor *dateAscending = [[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:YES];
+		NSArray *sortedConstitutions = [[[self library] constitutions] sortedArrayUsingDescriptors:[NSArray arrayWithObject:dateAscending]];
+		[dateAscending release];
+		NSDate *oldestConstitutionCreationDate = [[[sortedConstitutions objectAtIndex:0] creationDate] copy];
 		int oldestConstitutionDayOfCommonEra = [[oldestConstitutionCreationDate dateWithCalendarFormat:nil timeZone:nil] dayOfCommonEra];
 		int todayDayOfCommonEra = [[NSCalendarDate calendarDate] dayOfCommonEra];
 		
-		for (int currDay = oldestConstitutionDayOfCommonEra;
+		for (int currDay = oldestConstitutionDayOfCommonEra + 1;
 			 currDay <= todayDayOfCommonEra;
 			 currDay++)
 			[[self library] addEntryForDayOfCommonEra:currDay];
