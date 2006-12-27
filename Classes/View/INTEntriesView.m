@@ -17,6 +17,7 @@
 #import "INTEntriesHeaderView+INTProtectedMethods.h"
 #import "INTEntriesCornerView.h"
 #import "INTAppController.h"
+#import "INTAppController+INTSyncServices.h"
 
 
 static const float INTPrincipleLabelXPadding = 2.0f;
@@ -1127,6 +1128,9 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 - (void)drawRect:(NSRect)rect // NSView
 {
+	if ([[INTAppController sharedAppController] isSyncing])
+		return;
+	
 	[self removeAllToolTips];
 	
 	// Draw background

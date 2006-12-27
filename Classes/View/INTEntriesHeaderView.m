@@ -14,6 +14,8 @@
 #import "INTEntriesHeaderCell.h"
 #import "INTEntry.h"
 #import "INTConstitution.h"
+#import "INTAppController.h"
+#import "INTAppController+INTSyncServices.h"
 
 
 @interface INTEntriesHeaderView (INTPrivateMethods)
@@ -300,6 +302,9 @@
 
 - (void)drawRect:(NSRect)rect // NSView
 {
+	if ([[INTAppController sharedAppController] isSyncing])
+		return;
+	
 	float hh = [[self entriesView] headerHeight];
 	
 	[INT_toolTipStrings removeAllObjects];
