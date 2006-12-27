@@ -491,7 +491,7 @@ static INTAppController *sharedAppController = nil;
 
 - (BOOL)shouldTrackChangesForSync // INTAppController (INTPrivateMethods)
 {
-	return ![self isSyncing] || ![[self undoManager] isUndoRegistrationEnabled];
+	return ![self isSyncing] && [[self undoManager] isUndoRegistrationEnabled];
 }
 
 
