@@ -290,8 +290,11 @@
 	[INT_headerCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
 	width = fmaxf(width, [INT_headerCell cellSize].width);
 	
-	[INT_headerCell setStringValue:[constitution versionLabel]];
-	width = fmaxf(width, [INT_headerCell cellSize].width);
+	if ([constitution versionLabel])
+	{
+		[INT_headerCell setStringValue:[constitution versionLabel]];
+		width = fmaxf(width, [INT_headerCell cellSize].width);
+	}
 	
 	return width;
 }

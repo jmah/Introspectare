@@ -376,6 +376,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	{
 		[entry addObserver:self forKeyPath:@"unread" options:0 context:NULL];
 		[entry addObserver:self forKeyPath:@"note" options:0 context:NULL];
+		[entry addObserver:self forKeyPath:@"constitution" options:0 context:NULL];
 		[entry addObserver:self forKeyPath:@"constitution.versionLabel" options:0 context:NULL];
 		[entry addObserver:self forKeyPath:@"annotatedPrinciples" options:0 context:NULL];
 		NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
@@ -397,6 +398,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	{
 		[entry removeObserver:self forKeyPath:@"note"];
 		[entry removeObserver:self forKeyPath:@"unread"];
+		[entry removeObserver:self forKeyPath:@"constitution"];
 		[entry removeObserver:self forKeyPath:@"constitution.versionLabel"];
 		[entry removeObserver:self forKeyPath:@"annotatedPrinciples"];
 		NSEnumerator *annotatedPrinciples = [[entry annotatedPrinciples] objectEnumerator];
@@ -445,8 +447,9 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 			[[self headerView] setNeedsDisplay:YES];
 			handled = YES;
 		}
-		else if ([keyPath isEqualToString:@"annotatedPrinciples"] || [keyPath isEqualToString:@"constitution.versionLabel"])
+		else if ([keyPath isEqualToString:@"annotatedPrinciples"] || [keyPath isEqualToString:@"constitution"] || [keyPath isEqualToString:@"constitution.versionLabel"])
 		{
+			[self updateFrameSize];
 			[self setNeedsDisplay:YES];
 			[[self headerView] setNeedsDisplay:YES];
 			handled = YES;
@@ -1454,8 +1457,11 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 	INTPrinciple *principle;
 	while ((principle = [principles nextObject]))
 	{
-		[cell setStringValue:[principle label]];
-		maxCellWidth = fmaxf(maxCellWidth, [cell cellSize].width);
+		if ([principle label])
+		{
+			[cell setStringValue:[principle label]];
+			maxCellWidth = fmaxf(maxCellWidth, [cell cellSize].width);
+		}
 	}
 	maxCellWidth += 2.0f * INTPrincipleLabelXPadding;
 	
