@@ -163,7 +163,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 - (void)syncClient:(ISyncClient *)client mightWantToSyncEntityNames:(NSArray *)entityNames // INTAppController (INTSyncServicesPrivateMethods)
 {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
-		[self sync];
+		[self syncWithTimeout:0.0 pullChanges:YES forceSlowSync:NO displayProgressPanel:YES];
 }
 
 
