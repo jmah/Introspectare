@@ -598,7 +598,8 @@ static INTAppController *sharedAppController = nil;
 
 - (void)entriesUpdateTimerDidFire:(NSTimer *)timer // INTAppController (INTPrivateMethods)
 {
-	[self createEntriesUpToToday];
+	if (![self isSyncing])
+		[self createEntriesUpToToday];
 }
 
 
