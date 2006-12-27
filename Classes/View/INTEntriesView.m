@@ -1451,7 +1451,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 - (float)widthForConstitution:(INTConstitution *)constitution // INTEntriesView (INTProtectedMethods)
 {
-	float maxCellWidth = 0.0;
+	float maxCellWidth = 0.0f;
 	NSCell *cell = [self principleLabelCell];
 	NSEnumerator *principles = [[constitution principles] objectEnumerator];
 	INTPrinciple *principle;
