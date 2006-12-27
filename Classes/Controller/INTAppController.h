@@ -61,6 +61,9 @@ extern NSString *INTSyncAutomaticallyKey;
 #pragma mark Managing undo and redo
 - (NSUndoManager *)undoManager;
 
+#pragma mark Managing entries
+- (void)createEntriesUpToToday;
+
 #pragma mark Managing editing
 - (BOOL)commitEditing;
 - (void)discardEditing;

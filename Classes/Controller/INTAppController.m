@@ -38,7 +38,6 @@ static INTAppController *sharedAppController = nil;
 - (void)objectDeleted:(id)object;
 
 #pragma mark Managing entries
-- (void)createEntriesUpToToday;
 - (void)scheduleEntriesUpdateTimer;
 - (void)entriesUpdateTimerDidFire:(NSTimer *)timer;
 
@@ -561,7 +560,7 @@ static INTAppController *sharedAppController = nil;
 
 #pragma mark Managing entries
 
-- (void)createEntriesUpToToday // INTAppController (INTPrivateMethods)
+- (void)createEntriesUpToToday
 {
 	if ([[[self library] constitutions] count] > 0)
 	{

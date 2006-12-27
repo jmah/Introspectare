@@ -549,6 +549,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		[self performSelectorOnMainThread:@selector(revertDataToBackup) withObject:nil waitUntilDone:YES];
 	}
 	[session finishSyncing];
+	[self createEntriesUpToToday];
 }
 
 
