@@ -1102,7 +1102,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 - (void)clipViewFrameDidChangeChange:(NSNotification *)notification // INTEntriesView (INTProtectedMethods)
 {
-	BOOL wasMaxXVisible = (NSMaxX([self visibleRect]) == NSMaxX([self frame]));
+	BOOL wasMaxXVisible = abs(NSMaxX([self visibleRect]) - NSMaxX([self frame])) < 1.0f;
 	
 	NSSize newFrameSize = INT_minimumFrameSize;
 	NSSize newClipViewSize = [[[self enclosingScrollView] contentView] bounds].size;
