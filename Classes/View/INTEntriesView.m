@@ -613,7 +613,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 		
 		[self clipViewFrameDidChangeChange:nil];
 	}
-	else
+	else if ([self superview])
 		NSLog(@"The INTEntriesView expects to be enclosed in an NSScrollView");
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self
