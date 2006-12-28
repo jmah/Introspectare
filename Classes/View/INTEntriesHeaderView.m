@@ -72,13 +72,12 @@
 
 - (void)dealloc
 {
-	[INT_headerCell release], INT_headerCell = nil;
-	
 	[INT_entriesView removeObserver:self
 						 forKeyPath:@"columnWidth"];
 	[INT_entriesView removeObserver:self
 						 forKeyPath:@"headerFont"];
 	
+	[INT_headerCell release], INT_headerCell = nil;
 	[INT_dateFormatter release], INT_dateFormatter = nil;
 	[INT_toolTipStrings release], INT_toolTipStrings = nil;
 	

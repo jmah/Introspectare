@@ -154,24 +154,42 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 }
 
 
+- (oneway void)release
+{
+	if ([self retainCount] == 1)
+		/*
+		 * The INTEntriesHeaderView key-value observes this object, and removes
+		 * those observations in its -dealloc method. The KVO swizzled -dealloc
+		 * method of this class runs before our dealloc is called, so if the
+		 * entries view is released in -[INTEntriesView dealloc], it will try
+		 * to remove itself as an observer and cause KVO to throw (because it
+		 * has already been torn down). So we check if we are about to be
+		 * dealloc'ed here (the retain count is 1 going on 0), release the
+		 * header view now before KVO cleans up.
+		 */
+		[INT_headerView release], INT_headerView = nil;
+	[super release];
+}
+
+
 - (void)dealloc
 {
 	[self unbind:@"selectionIndexes"];
 	[self unbind:@"entries"];
 	
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	
+	/*[INT_headerView release], INT_headerView = nil;*/ // See comment in -release
 	[INT_calendar release], INT_calendar = nil;
 	[INT_backgroundColor release], INT_backgroundColor = nil;
 	[INT_headerFont release], INT_headerFont = nil;
 	[INT_principleLabelCell release], INT_principleLabelCell = nil;
 	[INT_dataCell release], INT_dataCell = nil;
 	[INT_selectionIndexes release], INT_selectionIndexes = nil;
-	[INT_headerView release], INT_headerView = nil;
 	[INT_cornerView release], INT_cornerView = nil;
 	[INT_markAsReadItem release], INT_markAsReadItem = nil;
 	[INT_markAsUnreadItem release], INT_markAsUnreadItem = nil;
 	[INT_showInspectorItem release], INT_showInspectorItem = nil;
-	[INT_entriesContainer release], INT_entriesContainer = nil;
-	[INT_entriesKeyPath release], INT_entriesKeyPath = nil;
 	[INT_observedEntries release], INT_observedEntries = nil;
 	
 	[super dealloc];
