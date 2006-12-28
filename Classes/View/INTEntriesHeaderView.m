@@ -392,9 +392,9 @@
 	
 	// Now do the actual drawing
 	INTConstitution *currConstitution = nil;
-	NSImage *currConstitutionLabelsImage = nil;
+	float currConstitutionWidth = NAN;
 	float currConstitutionMinX = 0.0f;
-	NSMutableArray *constitutionLabels = [[NSMutableArray alloc] init];
+	NSMutableArray *constitutionPositions = [[NSMutableArray alloc] init];
 	float currEntryMaxX = 0.0f;
 	float currEntryMinX = currEntryMaxX;
 	NSEnumerator *entries = [[[self entriesView] sortedEntries] objectEnumerator];
@@ -404,45 +404,21 @@
 		const unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
 		NSDateComponents *components = [[[self entriesView] calendar] components:unitFlags fromDate:[currEntry date]];
 		
-		// Save constitution labels in images, but don't draw them on-screen yet
+		// Save constitution positions, but don't draw them on-screen yet
 		if ([currEntry constitution] != currConstitution)
 		{
-			if (currConstitutionLabelsImage)
-				[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-					[currConstitutionLabelsImage autorelease], @"image",
+			if (currConstitution)
+				[constitutionPositions addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+					currConstitution, @"constitution",
 					[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
-					[NSNumber numberWithFloat:(currEntryMaxX - [[self entriesView] columnWidth] - [currConstitutionLabelsImage size].width)], @"maxMinX",
+					[NSNumber numberWithFloat:(currEntryMaxX - [[self entriesView] columnWidth] - currConstitutionWidth)], @"maxMinX",
 					nil]];
 			
 			currConstitution = [currEntry constitution];
 			currConstitutionMinX = currEntryMaxX;
-			float currConstitutionWidth = [[self entriesView] widthForConstitution:currConstitution] + [[self entriesView] intercellSpacing].width;
+			currConstitutionWidth = [[self entriesView] widthForConstitution:currConstitution] + [[self entriesView] intercellSpacing].width;
 			float prevEntryMaxX = currEntryMaxX;
 			currEntryMaxX += currConstitutionWidth;
-			
-			// Draw current principle labels in image
-			currConstitutionLabelsImage = [[NSImage alloc] initWithSize:NSMakeSize(currConstitutionWidth, hh * 2.0f)];
-			[currConstitutionLabelsImage setFlipped:YES];
-			
-			[currConstitutionLabelsImage lockFocus];
-			
-			[[NSColor whiteColor] set];
-			NSRectFill(NSMakeRect(0.0f, 0.0f, [currConstitutionLabelsImage size].width, [currConstitutionLabelsImage size].height));
-			
-			INTEntriesHeaderCell *cell = [INT_headerCell copy];
-			[cell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6f]];
-			[cell setTextColor:[NSColor whiteColor]];
-			
-			NSRect constitutionFrame = NSMakeRect(0.0f, 0.0f, currConstitutionWidth, hh);
-			[cell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
-			[cell drawWithFrame:constitutionFrame inView:self];
-			
-			NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0f, hh);
-			[cell setStringValue:[currConstitution versionLabel]];
-			[cell drawWithFrame:labelFrame inView:self];
-			[cell release];
-			
-			[currConstitutionLabelsImage unlockFocus];
 			
 			// Break the month header
 			if (currMonth != -1)
@@ -542,31 +518,41 @@
 		[cell release];
 	}
 	
-	if (currConstitutionLabelsImage)
-		[constitutionLabels addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-			[currConstitutionLabelsImage autorelease], @"image",
+	if (currConstitution)
+		[constitutionPositions addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+			currConstitution, @"constitution",
 			[NSNumber numberWithFloat:currConstitutionMinX], @"minMinX",
-			[NSNumber numberWithFloat:(currEntryMaxX - [[self entriesView] columnWidth] - [currConstitutionLabelsImage size].width)], @"maxMinX",
+			[NSNumber numberWithFloat:(currEntryMaxX - [[self entriesView] columnWidth] - currConstitutionWidth)], @"maxMinX",
 			nil]];
 	
 	
 	// Draw constitutions
-	NSEnumerator *constitutionLabelsEnum = [constitutionLabels objectEnumerator];
-	NSDictionary *constitutionLabel;
-	while ((constitutionLabel = [constitutionLabelsEnum nextObject]))
+	INTEntriesHeaderCell *constitutionCell = [INT_headerCell copy];
+	NSEnumerator *constitutionPositionsEnum = [constitutionPositions objectEnumerator];
+	NSDictionary *constitutionPosition;
+	while ((constitutionPosition = [constitutionPositionsEnum nextObject]))
 	{
-		float minMinX = [[constitutionLabel objectForKey:@"minMinX"] floatValue];
-		float maxMinX = [[constitutionLabel objectForKey:@"maxMinX"] floatValue];
+		float minMinX = [[constitutionPosition objectForKey:@"minMinX"] floatValue];
+		float maxMinX = [[constitutionPosition objectForKey:@"maxMinX"] floatValue];
 		float minX = NSMinX([self visibleRect]);
 		minX = MAX(minMinX, minX);
 		minX = MIN(maxMinX, minX);
 		
-		NSImage *image = [constitutionLabel objectForKey:@"image"];
-		[image compositeToPoint:NSMakePoint(minX, NSMaxY([self bounds]))
-					  operation:NSCompositeSourceOver];
+		INTConstitution *constitution = [constitutionPosition objectForKey:@"constitution"];
+		[constitutionCell setTintColor:[[NSColor blackColor] colorWithAlphaComponent:0.6f]];
+		[constitutionCell setTextColor:[NSColor whiteColor]];
+		
+		float constitutionWidth = [[self entriesView] widthForConstitution:constitution] + [[self entriesView] intercellSpacing].width;
+		NSRect constitutionFrame = NSMakeRect(minX, hh, constitutionWidth, hh);
+		[constitutionCell setStringValue:NSLocalizedString(@"INTConstitutionHeaderTitle", @"Constitution header title")];
+		[constitutionCell drawWithFrame:constitutionFrame inView:self];
+		
+		NSRect labelFrame = NSOffsetRect(constitutionFrame, 0.0f, hh);
+		[constitutionCell setStringValue:[constitution versionLabel]];
+		[constitutionCell drawWithFrame:labelFrame inView:self];
 	}
-	
-	[constitutionLabels release];
+	[constitutionCell release];
+	[constitutionPositions release];
 	
 	
 	// Draw final month and year cells
