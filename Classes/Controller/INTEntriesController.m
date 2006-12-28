@@ -19,6 +19,13 @@
 #import "NSCalendarDate+INTAdditions.h"
 
 
+@interface _INTHeaderViewResponder : NSObject
+
+- (NSView *)headerView;
+
+@end
+
+
 @implementation INTEntriesController
 
 #pragma mark Initializing
@@ -45,19 +52,18 @@
 	
 	// Create entries view
 	NSCalendar *gregorianCalendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
-	INTEntriesView *entriesView = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0f, 0.0f, 500.0f, 500.0f)
-															   calendar:gregorianCalendar];
+	INT_entriesView = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0f, 0.0f, 500.0f, 500.0f)
+												   calendar:gregorianCalendar];
 	
-	[entriesScrollView setDocumentView:entriesView];
-	[[self window] makeFirstResponder:entriesView];
+	[entriesScrollView setDocumentView:INT_entriesView];
+	[[self window] makeFirstResponder:INT_entriesView];
 	
-	[entriesView bind:@"entries" toObject:entriesArrayController withKeyPath:@"arrangedObjects" options:nil];
+	[INT_entriesView bind:@"entries" toObject:entriesArrayController withKeyPath:@"arrangedObjects" options:nil];
 	
 	NSButtonCell *dataCell = [[INTCircleSwitchButtonCell alloc] initTextCell:[NSString string]];
-	[entriesView setDataCell:dataCell];
+	[INT_entriesView setDataCell:dataCell];
 	[dataCell release];
-	
-	[entriesView release];
+	[INT_entriesView release];
 }
 
 
@@ -97,6 +103,60 @@
 - (NSView *)inspectorView
 {
 	return entryInspectorView;
+}
+
+
+
+#pragma mark Printing
+
+- (void)print:(id)sender
+{
+	NSPrintInfo *info = [[NSPrintInfo sharedPrintInfo] copy];
+	
+	// Apply required print info settings
+	[info setHorizontalPagination:NSAutoPagination];
+	[info setVerticalPagination:NSAutoPagination];
+	
+	// Create a new entries view and enclose it in a scroll view so the header view is correctly laid out
+	// Frame size is arbitrary; it will be changed below
+	NSScrollView *printScrollView = [[NSScrollView alloc] initWithFrame:NSMakeRect(0.0f, 0.0f, 200.0f, 200.0f)];
+	[printScrollView setHasHorizontalScroller:NO];
+	[printScrollView setHasVerticalScroller:NO];
+	[printScrollView setBorderType:NSBezelBorder];
+	
+	NSCalendar *gregorianCalendar = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+	INTEntriesView *printEntriesView = [[INTEntriesView alloc] initWithFrame:NSMakeRect(0.0f, 0.0f, 500.0f, 500.0f)
+												   calendar:gregorianCalendar];
+	
+	[printScrollView setDocumentView:printEntriesView];
+	[printEntriesView release];
+	
+	[printEntriesView bind:@"entries" toObject:entriesArrayController withKeyPath:@"arrangedObjects" options:nil];
+	[printEntriesView setDataCell:[INT_entriesView dataCell]];
+	
+	// Deselect all entries for printing
+	NSIndexSet *selectionIndexes = [[printEntriesView selectionIndexes] copy];
+	[printEntriesView setSelectionIndexes:[NSIndexSet indexSet]];
+	
+	// Calculatate new size of scroll view
+	NSSize printScrollViewSize = [NSScrollView frameSizeForContentSize:[printEntriesView minimumFrameSize]
+												 hasHorizontalScroller:[printScrollView hasHorizontalScroller]
+												   hasVerticalScroller:[printScrollView hasVerticalScroller]
+															borderType:[printScrollView borderType]];
+	if ([printEntriesView respondsToSelector:@selector(headerView)])
+		printScrollViewSize.height += NSHeight([[(_INTHeaderViewResponder *)printEntriesView headerView] frame]);
+	[printScrollView setFrameSize:printScrollViewSize];
+	
+	
+	NSPrintOperation *op = [NSPrintOperation printOperationWithView:printScrollView
+														  printInfo:info];
+	[op runOperation];
+	
+	[printEntriesView setSelectionIndexes:selectionIndexes];
+	[printEntriesView unbind:@"entries"];
+	[printScrollView release];
+	
+	[info release];
 }
 
 

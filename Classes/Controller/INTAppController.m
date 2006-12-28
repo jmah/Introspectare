@@ -23,6 +23,7 @@
 
 // NSUserDefaults keys
 NSString *INTSyncAutomaticallyKey = @"INTSyncAutomatically";
+NSString *INTPrintInfoKey = @"INTPrintInfo";
 
 static INTAppController *sharedAppController = nil;
 
@@ -677,6 +678,16 @@ static INTAppController *sharedAppController = nil;
 }
 
 
+- (IBAction)printDays:(id)sender
+{
+	if ([self commitEditing])
+	{
+		[self showDays:self];
+		[INT_entriesControler print:sender];
+	}
+}
+
+
 - (IBAction)showDays:(id)sender
 {
 	if (!INT_entriesControler)
@@ -762,6 +773,13 @@ static INTAppController *sharedAppController = nil;
 	NSString *registrationDefaultsPath = [[NSBundle mainBundle] pathForResource:@"RegistrationDefaults" ofType:@"plist"];
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithContentsOfFile:registrationDefaultsPath]];
 	
+	NSData *archivedPrintInfo = [[NSUserDefaults standardUserDefaults] objectForKey:INTPrintInfoKey];
+	if (archivedPrintInfo)
+		[NSPrintInfo setSharedPrintInfo:[NSKeyedUnarchiver unarchiveObjectWithData:archivedPrintInfo]];
+	else
+		// Set orientation to landscape by defauatt
+		[[NSPrintInfo sharedPrintInfo] setOrientation:NSLandscapeOrientation];
+	
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[self introspectareBackupQuickPickDestinationPath]])
 	{
 		BOOL success = [self installIntrospetareBackupQuickPick];
@@ -843,6 +861,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationWillTerminate:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
+	[[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:[NSPrintInfo sharedPrintInfo]] forKey:INTPrintInfoKey];
 	[INT_constitutionsController close];
 	[INT_entriesControler close];
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])

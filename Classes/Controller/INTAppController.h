@@ -17,6 +17,7 @@
 
 // NSUserDefaults keys
 extern NSString *INTSyncAutomaticallyKey;
+extern NSString *INTPrintInfoKey;
 
 
 @interface INTAppController : NSObject 
@@ -73,6 +74,7 @@ extern NSString *INTSyncAutomaticallyKey;
 #pragma mark UI Actions
 - (IBAction)save:(id)sender;
 - (IBAction)revert:(id)sender;
+- (IBAction)printDays:(id)sender;
 - (IBAction)showDays:(id)sender;
 - (IBAction)showConstitutions:(id)sender;
 - (IBAction)showHideInspector:(id)sender;

@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class INTLibrary;
+@class INTEntriesView;
 
 
 @interface INTEntriesController : NSWindowController
@@ -18,6 +19,9 @@
 	IBOutlet NSView *entryInspectorView;
 	IBOutlet NSTextField *inspectorDateField;
 	IBOutlet NSScrollView *entriesScrollView;
+	
+	@private
+	INTEntriesView *INT_entriesView; // Weak reference
 }
 
 
@@ -30,5 +34,8 @@
 
 #pragma mark Managing the inspector panel
 - (NSView *)inspectorView;
+
+#pragma mark Printing
+- (void)print:(id)sender;
 
 @end
