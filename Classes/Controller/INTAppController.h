@@ -47,7 +47,6 @@ extern NSString *INTSyncAutomaticallyKey;
 	NSDate *INT_lastSyncDate;
 	NSDictionary *INT_syncObjectsByEntities;
 	BOOL INT_isUsingSyncProgress;
-	NSModalSession INT_syncProgressModalSession;
 }
 
 

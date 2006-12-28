@@ -558,23 +558,20 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 
 - (void)threadedSyncSetup // INTAppController (INTSyncServicesPrivateMethods)
 {
-	// Display progress window
-	// Prevent the dock icon from bouncing
-	BOOL ignored = [(INTApplication *)NSApp ignoresUserAttentionRequests];
-	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:YES];
-	
-	[syncProgressIndicator setIndeterminate:YES];
-	INT_syncProgressModalSession = [NSApp beginModalSessionForWindow:syncProgressPanel];
-	[syncProgressPanel makeKeyAndOrderFront:nil];
-	[NSApp runModalSession:INT_syncProgressModalSession];
-	[syncProgressIndicator startAnimation:nil];
-	
-	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:ignored];
-	
 	[NSApp setApplicationIconImage:[NSImage imageNamed:@"Syncing"]];
 	
 	INT_isSyncing = YES;
 	[[self undoManager] disableUndoRegistration];
+	
+	[syncProgressIndicator setIndeterminate:YES];
+	[syncProgressIndicator startAnimation:nil];
+	
+	// Prevent the dock icon from bouncing
+	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:YES];
+	
+	// Display progress window
+	// This blocks until the window is closed, so schedule it to run later
+	[NSApp performSelectorOnMainThread:@selector(runModalForWindow:) withObject:syncProgressPanel waitUntilDone:NO];
 }
 
 
@@ -585,8 +582,10 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	INT_isSyncing = NO;
 	
 	// Close progress window
-	[NSApp endModalSession:INT_syncProgressModalSession];
+	[NSApp abortModal];
 	[syncProgressPanel orderOut:nil];
+	
+	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:NO];
 }
 
 
