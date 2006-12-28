@@ -567,7 +567,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	[syncProgressIndicator startAnimation:nil];
 	
 	// Prevent the dock icon from bouncing
-	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:YES];
+	[NSApp setIgnoresUserAttentionRequests:YES];
 	
 	// Display progress window
 	// This blocks until the window is closed, so schedule it to run later
@@ -585,7 +585,7 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 	[NSApp abortModal];
 	[syncProgressPanel orderOut:nil];
 	
-	[(INTApplication *)NSApp setIgnoresUserAttentionRequests:NO];
+	[NSApp setIgnoresUserAttentionRequests:NO];
 }
 
 

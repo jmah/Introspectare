@@ -523,7 +523,7 @@ static INTAppController *sharedAppController = nil;
 		if (className)
 			[[INT_objectsChangedSinceLastSync objectForKey:className] addObject:object];
 		
-		[(INTApplication *)NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:30.0];
+		[NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:30.0];
 	}
 }
 
@@ -550,7 +550,7 @@ static INTAppController *sharedAppController = nil;
 			[[INT_objectIdentifiersDeletedSinceLastSync objectForKey:className] addObject:[object uuid]];
 		}
 		
-		[(INTApplication *)NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:30.0];
+		[NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:30.0];
 	}
 }
 
@@ -867,7 +867,7 @@ static INTAppController *sharedAppController = nil;
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	[(INTApplication *)NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:10.0];
+	[NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:10.0];
 }
 
 
