@@ -757,7 +757,7 @@ static INTAppController *sharedAppController = nil;
 
 #pragma mark Trickle syncing
 
-- (void)inactiveSyncTimerHit:(NSTimer *)timer
+- (void)inactiveSyncTimerHit:(NSTimer *)timer // INTAppController (INTPrivateMethods)
 {
 	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
 	if (![self isSyncing] && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
