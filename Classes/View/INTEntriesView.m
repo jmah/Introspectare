@@ -304,6 +304,15 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 
 
 
+#pragma mark Modifying the frame rectangle
+
+- (NSSize)minimumFrameSize
+{
+	return INT_minimumFrameSize;
+}
+
+
+
 #pragma mark Setting component cells
 
 - (NSCell *)principleLabelCell
@@ -1122,7 +1131,7 @@ static const float INTPrincipleLabelXPadding = 2.0f;
 {
 	BOOL wasMaxXVisible = abs(NSMaxX([self visibleRect]) - NSMaxX([self frame])) < 1.0f;
 	
-	NSSize newFrameSize = INT_minimumFrameSize;
+	NSSize newFrameSize = [self minimumFrameSize];
 	NSSize newClipViewSize = [[[self enclosingScrollView] contentView] bounds].size;
 	newFrameSize.width  = fmaxf(newClipViewSize.width , newFrameSize.width );
 	newFrameSize.height = fmaxf(newClipViewSize.height, newFrameSize.height);

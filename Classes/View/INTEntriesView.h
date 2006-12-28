@@ -73,6 +73,9 @@
 - (NSFont *)principleFont;
 - (void)setPrincipleFont:(NSFont *)principleFont;
 
+#pragma mark Modifying the frame rectangle
+- (NSSize)minimumFrameSize;
+
 #pragma mark Setting component cells
 - (NSCell *)principleLabelCell;
 - (void)setPrincipleLabelCell:(NSCell *)cell;
