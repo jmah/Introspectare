@@ -11,6 +11,7 @@
 #import "INTAppController+INTBackupQuickPick.h"
 #import "INTAppController+INTSyncServices.h"
 #import "INTShared.h"
+#import "INTApplication.h"
 #import "INTEntriesController.h"
 #import "INTConstitutionsController.h"
 #import "INTInspectorController.h"
@@ -47,7 +48,7 @@ static INTAppController *sharedAppController = nil;
 - (void)inspectorDidBecomeKey:(NSNotification *)notification;
 
 #pragma mark Trickle syncing
-- (void)inactiveSyncTimerHit:(NSTimer *)timer;
+- (void)idleSyncIntervalExpired;
 
 @end
 
@@ -522,13 +523,7 @@ static INTAppController *sharedAppController = nil;
 		if (className)
 			[[INT_objectsChangedSinceLastSync objectForKey:className] addObject:object];
 		
-		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-		if (![self isSyncing] && INT_syncSchemaRegistered)
-			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
-																	 target:self
-																   selector:@selector(inactiveSyncTimerHit:)
-																   userInfo:NULL
-																	repeats:NO];
+		[(INTApplication *)NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:30.0];
 	}
 }
 
@@ -555,13 +550,7 @@ static INTAppController *sharedAppController = nil;
 			[[INT_objectIdentifiersDeletedSinceLastSync objectForKey:className] addObject:[object uuid]];
 		}
 		
-		[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-		if (![self isSyncing] && INT_syncSchemaRegistered)
-			INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:10.0
-																	 target:self
-																   selector:@selector(inactiveSyncTimerHit:)
-																   userInfo:NULL
-																	repeats:NO];
+		[(INTApplication *)NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:30.0];
 	}
 }
 
@@ -765,10 +754,9 @@ static INTAppController *sharedAppController = nil;
 
 #pragma mark Trickle syncing
 
-- (void)inactiveSyncTimerHit:(NSTimer *)timer // INTAppController (INTPrivateMethods)
+- (void)idleSyncIntervalExpired // INTAppController (INTPrivateMethods)
 {
-	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-	if (![self isSyncing] && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+	if (INT_syncSchemaRegistered && ![self isSyncing] && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
 		[self syncWhileInactive];
 }
 
@@ -872,20 +860,14 @@ static INTAppController *sharedAppController = nil;
 	[[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:[NSPrintInfo sharedPrintInfo]] forKey:INTPrintInfoKey];
 	[INT_constitutionsController close];
 	[INT_entriesControler close];
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
+	if (INT_syncSchemaRegistered && ![self isSyncing] && [[NSUserDefaults standardUserDefaults] boolForKey:INTSyncAutomaticallyKey])
 		[self syncBeforeApplicationTerminates];
 }
 
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification // NSObject (NSApplicationDelegate)
 {
-	[INT_inactiveSyncTimer invalidate], INT_inactiveSyncTimer = nil;
-	if (![self isSyncing] && INT_syncSchemaRegistered)
-		INT_inactiveSyncTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
-																 target:self
-															   selector:@selector(inactiveSyncTimerHit:)
-															   userInfo:NULL
-																repeats:NO];
+	[(INTApplication *)NSApp performSelector:@selector(idleSyncIntervalExpired) withTarget:self afterIdleInterval:10.0];
 }
 
 
