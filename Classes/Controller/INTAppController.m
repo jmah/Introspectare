@@ -501,7 +501,15 @@ static INTAppController *sharedAppController = nil;
 	{
 		NSString *className = nil;
 		if ([object isKindOfClass:[INTEntry class]])
+		{
 			className = @"INTEntry";
+			
+			// Post change notifications for all annotated principles as well, just in case
+			NSEnumerator *annotatedPrincipleEnum = [[object annotatedPrinciples] objectEnumerator];
+			INTAnnotatedPrinciple *annotatedPrinciple;
+			while ((annotatedPrinciple = [annotatedPrincipleEnum nextObject]))
+				[self objectChanged:annotatedPrinciple];
+		}
 		else if ([object isKindOfClass:[INTConstitution class]])
 			className = @"INTConstitution";
 		else if ([object isKindOfClass:[INTPrinciple class]])
