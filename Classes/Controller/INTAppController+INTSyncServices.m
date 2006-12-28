@@ -759,6 +759,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 		if ([entityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
 		{
 			int dayOfCommonEra = [[[change record] objectForKey:@"dayOfCommonEra"] intValue];
+			if ([[self library] entryForDayOfCommonEra:dayOfCommonEra])
+				[[self library] removeEntriesObject:[[self library] entryForDayOfCommonEra:dayOfCommonEra]];
 			object = [[[INTEntry alloc] initWithDayOfCommonEra:dayOfCommonEra] autorelease];
 			[[self library] addEntriesObject:object];
 		}
