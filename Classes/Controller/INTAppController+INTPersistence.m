@@ -131,6 +131,8 @@
 				[INT_objectsChangedSinceLastSync setDictionary:[savedData objectForKey:@"objectsChangedSinceLastSync"]];
 				[INT_objectIdentifiersDeletedSinceLastSync setDictionary:[savedData objectForKey:@"objectIdentifiersDeletedSinceLastSync"]];
 				[self setValue:[savedData objectForKey:@"lastSyncDate"] forKey:@"lastSyncDate"];
+				if ([savedData objectForKey:@"uncommittedEntries"])
+					[INT_uncommittedEntries setSet:[savedData objectForKey:@"uncommittedEntries"]];
 				success = YES;
 			}
 		}
@@ -159,6 +161,7 @@
 			[self library], @"library",
 			INT_objectsChangedSinceLastSync, @"objectsChangedSinceLastSync",
 			INT_objectIdentifiersDeletedSinceLastSync, @"objectIdentifiersDeletedSinceLastSync",
+			INT_uncommittedEntries, @"uncommittedEntries",
 			INT_lastSyncDate, @"lastSyncDate",
 			nil];
 		

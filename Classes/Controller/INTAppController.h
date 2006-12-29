@@ -40,6 +40,7 @@ extern NSString *INTPrintInfoKey;
 	
 	NSMutableDictionary *INT_objectsChangedSinceLastSync;
 	NSMutableDictionary *INT_objectIdentifiersDeletedSinceLastSync;
+	NSMutableSet *INT_uncommittedEntries;
 	BOOL INT_syncSchemaRegistered;
 	
 	// INTSyncServices

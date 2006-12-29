@@ -94,6 +94,7 @@ static INTAppController *sharedAppController = nil;
 			[NSMutableSet set], @"INTPrinciple",
 			[NSMutableSet set], @"INTAnnotatedPrinciple",
 			nil];
+		INT_uncommittedEntries = [[NSMutableSet alloc] init];
 		
 		[self setShowHideInspectorMenuItemTitle:NSLocalizedString(@"INTShowInspectorMenuTitle", @"Show Inspector menu item")];
 		
@@ -119,6 +120,7 @@ static INTAppController *sharedAppController = nil;
 	[INT_lastSyncDate release], INT_lastSyncDate = nil;
 	[INT_objectsChangedSinceLastSync release], INT_objectsChangedSinceLastSync = nil;
 	[INT_objectIdentifiersDeletedSinceLastSync release], INT_objectIdentifiersDeletedSinceLastSync = nil;
+	[INT_uncommittedEntries release], INT_uncommittedEntries = nil;
 	
 	[super dealloc];
 }
@@ -258,8 +260,8 @@ static INTAppController *sharedAppController = nil;
 				[oldEntry removeObserver:self forKeyPath:@"note"];
 				[oldEntry removeObserver:self forKeyPath:@"unread"];
 				[oldEntry removeObserver:self forKeyPath:@"annotatedPrinciples"];
-				[self objectDeleted:oldEntry];
 				
+				// Delete the annotated principles first, so that the entry remains in the uncommitted entries set (if it was) and the uncommitted annotated principles deletions aren't recorded
 				NSEnumerator *annotatedPrinciples = [[oldEntry annotatedPrinciples] objectEnumerator];
 				INTAnnotatedPrinciple *annotatedPrinciple;
 				while ((annotatedPrinciple = [annotatedPrinciples nextObject]))
@@ -267,6 +269,7 @@ static INTAppController *sharedAppController = nil;
 					[annotatedPrinciple removeObserver:self forKeyPath:@"upheld"];
 					[self objectDeleted:annotatedPrinciple];
 				}
+				[self objectDeleted:oldEntry];
 			}
 			
 			NSEnumerator *newEntries = [newValue objectEnumerator];
@@ -504,19 +507,39 @@ static INTAppController *sharedAppController = nil;
 		if ([object isKindOfClass:[INTEntry class]])
 		{
 			className = @"INTEntry";
-			
-			// Post change notifications for all annotated principles as well, just in case
-			NSEnumerator *annotatedPrincipleEnum = [[object annotatedPrinciples] objectEnumerator];
-			INTAnnotatedPrinciple *annotatedPrinciple;
-			while ((annotatedPrinciple = [annotatedPrincipleEnum nextObject]))
-				[self objectChanged:annotatedPrinciple];
+			if ([INT_uncommittedEntries containsObject:object])
+			{
+				// Post change notifications for all annotated principles as well, since they have not yet been added
+				[INT_uncommittedEntries removeObject:object];
+				NSEnumerator *annotatedPrincipleEnum = [[object annotatedPrinciples] objectEnumerator];
+				INTAnnotatedPrinciple *annotatedPrinciple;
+				while ((annotatedPrinciple = [annotatedPrincipleEnum nextObject]))
+				{
+					[self objectChanged:annotatedPrinciple];
+					[self objectChanged:[annotatedPrinciple principle]];
+				}
+			}
 		}
 		else if ([object isKindOfClass:[INTConstitution class]])
 			className = @"INTConstitution";
 		else if ([object isKindOfClass:[INTPrinciple class]])
 			className = @"INTPrinciple";
 		else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+		{
 			className = @"INTAnnotatedPrinciple";
+			
+			// If this annotated principle is a member of an uncommitted entry, commit the entry
+			NSEnumerator *uncommittedEntriesEnum = [INT_uncommittedEntries objectEnumerator];
+			INTEntry *entry;
+			while ((entry = [uncommittedEntriesEnum nextObject]))
+			{
+				if ([[entry annotatedPrinciples] containsObject:object])
+				{
+					[self objectChanged:entry];
+					break;
+				}
+			}
+		}
 		else
 			NSLog(@"-[INTAppController objectChanged:] Unknown class: %@", className);
 		
@@ -534,13 +557,35 @@ static INTAppController *sharedAppController = nil;
 	{
 		NSString *className = nil;
 		if ([object isKindOfClass:[INTEntry class]])
+		{
 			className = @"INTEntry";
+			if ([INT_uncommittedEntries containsObject:object])
+			{
+				// If this entry hasn't been committed to the sync store, don't try to remove it from the truth
+				[INT_uncommittedEntries removeObject:object];
+				className = nil;
+			}
+		}
 		else if ([object isKindOfClass:[INTConstitution class]])
 			className = @"INTConstitution";
 		else if ([object isKindOfClass:[INTPrinciple class]])
 			className = @"INTPrinciple";
 		else if ([object isKindOfClass:[INTAnnotatedPrinciple class]])
+		{
 			className = @"INTAnnotatedPrinciple";
+			
+			// If this annotated principle is a member of an uncommitted entry, don't try to remove it from the truth
+			NSEnumerator *uncommittedEntriesEnum = [INT_uncommittedEntries objectEnumerator];
+			INTEntry *entry;
+			while ((entry = [uncommittedEntriesEnum nextObject]))
+			{
+				if ([[entry annotatedPrinciples] containsObject:object])
+				{
+					className = nil;
+					break;
+				}
+			}
+		}
 		else
 			NSLog(@"-[INTAppController objectDeleted:] Unknown class: %@", className);
 		
@@ -575,7 +620,13 @@ static INTAppController *sharedAppController = nil;
 		for (int currDay = oldestConstitutionDayOfCommonEra + 1;
 			 currDay <= todayDayOfCommonEra;
 			 currDay++)
-			[[self library] addEntryForDayOfCommonEra:currDay];
+		{
+			if (![[self library] entryForDayOfCommonEra:currDay])
+			{
+				INTEntry *entry = [[self library] addEntryForDayOfCommonEra:currDay];
+				[INT_uncommittedEntries addObject:entry];
+			}
+		}
 		
 		[[self undoManager] enableUndoRegistration];
 	}

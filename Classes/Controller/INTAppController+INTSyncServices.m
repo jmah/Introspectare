@@ -335,8 +335,12 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 				if ([session shouldPushChangesForEntityName:preflightEntityName])
 				{
 					if ([session shouldPushAllRecordsForEntityName:preflightEntityName])
+					{
 						// Slow sync
 						pushedRecordCount += [[self objectsForEntityName:preflightEntityName] count];
+						if ([preflightEntityName isEqualToString:@"org.playhaus.Introspectare.Entry"])
+							pushedRecordCount -= [INT_uncommittedEntries count];
+					}
 					else
 					{
 						// Fast sync
@@ -368,6 +372,8 @@ static NSDictionary *INTEntityNameToClassNameMapping = nil;
 					id localObject;
 					while ((localObject = [localObjects nextObject]))
 					{
+						if ([INT_uncommittedEntries containsObject:localObject])
+							continue;
 						NSDictionary *record = [self recordForObject:localObject entityName:entityName];
 						[session pushChangesFromRecord:record withIdentifier:[localObject uuid]];
 						if (INT_isUsingSyncProgress)
