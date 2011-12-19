@@ -102,6 +102,25 @@ static NSString *INTPrincipleIndexSetDataType = @"INTPrincipleIndexSetDataType";
 
 
 
+#pragma mark UI actions
+
+- (IBAction)addConstitution:(id)sender
+{
+	[constitutionsArrayController add:sender];
+	[[self window] makeFirstResponder:constitutionsTableView];
+	[[INTAppController sharedAppController] showInspector:self];
+}
+
+
+- (IBAction)addPrinciple:(id)sender
+{
+	[principlesArrayController add:sender];
+	[[self window] makeFirstResponder:principlesTableView];
+	[[INTAppController sharedAppController] showInspector:self];
+}
+
+
+
 #pragma mark Managing the inspector panel
 
 - (NSView *)inspectorView

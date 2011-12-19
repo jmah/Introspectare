@@ -37,6 +37,10 @@
 - (BOOL)commitEditing;
 - (void)discardEditing;
 
+#pragma mark UI actions
+- (IBAction)addConstitution:(id)sender;
+- (IBAction)addPrinciple:(id)sender;
+
 #pragma mark Managing the inspector panel
 - (NSView *)inspectorView;
 

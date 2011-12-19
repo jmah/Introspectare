@@ -111,6 +111,13 @@
 
 - (void)print:(id)sender
 {
+	/*
+	 * This implementation is currently a little too naive. As each page is
+	 * "scrolled" across, the width of the constitution label is not taken
+	 * into account, so the left bit of each page is covered up by that label.
+	 */
+	
+	
 	NSPrintInfo *info = [[NSPrintInfo sharedPrintInfo] copy];
 	
 	// Apply required print info settings

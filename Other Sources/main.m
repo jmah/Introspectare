@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
 #ifndef _RELEASE_
 	NSDebugEnabled = YES;
-	NSZombieEnabled = NO;
+	NSZombieEnabled = YES;
 	NSDeallocateZombies = NO;
 	NSHangOnUncaughtException = NO;
 #endif
